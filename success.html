@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peman Reyisi — DJ Innovations</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .success-container {
+            text-align: center;
+            padding: 100px 20px;
+        }
+        .success-icon {
+            font-size: 80px;
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+        .order-summary {
+            max-width: 500px;
+            margin: 40px auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <img src="assets/logo.png" alt="DJ Innovations Logo" id="main-logo">
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="success-container">
+            <div class="success-icon">✓</div>
+            <h1>Peman an Reyisi!</h1>
+            <p class="subtitle" id="main-success-message">Mèsi pou konfyans ou. Peman ou byen pase.</p>
+
+            <div class="order-summary">
+                <h3 style="margin-bottom: 20px;">Detay kòmand ou an:</h3>
+                <p><strong>Sèvis:</strong> <span id="service-name">-</span></p>
+                <p><strong>Freelancer:</strong> <span id="freelancer-name">DJ Innovations</span></p>
+                <p><strong>Estati:</strong> <span style="color: var(--success)">Konfime</span></p>
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border-color);">
+                <p id="contact-notice">Freelancer w lan ap kontakte w nan <strong>24 a 48 èdtan</strong>.</p>
+            </div>
+
+            <a href="index.html" class="btn primary">Retounen nan Paj Akèy</a>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 DJ Innovations. Tout dwa rezève.</p>
+    </footer>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const sessionId = params.get('session_id');
+            
+            if (sessionId) {
+                const { data: res, error } = await supabase
+                    .from('reservations')
+                    .select('*, services(*), freelancers(*)')
+                    .eq('stripe_session_id', sessionId)
+                    .single();
+                
+                if (res) {
+                    document.getElementById('service-name').innerText = res.services.nom;
+                    const fName = res.freelancers ? res.freelancers.nom : 'DJ Innovations';
+                    document.getElementById('freelancer-name').innerText = fName;
+                    document.getElementById('main-success-message').innerText = `Mèsi ${res.prenom || ''}! Peman ou pou ${res.services.nom} an byen pase.`;
+                    document.getElementById('contact-notice').innerHTML = `Freelancer ou an (<strong>${fName}</strong>) ap kontakte w nan <strong>24 a 48 èdtan</strong>.`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

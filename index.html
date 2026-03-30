@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ht">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portal sèvis ak peman DJ Innovations. Devni yon ekspè digital ak coaching pèsonèl.">
+    <title>DJ Innovations — Transfòme Biznis ou</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <!-- Ambient particles -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <header id="site-header">
+        <div class="container">
+            <nav>
+                <div class="logo-wrap">
+                    <img src="assets/logo.png" alt="DJ Innovations Logo" id="main-logo" onerror="this.src='https://placehold.co/150x50/0a0a0a/BA7517?text=DJ+Innovations'">
+                </div>
+                <div class="nav-links">
+                    <a href="#hero-section" class="nav-link">Akey</a>
+                    <a href="#avant-propos" class="nav-link">À Propos</a>
+                    <a href="#services-section" class="nav-link">Sèvis</a>
+                    <a href="#services-section" class="btn gold btn-sm">Kòmanse →</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="hero-section">
+        <div class="hero-noise"></div>
+        <div class="container hero-grid">
+            <div class="hero-content" data-animate="fade-up">
+                <span class="badge" id="hero-badge">
+                    <span class="badge-dot"></span> 🔥 Premium Coaching Digitale
+                </span>
+                <h1 id="hero-title">Transfòme lide w an<br><span class="gradient-text">Siksè Dijital</span></h1>
+                <p id="hero-description">Jwenn aksè ak yon ekspè ki pral travay avèk ou pandan <strong>6 èdtan pa semèn pou tout 1 mwa</strong>. Tout sa ou bezwen pou TikTok, Facebook Ads ak coaching pèsonèl.</p>
+                <div class="hero-actions">
+                    <a href="#services-section" class="btn primary gold btn-lg">
+                        <span>Kòmanse Kounye a</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                    <a href="#avant-propos" class="btn secondary">
+                        <span>Konnen Ekspè a</span>
+                    </a>
+                </div>
+                <div class="hero-social-proof">
+                    <div class="proof-avatars">
+                        <div class="avatar-stack">
+                            <div class="avatar-dot" style="background:#c0803a"></div>
+                            <div class="avatar-dot" style="background:#8E5E14"></div>
+                            <div class="avatar-dot" style="background:#FFD700"></div>
+                        </div>
+                        <span>+50 kliyan satisfè</span>
+                    </div>
+                    <div class="proof-divider">|</div>
+                    <div class="proof-stat">⭐ 4.9/5 Rating</div>
+                </div>
+            </div>
+            <div class="hero-visual" data-animate="fade-left">
+                <div class="video-preview-box">
+                    <img id="hero-image" src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Work together">
+                    <div class="play-indicator">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                            <polygon points="5,3 19,12 5,21" />
+                        </svg>
+                    </div>
+                    <div class="video-overlay-tag">
+                        <span class="live-dot"></span> Disponib Kounye a
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AVANT-PROPOS SECTION -->
+    <section class="avant-propos" id="avant-propos">
+        <div class="container">
+            <div class="avant-propos-grid">
+                <div class="ap-photo-col" data-animate="fade-right">
+                    <div class="ap-photo-frame">
+                        <img id="ap-photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="DJ Innovations - Ekspè Digital" class="ap-photo">
+                        <div class="ap-photo-badge"><span>✦</span> Ekspè Sètifye</div>
+                    </div>
+                </div>
+                <div class="ap-content-col" data-animate="fade-up">
+                    <span class="section-eyebrow">✦ Avant-Propos</span>
+                    <h2 id="ap-title">Kisa <span class="gradient-text">DJ Innovations</span> ye?</h2>
+                    <div class="ap-text-body" id="ap-description">
+                        <p>Bonjou! Mwen se <strong>[Non Ou]</strong>, fondatè DJ Innovations. Misyon mwen se senp: pran lide ou epi transfòme l an <strong>rezilta reyèl</strong>.</p>
+                    </div>
+                    <div class="ap-tags">
+                        <span class="ap-tag">📱 TikTok Expert</span>
+                        <span class="ap-tag">📣 Facebook Ads</span>
+                        <span class="ap-tag">🎯 Growth Hacking</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FUNNEL -->
+    <main class="container funnel-container">
+        <div class="progress-bar" id="stepper">
+            <div class="step active" data-step="1">1. Chwazi Sèvis</div>
+            <div class="step" data-step="2">2. Planifye Orè</div>
+            <div class="step" data-step="3">3. Kowòdone w</div>
+            <div class="step" data-step="4">4. Peman</div>
+        </div>
+
+        <section id="step-1" class="step-section active">
+            <div class="section-header" id="services-section">
+                <span class="section-eyebrow">✦ Étap 1</span>
+                <h2>Chwazi Sèvis ou bezwen yo</h2>
+                <p>Klike sou yon sèvis pou w wè tout detay konplet yo.</p>
+            </div>
+            <div id="services-grid" class="grid-funnel">
+                <div class="loader">L ap chaje sèvis yo...</div>
+            </div>
+            <div class="selection-box" id="selection-box">
+                <div class="selection-inner">
+                    <p><span id="count-selected">0</span> Sèvis chwazi</p>
+                    <div class="total-bar">
+                        Total: <strong id="subtotal-display">0$</strong>
+                        <button id="to-step-2" class="btn gold" disabled>Kontinye →</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Scheduling, Information and Payment sections are handled by app.js -->
+        <section id="step-2" class="step-section">
+            <button class="back-link" data-to="1">← Tounen</button>
+            <div id="week-selector" class="week-tabs"></div>
+            <div id="time-slots-grid" class="slots-container"></div>
+            <div class="actions-centered">
+                <button id="to-step-3" class="btn primary gold" disabled>Vay pou Kowòdone w</button>
+            </div>
+        </section>
+
+        <section id="step-3" class="step-section">
+             <button class="back-link" data-to="2">← Tounen</button>
+             <div class="order-summary-box" id="selection-summary"></div>
+             <form id="contact-form" class="premium-form">
+                <div class="form-grid">
+                    <div class="form-group"><label>Premon *</label><input type="text" id="prenom" required placeholder="Antre premon ou"></div>
+                    <div class="form-group"><label>Non *</label><input type="text" id="non" required placeholder="Antre non ou"></div>
+                    <div class="form-group"><label>Imèl *</label><input type="email" id="email" required placeholder="eg: non@gmail.com"></div>
+                    <div class="form-group"><label>Telefòn *</label><input type="tel" id="telephone" required placeholder="+509 ..."></div>
+                </div>
+                <div class="form-group full-width"><label>Mesaj</label><textarea id="message" rows="3"></textarea></div>
+                <div class="actions-centered"><button type="submit" class="btn primary gold btn-lg">Finalize Peman</button></div>
+             </form>
+        </section>
+
+        <section id="step-4" class="step-section">
+            <button class="back-link" data-to="3">← Tounen</button>
+            <div class="payment-selector">
+                <div class="pay-card active" data-mode="full"><h3>Peman Total (100%)</h3></div>
+                <div class="pay-card" data-mode="depot"><h3>Avans (50%)</h3></div>
+            </div>
+            <div class="invoice-box">
+                <div class="invoice-line total"><span>Total:</span> <strong id="final-amount">$0</strong></div>
+            </div>
+            <div class="actions-centered">
+                <button id="pay-button" class="btn primary gold btn-lg wide">Konfime epi Peye Sekirize</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Premium -->
+    <div id="service-modal" class="modal-premium">
+        <div class="modal-premium-content">
+            <button class="close-btn">&times;</button>
+            <div id="modal-service-details">
+                <div class="loader">L ap chaje enfòmasyon...</div>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-select-btn" class="btn-modal-action">Chwazi Sèvis sa a ($105)</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <img src="assets/logo.png" alt="Logo" class="footer-logo">
+                <p id="footer-slogan">Nou la pou n fè piblisite ak coaching ou devni yon siksè.</p>
+            </div>
+            
+            <div class="footer-socials">
+                <a href="#" id="facebook-link" target="_blank" class="social-icon">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
+                </a>
+                <a href="#" id="instagram-link" target="_blank" class="social-icon">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.981 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                </a>
+                <a href="#" id="tiktok-link" target="_blank" class="social-icon">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.06-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.98-.23-2.81.33-.85.51-1.44 1.43-1.58 2.41-.14 1.01.23 2.08.94 2.81.65.68 1.57 1.08 2.51 1.03 1.6-.09 3.06-1.31 3.39-2.87.1-.61.06-1.22.06-1.84V.02z"/></svg>
+                </a>
+            </div>
+        </div>
+        <div class="bottom-footer"><p>&copy; 2026 DJ Innovations. 🔥</p></div>
+    </footer>
+
+    <script src="js/supabase.js"></script>
+    <script src="js/stripe.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(el => {
+                if (el.isIntersecting) {
+                    el.target.classList.add('visible');
+                    observer.unobserve(el.target);
+                }
+            });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="ht">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ Innovations — Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap"
+        rel="stylesheet">
+
+    <!-- Supabase: librairie DABÒ, apre a sèlman js/supabase.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Garanti: 'supabase' global disponib anvan supabase.js chaje
+        // cdn.jsdelivr.net ekspòze window.supabase = { createClient, ... }
+        // Nou jis konfime li egziste
+        if (typeof supabase === 'undefined') {
+            console.error('Supabase CDN pa chaje kòrèkteman!');
+        }
+    </script>
+    <script src="../js/supabase.js"></script>
+
+    <style>
+        /* ─── VARIABLES ─── */
+        :root {
+            --primary: #BA7517;
+            --primary-dark: #8E5E14;
+            --accent: #FFD700;
+            --bg: #080808;
+            --surface: #101010;
+            --surface-2: #161616;
+            --surface-3: #1c1c1c;
+            --border: #1e1e1e;
+            --border-gold: rgba(186, 117, 23, 0.22);
+            --text: #f0f0f0;
+            --text-2: #888;
+            --text-3: #444;
+            --gold-glow: rgba(186, 117, 23, 0.3);
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --r-sm: 8px;
+            --r-md: 12px;
+            --r-lg: 18px;
+            --r-xl: 26px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'DM Serif Display', serif;
+            font-weight: 400;
+            line-height: 1.2;
+        }
+
+        /* ─── AMBIENT ─── */
+        .ambient {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(130px);
+            opacity: 0.08;
+            animation: orbDrift 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #BA7517, transparent);
+            top: -150px;
+            right: -100px;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #FFD700, transparent);
+            bottom: 10%;
+            left: -80px;
+            animation-delay: -8s;
+        }
+
+        @keyframes orbDrift {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(20px, -30px);
+            }
+        }
+
+        /* ─── LOGIN PAGE ─── */
+        #auth-view {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-xl);
+            padding: 52px 44px;
+            position: relative;
+            overflow: hidden;
+            animation: loginReveal 0.6s ease forwards;
+        }
+
+        @keyframes loginReveal {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .login-logo img {
+            height: 38px;
+            margin: 0 auto 14px;
+        }
+
+        .login-title {
+            font-size: 1.9rem;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .login-sub {
+            text-align: center;
+            color: var(--text-2);
+            font-size: 0.9rem;
+            margin-bottom: 36px;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-2);
+            margin-bottom: 8px;
+        }
+
+        .field input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 14px 16px;
+            border-radius: var(--r-sm);
+            color: var(--text);
+            font-size: 0.98rem;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(186, 117, 23, 0.12);
+        }
+
+        .field input::placeholder {
+            color: var(--text-3);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 13px 26px;
+            border-radius: var(--r-sm);
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 1px solid transparent;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--primary) 0%, #d4881e 50%, var(--primary-dark) 100%);
+            background-size: 200% auto;
+            color: white;
+            box-shadow: 0 4px 20px rgba(186, 117, 23, 0.25), 0 1px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-gold:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(186, 117, 23, 0.4);
+        }
+
+        .btn-gold:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--text-2);
+        }
+
+        .btn-ghost:hover {
+            border-color: #333;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-sm {
+            padding: 9px 18px;
+            font-size: 0.85rem;
+        }
+
+        .btn-wide {
+            width: 100%;
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: var(--danger);
+            padding: 12px 16px;
+            border-radius: var(--r-sm);
+            font-size: 0.88rem;
+            margin-bottom: 18px;
+            display: none;
+        }
+
+        /* ─── DASHBOARD LAYOUT ─── */
+        #admin-view {
+            display: none;
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+        }
+
+        .dash-header {
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            background: rgba(8, 8, 8, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dash-logo img {
+            height: 32px;
+        }
+
+        .dash-header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 7px 16px 7px 10px;
+            font-size: 0.85rem;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Sidebar + Main */
+        .dash-body {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: calc(100vh - 64px);
+        }
+
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 28px 16px;
+            position: sticky;
+            top: 64px;
+            height: calc(100vh - 64px);
+            overflow-y: auto;
+        }
+
+        .sidebar-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            margin: 24px 0 10px 12px;
+        }
+
+        .sidebar-label:first-child {
+            margin-top: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: var(--r-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-2);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: 'DM Sans', sans-serif;
+            margin-bottom: 2px;
+        }
+
+        .nav-item:hover {
+            color: var(--text);
+            background: var(--surface-2);
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+            background: rgba(186, 117, 23, 0.08);
+            border-color: var(--border-gold);
+        }
+
+        .nav-item .nav-icon {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ─── MAIN CONTENT ─── */
+        .dash-main {
+            padding: 36px 40px;
+            overflow-y: auto;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 26px 24px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-gold);
+        }
+
+        .stat-card:hover::after {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 14px;
+            width: 46px;
+            height: 46px;
+            background: rgba(186, 117, 23, 0.08);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--r-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            color: var(--accent);
+            font-family: 'DM Serif Display', serif;
+        }
+
+        .stat-sub {
+            font-size: 0.78rem;
+            color: var(--text-3);
+            margin-top: 4px;
+        }
+
+        /* Tab Panes */
+        .tab-pane {
+            display: none;
+            animation: fadePane 0.3s ease;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadePane {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pane-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pane-header h2 {
+            font-size: 1.8rem;
+        }
+
+        .pane-header p {
+            color: var(--text-2);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        /* Reservation Cards */
+        .rez-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .rez-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--primary);
+            border-radius: var(--r-md);
+            padding: 24px 28px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: start;
+            transition: border-color 0.25s;
+        }
+
+        .rez-card:hover {
+            border-color: var(--border-gold);
+            border-left-color: var(--accent);
+        }
+
+        .rez-name {
+            font-size: 1.1rem;
+            font-family: 'DM Serif Display', serif;
+            margin-bottom: 8px;
+        }
+
+        .rez-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .rez-meta span {
+            font-size: 0.82rem;
+            color: var(--text-2);
+        }
+
+        .rez-meta strong {
+            color: var(--text);
+        }
+
+        .rez-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            color: var(--success);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-3);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        /* Service Management */
+        .svc-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .svc-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 28px;
+            transition: border-color 0.25s;
+        }
+
+        .svc-card:hover {
+            border-color: var(--border-gold);
+        }
+
+        .svc-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .svc-card-title {
+            font-size: 1.2rem;
+            font-family: 'DM Serif Display', serif;
+        }
+
+        .svc-price {
+            font-size: 1.4rem;
+            color: var(--primary);
+            font-family: 'DM Serif Display', serif;
+        }
+
+        /* Form Inputs (Dashboard) */
+        .dash-input,
+        .dash-textarea,
+        .dash-select {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            border-radius: var(--r-sm);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            resize: vertical;
+        }
+
+        .dash-input:focus,
+        .dash-textarea:focus,
+        .dash-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(186, 117, 23, 0.1);
+        }
+
+        .dash-input::placeholder,
+        .dash-textarea::placeholder {
+            color: var(--text-3);
+        }
+
+        .dash-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-2);
+            margin-bottom: 7px;
+        }
+
+        .field-group {
+            margin-bottom: 18px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        /* Landing Config */
+        .config-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+
+        .config-section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 22px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .save-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 50px;
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: var(--success);
+            transition: all 0.3s;
+        }
+
+        .save-indicator.saving {
+            background: rgba(245, 158, 11, 0.08);
+            border-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .save-indicator.error {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        /* Security Tab */
+        .security-card {
+            max-width: 480px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 32px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--r-md);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.35s ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 3px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 3px solid var(--danger);
+        }
+
+        .toast.info {
+            border-left: 3px solid var(--primary);
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: var(--text-2);
+            font-size: 0.9rem;
+        }
+
+        /* Discount Banner */
+        .discount-row {
+            background: rgba(186, 117, 23, 0.06);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--r-md);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .discount-info h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .discount-info p {
+            font-size: 0.85rem;
+            color: var(--text-2);
+        }
+
+        .discount-input-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .discount-input-row input {
+            width: 80px;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dash-body {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 16px;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .sidebar-label {
+                display: none;
+            }
+
+            .dash-main {
+                padding: 24px 20px;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Ambient -->
+    <div class="ambient">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <p class="loading-text">Verifikasyon seyans ou...</p>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ════════════════════════════════ -->
+    <!--          LOGIN VIEW             -->
+    <!-- ════════════════════════════════ -->
+    <div id="auth-view" style="display:none">
+        <div class="login-card">
+            <div class="login-logo">
+                <img src="../assets/logo.png" alt="DJ Innovations" onerror="this.style.display='none'">
+                <div style="font-family:'DM Serif Display',serif; font-size:1.4rem; color:var(--primary)">DJ Innovations
+                </div>
+            </div>
+            <h1 class="login-title">Aksè Prive</h1>
+            <p class="login-sub">Konekte pou jere biznis ou a</p>
+
+            <div class="error-msg" id="login-error"></div>
+
+            <div class="field">
+                <label>Imèl</label>
+                <input type="email" id="admin-email" placeholder="ou@gmail.com" autocomplete="email">
+            </div>
+            <div class="field">
+                <label>Mot de passe</label>
+                <input type="password" id="admin-password" placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <button class="btn btn-gold btn-wide" id="login-btn" onclick="loginAdmin()" style="margin-top:8px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
+                </svg>
+                Konekte kounye a
+            </button>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════ -->
+    <!--         DASHBOARD VIEW          -->
+    <!-- ════════════════════════════════ -->
+    <div id="admin-view">
+
+        <!-- Header -->
+        <header class="dash-header">
+            <div class="dash-logo">
+                <img src="../assets/logo.png" alt="DJ Innovations" onerror="this.style.display='none'">
+            </div>
+            <div class="dash-header-right">
+                <div class="user-pill">
+                    <div class="user-avatar" id="user-initial">?</div>
+                    <span id="user-name-display">Admin</span>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="logoutAdmin()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+                    </svg>
+                    Dekonekte
+                </button>
+            </div>
+        </header>
+
+        <div class="dash-body">
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-nav" id="sidebar-nav">
+                    <p class="sidebar-label">Jesyon</p>
+                    <button class="nav-item active" onclick="showTab('rez', this)" data-tab="rez">
+                        <span class="nav-icon">📋</span> Rezèvasyon
+                    </button>
+                    <button class="nav-item" onclick="showTab('agenda', this)" data-tab="agenda">
+                        <span class="nav-icon">📅</span> Agenda (Orè)
+                    </button>
+                    <button class="nav-item" onclick="showTab('svc', this)" data-tab="svc">
+                        <span class="nav-icon">💼</span> Sèvis yo
+                    </button>
+
+                    <p class="sidebar-label">Konteni</p>
+                    <button class="nav-item" onclick="showTab('landing', this)" data-tab="landing">
+                        <span class="nav-icon">✏️</span> Landing Page
+                    </button>
+
+                    <p class="sidebar-label">Kont</p>
+                    <button class="nav-item" onclick="showTab('sec', this)" data-tab="sec">
+                        <span class="nav-icon">🔒</span> Sekirite
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main -->
+            <main class="dash-main">
+
+                <!-- Stats -->
+                <div class="stats-row" id="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <p class="stat-label">Chif d'Afè (Payé)</p>
+                        <div class="stat-value" id="stat-revenue">$0</div>
+                        <p class="stat-sub">Total kolekte</p>
+                    </div>
+                    <div class="stat-card" style="cursor: pointer; transition: 0.2s;" onclick="showTab('rez', document.querySelector('[data-tab=rez]'))" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                        <div class="stat-icon">📦</div>
+                        <p class="stat-label">Rezèvasyon Total</p>
+                        <div class="stat-value" id="stat-total">0</div>
+                        <p class="stat-sub" style="color:var(--primary)">Klike pou wè lis la</p>
+                    </div>
+                    <div class="stat-card" style="cursor: pointer; transition: 0.2s;" onclick="showTab('rez', document.querySelector('[data-tab=rez]'))" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                        <div class="stat-icon">✅</div>
+                        <p class="stat-label">Rezèvasyon Konfime</p>
+                        <div class="stat-value" id="stat-paid">0</div>
+                        <p class="stat-sub" style="color:var(--primary)">Klike pou wè lis la</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💼</div>
+                        <p class="stat-label">Sèvis Aktif</p>
+                        <div class="stat-value" id="stat-svcs">0</div>
+                        <p class="stat-sub">Nan katalòg la</p>
+                    </div>
+                </div>
+
+                <!-- Tab: Reservations -->
+                <div class="tab-pane active" id="tab-rez">
+                    <div class="pane-header">
+                        <div>
+                            <h2>Rezèvasyon</h2>
+                            <p>Tout kliyan ki peye pou sèvis yo</p>
+                        </div>
+                    </div>
+                    <div class="rez-grid" id="rez-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <p>L ap chaje done yo...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Agenda -->
+                <div class="tab-pane" id="tab-agenda">
+                    <div class="pane-header">
+                        <div>
+                            <h2>Agenda Ou (Kliyan Peye)</h2>
+                            <p>Gade ki lè jounen w okipe ak ki kliyan</p>
+                        </div>
+                    </div>
+                    <div id="agenda-calendar">
+                        <div class="empty-state">
+                            <div class="empty-icon">📅</div>
+                            <p>L ap chaje kalandriye a...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Services -->
+                <div class="tab-pane" id="tab-svc">
+                    <div class="pane-header">
+                        <div>
+                            <h2>Jere Sèvis yo</h2>
+                            <p>Modifye deskripsyon ak prise sèvis yo</p>
+                        </div>
+                    </div>
+
+                    <!-- Discount Banner -->
+                    <div class="discount-row">
+                        <div class="discount-info">
+                            <h4>🎁 Rabais Global</h4>
+                            <p>Pousantaj rediksyon pou kliyan ki chwazi plizyè sèvis</p>
+                        </div>
+                        <div class="discount-input-row">
+                            <input type="number" id="discount-global" class="dash-input" min="0" max="100"
+                                placeholder="0" style="width:80px; text-align:center;">
+                            <span style="color:var(--text-2)">%</span>
+                            <button class="btn btn-gold btn-sm" onclick="saveDiscount()">Anrejistre</button>
+                        </div>
+                    </div>
+
+                    <div class="svc-grid" id="svc-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">💼</div>
+                            <p>L ap chaje sèvis yo...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Landing Config -->
+                <div class="tab-pane" id="tab-landing">
+                    <div class="pane-header">
+                        <div>
+                            <h2>Edite Landing Page</h2>
+                            <p>Chanjman yo anrejistre otomatikman</p>
+                        </div>
+                        <div class="save-indicator" id="save-status">
+                            <span>●</span> Tout sekirize
+                        </div>
+                    </div>
+
+                    <!-- Hero -->
+                    <div class="config-section">
+                        <div class="config-section-title">
+                            <span>🦸</span> Hero Section
+                        </div>
+                        <div class="grid-2">
+                            <div class="field-group">
+                                <label class="dash-label">Badge</label>
+                                <input type="text" class="dash-input" id="edit-hero-badge" data-field="hero_badge"
+                                    oninput="autoSave(this)" placeholder="🔥 Premium Coaching Digitale">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Hero Image URL</label>
+                                <input type="text" class="dash-input" id="edit-hero-img" data-field="hero_image_url"
+                                    oninput="autoSave(this)" placeholder="https://...">
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Tit Hero (HTML accepté)</label>
+                            <input type="text" class="dash-input" id="edit-hero-title" data-field="hero_title"
+                                oninput="autoSave(this)">
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Deskripsyon Hero</label>
+                            <textarea class="dash-textarea" id="edit-hero-desc" data-field="hero_description"
+                                oninput="autoSave(this)" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Avant-Propos -->
+                    <div class="config-section">
+                        <div class="config-section-title">
+                            <span>👤</span> Avant-Propos (À Propos)
+                        </div>
+                        <div class="grid-2">
+                            <div class="field-group">
+                                <label class="dash-label">Tit Section</label>
+                                <input type="text" class="dash-input" id="edit-ap-title" data-field="ap_title"
+                                    oninput="autoSave(this)">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Photo URL</label>
+                                <input type="text" class="dash-input" id="edit-ap-photo" data-field="ap_photo_url"
+                                    oninput="autoSave(this)" placeholder="https://...">
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Deskripsyon (HTML accepté)</label>
+                            <textarea class="dash-textarea" id="edit-ap-desc" data-field="ap_description"
+                                oninput="autoSave(this)" rows="5" placeholder="<p>Bonjou! Mwen se...</p>"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Footer & Sosyal -->
+                    <div class="config-section">
+                        <div class="config-section-title">
+                            <span>📱</span> Footer & Sosyal
+                        </div>
+                        <div class="grid-3">
+                            <div class="field-group">
+                                <label class="dash-label">TikTok URL</label>
+                                <input type="text" class="dash-input" id="edit-tiktok" data-field="tiktok_url"
+                                    oninput="autoSave(this)" placeholder="https://tiktok.com/@...">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Facebook URL</label>
+                                <input type="text" class="dash-input" id="edit-facebook" data-field="facebook_url"
+                                    oninput="autoSave(this)" placeholder="https://facebook.com/...">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Instagram URL</label>
+                                <input type="text" class="dash-input" id="edit-instagram" data-field="instagram_url"
+                                    oninput="autoSave(this)" placeholder="https://instagram.com/...">
+                            </div>
+                        </div>
+                        <div class="field-group" style="margin-top:16px;">
+                            <label class="dash-label">Slogan Footer</label>
+                            <input type="text" class="dash-input" id="edit-footer-slogan" data-field="footer_slogan"
+                                oninput="autoSave(this)">
+                        </div>
+                        <div style="margin-top: 24px; text-align: right;">
+                            <button class="btn btn-gold" onclick="forceSaveLanding(this)">Anrejistre Tout Chanjman (Landing & Footer)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Security -->
+                <div class="tab-pane" id="tab-sec">
+                    <div class="pane-header">
+                        <div>
+                            <h2>Sekirite</h2>
+                            <p>Jere aksè kont ou a</p>
+                        </div>
+                    </div>
+                    <div class="security-card">
+                        <h3 style="margin-bottom:24px">Chanje Mot de passe</h3>
+                        <div class="field-group">
+                            <label class="dash-label">Nouvo Mot de passe</label>
+                            <input type="password" id="new-password" class="dash-input" placeholder="Minimòm 6 karaktè">
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Konfime Mot de passe</label>
+                            <input type="password" id="confirm-password" class="dash-input"
+                                placeholder="Repete menm mdp a">
+                        </div>
+                        <button class="btn btn-gold" style="margin-top:8px" onclick="updatePassword()">
+                            Mete Ajou Mot de passe
+                        </button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        //  DJ INNOVATIONS — DASHBOARD LOGIC (BUG FIXED)
+        //  FIX: "Database error querying schema" = RLS / table missing
+        //  Solution: use .maybeSingle() + proper error handling
+        // ═══════════════════════════════════════════════════════════
+
+        let sb = null;
+        let currentFreelancer = null;
+        let saveTimer = null;
+
+        // ── Init Supabase ─────────────────────────────────────────
+        // supabase.js fè: window.supabaseClient = supabase.createClient(...)
+        function getSupabaseClient() {
+            return window.supabaseClient || null;
+        }
+
+        // ── Init ──────────────────────────────────────────────────
+        window.addEventListener('load', async () => {
+            console.log("Dashboard: Inisyalizasyon...");
+            
+            try {
+                // 1. Tann Supabase (4s max)
+                let tries = 0;
+                while (!window.supabaseClient && tries < 40) {
+                    await new Promise(r => setTimeout(r, 100));
+                    tries++;
+                }
+
+                sb = window.supabaseClient;
+
+                if (!sb) {
+                    throw new Error("Supabase pa jwenn (Verifye fichye js/supabase.js)");
+                }
+
+                // 2. Tcheke sesyon an
+                const { data: { session }, error: sessionError } = await sb.auth.getSession();
+                
+                if (sessionError) throw sessionError;
+
+                if (session?.user) {
+                    await loadProfile(session.user.email);
+                } else {
+                    showAuth();
+                }
+
+            } catch (err) {
+                console.error("Erè Inisyalizasyon:", err);
+                showLoginError("⚠ Erè: " + err.message);
+                showAuth(); 
+            } finally {
+                // TOUJOU kache loading lan, menm si gen erè
+                hideLoading();
+            }
+
+            // Keyboard enter on login
+            const pwdInput = document.getElementById('admin-password');
+            if (pwdInput) {
+                pwdInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') loginAdmin();
+                });
+            }
+        });
+
+        // ── AUTH ──────────────────────────────────────────────────
+        async function loginAdmin() {
+            const email = document.getElementById('admin-email').value.trim();
+            const password = document.getElementById('admin-password').value;
+            const btn = document.getElementById('login-btn');
+            const errEl = document.getElementById('login-error');
+
+            errEl.style.display = 'none';
+
+            if (!email || !password) {
+                showLoginError('Imèl ak Mot de passe oblije!');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px"></div> Verifikasyon...';
+
+            const { data: authData, error: authError } = await sb.auth.signInWithPassword({ email, password });
+
+            if (authError) {
+                btn.disabled = false;
+                btn.innerHTML = '→ Konekte kounye a';
+                showLoginError(translateAuthError(authError.message));
+                return;
+            }
+
+            await loadProfile(email);
+            btn.disabled = false;
+            btn.innerHTML = '→ Konekte kounye a';
+        }
+
+        // ── FIX: Use maybeSingle() instead of single() to avoid schema errors ──
+        async function loadProfile(email) {
+            const { data: f, error } = await sb
+                .from('freelancers')
+                .select('*')
+                .eq('email', email)
+                .maybeSingle();   // ← KEY FIX: maybeSingle() won't throw if 0 rows
+
+            if (error) {
+                // If table doesn't exist yet, create a basic profile from auth
+                console.warn('freelancers table error:', error.message);
+                // Fallback: still show dashboard with auth user data
+                currentFreelancer = { email, nom: email.split('@')[0], id: null, discount_percent: 0 };
+            } else if (!f) {
+                // No profile row — use auth data as fallback
+                currentFreelancer = { email, nom: email.split('@')[0], id: null, discount_percent: 0 };
+            } else {
+                currentFreelancer = f;
+            }
+
+            showDashboard();
+        }
+
+        function showLoginError(msg) {
+            const el = document.getElementById('login-error');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        function translateAuthError(msg) {
+            if (msg.includes('Invalid login')) return 'Imèl oswa mot de passe pa kòrèk.';
+            if (msg.includes('Email not confirmed')) return 'Kont ou pa konfime. Verifye imèl ou.';
+            if (msg.includes('Too many requests')) return 'Twòp eseye. Tann yon ti moman.';
+            return 'Erè: ' + msg;
+        }
+
+        async function logoutAdmin() {
+            await sb.auth.signOut();
+            currentFreelancer = null;
+            document.getElementById('admin-view').style.display = 'none';
+            showAuth();
+            showToast('Ou dekonekte avèk siksè.', 'info');
+        }
+
+        // ── VIEWS ────────────────────────────────────────────────
+        function showAuth() {
+            document.getElementById('auth-view').style.display = 'flex';
+            document.getElementById('admin-view').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('auth-view').style.display = 'none';
+            document.getElementById('admin-view').style.display = 'block';
+
+            const name = currentFreelancer?.nom || 'Admin';
+            document.getElementById('user-name-display').textContent = name;
+            document.getElementById('user-initial').textContent = name.charAt(0).toUpperCase();
+
+            loadAllData();
+        }
+
+        function hideLoading() {
+            const ov = document.getElementById('loading-overlay');
+            ov.style.transition = 'opacity 0.4s ease';
+            ov.style.opacity = '0';
+            setTimeout(() => { ov.style.display = 'none'; }, 420);
+        }
+
+        // ── TABS ─────────────────────────────────────────────────
+        function showTab(tab, btn) {
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            if (btn) btn.classList.add('active');
+        }
+
+        // ── LOAD DATA ────────────────────────────────────────────
+        async function loadAllData() {
+            await Promise.all([
+                loadReservations(),
+                loadServices(),
+                loadLandingConfig(),
+            ]);
+        }
+
+        async function loadReservations() {
+            const { data: allRez } = await sb.from('reservations').select('*');
+            const { data: paidRez } = await sb.from('reservations').select('*').eq('statut', 'payé');
+
+            const paid = paidRez || [];
+            const total = allRez || [];
+
+            const revenue = paid.reduce((acc, r) => acc + (r.montant_total || 0), 0);
+
+            document.getElementById('stat-revenue').textContent = `$${revenue.toLocaleString()}`;
+            document.getElementById('stat-total').textContent = total.length;
+            document.getElementById('stat-paid').textContent = paid.length;
+
+            const list = document.getElementById('rez-list');
+
+            if (paid.length === 0) {
+                list.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <p>Poko gen rezèvasyon konfime.</p>
+                </div>`;
+                renderAgenda(paid);
+                return;
+            }
+
+            list.innerHTML = paid.map(r => `
+            <div class="rez-card">
+                <div>
+                    <div class="rez-name">${r.prenom || '—'} ${r.non || ''}</div>
+                    <div class="rez-meta">
+                        <span>📧 <strong>${r.email || 'N/A'}</strong></span>
+                        <span>📱 <strong>${r.telephone || 'N/A'}</strong></span>
+                        <span>💰 <strong style="color:var(--accent)">$${r.montant_total || 0}</strong></span>
+                        ${r.horaires ? `<span>🗓 <strong>${Array.isArray(r.horaires) ? r.horaires.length + ' kreno' : 'Orè defini'}</strong></span>` : ''}
+                    </div>
+                    ${r.message ? `<p style="margin-top:10px;font-size:0.85rem;color:var(--text-2)">"${r.message}"</p>` : ''}
+                </div>
+                <span class="rez-badge">✓ Payé</span>
+            </div>
+        `).join('');
+
+            renderAgenda(paid);
+        }
+
+        function renderAgenda(reservations) {
+            let booked = {};
+            reservations.forEach(r => {
+                if (!r.horaires) return;
+                Object.values(r.horaires).forEach(slotList => {
+                    if (Array.isArray(slotList)) {
+                        slotList.forEach(slot => { // e.g., "D0_H8"
+                            if(!booked[slot]) booked[slot] = [];
+                            booked[slot].push(r);
+                        });
+                    }
+                });
+            });
+
+            const days = ['Lendi', 'Madi', 'Mèkredi', 'Jedi', 'Vandredi', 'Samdi', 'Dimanch'];
+            const hours = [];
+            for(let h=8; h<=23; h++) hours.push(h);
+
+            let html = '<div style="display: grid; grid-template-columns: repeat(7, minmax(140px, 1fr)); gap: 12px; margin-top: 20px; overflow-x: auto; padding-bottom: 20px;">';
+            
+            for (let i = 0; i < 7; i++) {
+                html += `<div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="background: var(--surface); padding: 10px; text-align: center; border-radius: 8px; font-weight: 600; color: var(--primary);">
+                        ${days[i]}
+                    </div>`;
+                hours.forEach(h => {
+                    const key = `D${i}_H${h}`;
+                    const clients = booked[key];
+                    if (clients && clients.length > 0) {
+                        const clientNames = clients.map(c => (c.prenom || '') + ' ' + (c.non || '')).join(', ').replace(/'/g, "&apos;");
+                        html += `<div style="background: rgba(230, 169, 84, 0.15); border: 1px solid var(--primary); padding: 12px 8px; border-radius: 6px; text-align: center; font-size: 0.85rem; cursor: pointer; transition: 0.2s;" title="Kliyan: ${clientNames}" onclick="showTab('rez', document.querySelector('[data-tab=rez]'))" onmouseover="this.style.background='rgba(230, 169, 84, 0.3)'" onmouseout="this.style.background='rgba(230, 169, 84, 0.15)'">
+                            <strong style="color: var(--primary); font-size: 1rem;">${h}:00</strong><br>
+                            <span style="display:inline-block; margin-top:4px;">${clients.length} Rezèvasyon</span>
+                        </div>`;
+                    } else {
+                        html += `<div style="background: var(--surface); opacity: 0.4; padding: 12px 8px; border-radius: 6px; text-align: center; font-size: 0.85rem;">
+                            <strong style="color: var(--text-2); font-size: 1rem;">${h}:00</strong><br>
+                            <span style="display:inline-block; margin-top:4px;">Lib</span>
+                        </div>`;
+                    }
+                });
+                html += `</div>`;
+            }
+            
+            html += '</div>';
+            const cal = document.getElementById('agenda-calendar');
+            if(cal) cal.innerHTML = html;
+        }
+
+        async function loadServices() {
+            let query = sb.from('services').select('*');
+            if (currentFreelancer?.id) {
+                query = query.eq('freelancer_id', currentFreelancer.id);
+            }
+
+            const { data: svcs } = await query;
+            let services = svcs || [];
+
+            // Placer les nouveaux services tout en haut pour qu'ils soient visibles immédiatement
+            services.sort((a, b) => {
+                const aNew = (a.nom === 'Nouvo Sèvis');
+                const bNew = (b.nom === 'Nouvo Sèvis');
+                if (aNew && !bNew) return -1;
+                if (!aNew && bNew) return 1;
+                return 0; // Garder l'ordre par défaut pour les autres
+            });
+
+            document.getElementById('stat-svcs').textContent = services.length;
+
+            if (currentFreelancer?.discount_percent !== undefined) {
+                document.getElementById('discount-global').value = currentFreelancer.discount_percent || 0;
+            }
+
+            const list = document.getElementById('svc-list');
+
+            let html = `<div style="margin-bottom: 24px;">
+                <button class="btn btn-gold" onclick="addNewService()">+ Ajoute yon nouvo Sèvis</button>
+            </div>`;
+
+            if (services.length === 0) {
+                html += `
+                <div class="empty-state">
+                    <div class="empty-icon">💼</div>
+                    <p>Poko gen sèvis ajoute.</p>
+                </div>`;
+            } else {
+                html += services.map(s => `
+            <div class="svc-card" style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="grid-2">
+                    <div class="field-group" style="margin: 0;">
+                        <label class="dash-label">Non Sèvis</label>
+                        <input type="text" class="dash-input" id="name-${s.id}" value="${s.nom || ''}">
+                    </div>
+                    <div class="field-group" style="margin: 0;">
+                        <label class="dash-label">Pri (USD)</label>
+                        <input type="number" class="dash-input" id="price-${s.id}" value="${s.prix || 105}">
+                    </div>
+                </div>
+                <div class="field-group" style="margin: 0;">
+                    <label class="dash-label">Deskripsyon</label>
+                    <textarea class="dash-textarea" id="desc-${s.id}" rows="3">${s.description || ''}</textarea>
+                </div>
+                <div class="field-group" style="margin: 0;">
+                    <label class="dash-label">Fonksyonalite (Mete vigil "," ant chak)</label>
+                    <input type="text" class="dash-input" id="feat-${s.id}" value="${(s.fonctionnalites || []).join(', ')}" placeholder="Egz: 6 èdtan/semèn, Facebook Ads">
+                </div>
+                <div class="field-group" style="margin: 0;">
+                    <label class="dash-label">URL Videyo (Egz: https://www.youtube.com/embed/...)</label>
+                    <input type="text" class="dash-input" id="vid-${s.id}" value="${s.video_url || ''}">
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <button class="btn btn-gold btn-sm" onclick="saveService('${s.id}', this)">
+                         Anrejistre Chanjman
+                    </button>
+                    <button class="btn btn-ghost btn-sm" style="color: #ff4a4a; padding: 0 12px;" onclick="deleteService('${s.id}')">
+                         Efase
+                    </button>
+                </div>
+            </div>
+            `).join('');
+            }
+            list.innerHTML = html;
+        }
+
+        async function loadLandingConfig() {
+            const { data: config } = await sb.from('landing_config').select('*').eq('id', 1).maybeSingle();
+            if (!config) return;
+
+            const fields = {
+                'edit-hero-badge': config.hero_badge,
+                'edit-hero-title': config.hero_title,
+                'edit-hero-desc': config.hero_description,
+                'edit-hero-img': config.hero_image_url,
+                'edit-ap-title': config.ap_title,
+                'edit-ap-desc': config.ap_description,
+                'edit-ap-photo': config.ap_photo_url,
+                'edit-footer-slogan': config.footer_slogan,
+                'edit-tiktok': config.tiktok_url,
+                'edit-facebook': config.facebook_url,
+                'edit-instagram': config.instagram_url,
+            };
+
+            Object.entries(fields).forEach(([id, val]) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val || '';
+            });
+        }
+
+        // ── SAVE ACTIONS ─────────────────────────────────────────
+        async function saveService(svcId, btn) {
+            const nom = document.getElementById(`name-${svcId}`)?.value || 'Sèvis San Non';
+            const prix = parseFloat(document.getElementById(`price-${svcId}`)?.value || 105);
+            const description = document.getElementById(`desc-${svcId}`)?.value || '';
+            const video_url = document.getElementById(`vid-${svcId}`)?.value || '';
+            const featStr = document.getElementById(`feat-${svcId}`)?.value || '';
+            const fonctionnalites = featStr.split(',').map(f => f.trim()).filter(f => f);
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = 'Ap anrejistre...';
+            }
+
+            const { error } = await sb.from('services').update({ 
+                nom, prix, description, video_url, fonctionnalites 
+            }).eq('id', svcId);
+            
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = 'Anrejistre Chanjman';
+            }
+
+            if (error) {
+                showToast('Erè pandan anrejistreman: ' + error.message, 'error');
+            } else {
+                showToast('Sèvis mizajou avèk siksè!', 'success');
+                // Optionnel: Recharger juste le header si on veut, mais c'est bon comme ça.
+            }
+        }
+
+        async function addNewService() {
+            if (!currentFreelancer?.id) return showToast('Erè: Freelancer pa idantifye', 'error');
+            
+            const newSvc = {
+                nom: 'Nouvo Sèvis',
+                description: 'Deskripsyon kout sèvis la...',
+                prix: 105,
+                freelancer_id: currentFreelancer.id,
+                actif: true
+            };
+
+            const { error } = await sb.from('services').insert(newSvc);
+            if (error) {
+                showToast('Erè la kreyasyon: ' + error.message, 'error');
+            } else {
+                showToast('Nouvo sèvis ajoute!', 'success');
+                loadServices(); // Rafraîchir la liste
+            }
+        }
+
+        async function deleteService(svcId) {
+            if (!confirm('Ou sèten ou vle efase sèvis sa m? Aksyon sa paka defèt.')) return;
+            const { error } = await sb.from('services').delete().eq('id', svcId);
+            if (error) {
+                showToast('Erè lè efase: ' + error.message, 'error');
+            } else {
+                showToast('Sèvis efase!', 'success');
+                loadServices();
+            }
+        }
+
+        async function saveDiscount() {
+            const val = parseInt(document.getElementById('discount-global').value) || 0;
+            if (!currentFreelancer?.id) {
+                showToast('ID freelancer pa disponib.', 'error');
+                return;
+            }
+            const { error } = await sb.from('freelancers').update({ discount_percent: val }).eq('id', currentFreelancer.id);
+            if (error) {
+                showToast('Erè: ' + error.message, 'error');
+            } else {
+                currentFreelancer.discount_percent = val;
+                showToast(`Rabais ${val}% anrejistre!`, 'success');
+            }
+        }
+
+        function autoSave(el) {
+            const status = document.getElementById('save-status');
+            status.className = 'save-indicator saving';
+            status.innerHTML = '<span>●</span> L ap anrejistre...';
+
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(async () => {
+                const { error } = await sb
+                    .from('landing_config')
+                    .update({ [el.dataset.field]: el.value })
+                    .eq('id', 1);
+
+                if (error) {
+                    status.className = 'save-indicator error';
+                    status.innerHTML = '<span>●</span> Erè anrejistreman';
+                } else {
+                    status.className = 'save-indicator';
+                    status.innerHTML = '<span>●</span> Tout sekirize';
+                }
+            }, 900);
+        }
+
+        async function forceSaveLanding(btn) {
+            const origText = btn.innerHTML;
+            btn.innerHTML = 'Ap anrejistre...';
+            btn.disabled = true;
+
+            const payload = {
+                hero_badge: document.getElementById('edit-hero-badge')?.value,
+                hero_title: document.getElementById('edit-hero-title')?.value,
+                hero_description: document.getElementById('edit-hero-desc')?.value,
+                hero_image_url: document.getElementById('edit-hero-img')?.value,
+                ap_title: document.getElementById('edit-ap-title')?.value,
+                ap_photo_url: document.getElementById('edit-ap-photo')?.value,
+                ap_description: document.getElementById('edit-ap-desc')?.value,
+                tiktok_url: document.getElementById('edit-tiktok')?.value,
+                facebook_url: document.getElementById('edit-facebook')?.value,
+                instagram_url: document.getElementById('edit-instagram')?.value,
+                footer_slogan: document.getElementById('edit-footer-slogan')?.value
+            };
+
+            const { error } = await sb.from('landing_config').update(payload).eq('id', 1);
+
+            btn.innerHTML = origText;
+            btn.disabled = false;
+
+            if (error) {
+                showToast('Erè pandan anrejistreman: ' + error.message, 'error');
+            } else {
+                showToast('Landing Page mizajou avèk siksè !', 'success');
+                const status = document.getElementById('save-status');
+                if(status) {
+                    status.className = 'save-indicator';
+                    status.innerHTML = '<span>●</span> Tout sekirize';
+                }
+            }
+        }
+
+        async function updatePassword() {
+            const np = document.getElementById('new-password').value;
+            const cp = document.getElementById('confirm-password').value;
+
+            if (np.length < 6) { showToast('Mot de passe dwe gen 6 karaktè o mwen.', 'error'); return; }
+            if (np !== cp) { showToast('Mot de passe yo pa menm!', 'error'); return; }
+
+            const { error } = await sb.auth.updateUser({ password: np });
+            if (error) {
+                showToast('Erè: ' + error.message, 'error');
+            } else {
+                showToast('Mot de passe chanje avèk siksè!', 'success');
+                document.getElementById('new-password').value = '';
+                document.getElementById('confirm-password').value = '';
+            }
+        }
+
+        // ── TOAST ────────────────────────────────────────────────
+        let toastTimer = null;
+        function showToast(msg, type = 'info') {
+            const t = document.getElementById('toast');
+            const icons = { success: '✓', error: '✕', info: 'ℹ' };
+            t.innerHTML = `<span style="font-size:1rem">${icons[type] || 'ℹ'}</span> ${msg}`;
+            t.className = `toast ${type} show`;
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3500);
+        }
+    </script>
+</body>
+
+</html>

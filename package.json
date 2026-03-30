@@ -1,0 +1,14 @@
+{
+  "name": "dj-innovations-portal",
+  "version": "1.0.0",
+  "description": "Portail de services & paiement DJ Innovations",
+  "main": "index.html",
+  "scripts": {
+    "dev": "browser-sync start --server --files \"*.html, css/*.css, js/*.js\"",
+    "supabase:serve": "supabase functions serve create-checkout-session --no-verify-jwt --env-file .env"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.29.3",
+    "supabase": "^2.84.4"
+  }
+}
