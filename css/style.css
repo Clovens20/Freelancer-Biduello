@@ -968,21 +968,28 @@ nav {
 
 .btn-details {
     margin-top: 22px;
-    background: none;
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
-    padding: 9px 18px;
-    border-radius: var(--radius-sm);
+    width: 100%;
+    background: linear-gradient(135deg, var(--brand-primary), #d48a1c);
+    border: none;
+    color: var(--background);
+    padding: 14px 24px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    font-size: 0.85rem;
-    transition: 0.25s;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-family: 'DM Sans', sans-serif;
+    box-shadow: 0 4px 15px rgba(186, 117, 23, 0.25);
 }
 
 .btn-details:hover {
-    color: white;
-    border-color: #444;
-    background: rgba(255, 255, 255, 0.04);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(186, 117, 23, 0.4);
+}
+
+.btn-details:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 8px rgba(186, 117, 23, 0.15);
 }
 
 /* ─── SELECTION BOX ─── */

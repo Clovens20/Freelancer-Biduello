@@ -51,8 +51,11 @@ serve(async (req) => {
         statut: 'en_attente'
     };
     
-    // Support depending on if DB has service_id or service_ids
-    insertPayload['service_id'] = service_id;
+    // Le schéma Supabase attend très probablement "service_ids" comme tableau au lieu de "service_id".
+    insertPayload['service_ids'] = [service_id];
+    
+    // Ajout de statuts robustes
+    insertPayload['statut'] = 'en_attente';
     
     const { data: res, error: rErr } = await supabase
       .from("reservations")

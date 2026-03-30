@@ -123,7 +123,7 @@ function renderServicesGrid() {
                 <h3>${s.nom}</h3>
                 <div class="price">$${s.prix} <span>/mwa</span></div>
                 <p>${s.description ? s.description.substring(0, 100) + '...' : ''}</p>
-                <button class="btn-details">Fè rezèvasyon w .</button>
+                <button class="btn-details">Fè rezèvasyon w</button>
             </div>
         `;
     }).join('');
