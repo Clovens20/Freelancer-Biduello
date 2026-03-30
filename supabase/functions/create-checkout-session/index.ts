@@ -67,31 +67,50 @@ serve(async (req) => {
 
     // --- MONCASH (BAZIK.IO) PAYMENT ---
     if (gateway === "moncash") {
+      const bazikUserId = Deno.env.get("BAZIK_USER_ID");
+      const bazikSecret = Deno.env.get("BAZIK_API_KEY");
+      const baseUrl = Deno.env.get("BAZIK_BASE_URL")?.replace(/\/+$/, '') || 'https://api.bazik.io';
+
+      // 1. Obtenir le jeton (Token) d'authentification
+      const authRes = await fetch(`${baseUrl}/token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userID: bazikUserId, secretKey: bazikSecret })
+      });
+      const authData = await authRes.json();
+      if (!authRes.ok) throw new Error(`Bazik Auth Error: ${JSON.stringify(authData)}`);
+
+      // Le montant est originellement en cents (USD), on le remet en USD puis on convertit en Gourdes (ex: taux 135)
+      const tauxConversionHTG = 135;
+      const amountGdes = Math.round((amount / 100) * tauxConversionHTG);
+
+      // 2. Créer le paiement MonCash
       const bPayload = {
-        amount: Math.round(amount),
-        customer_email: email,
+        gdes: amountGdes,
+        referenceId: res.id,
+        customerFirstName: prenom,
+        customerLastName: non,
+        customerEmail: email,
         description: `Pèman pou ${prenom} ${non}`,
-        callback_url: Deno.env.get("BAZIK_CALLBACK_URL"),
-        return_url: `${req.headers.get("origin")}/success.html?session_id=${res.id}`
+        webhookUrl: Deno.env.get("BAZIK_CALLBACK_URL"),
+        successUrl: `${req.headers.get("origin")}/success.html?session_id=${res.id}`,
+        errorUrl: `${req.headers.get("origin")}/`
       };
 
-      // Configuration dynamique de l'URL pour ne pas avoir de doubles slashes et utiliser l'endpoint listé
-      const baseUrl = Deno.env.get("BAZIK_BASE_URL")?.replace(/\/+$/, '') || 'https://api.bazik.io';
-      const bazikEndpoint = `${baseUrl}/moncash/payments/${res.id}`;
-
-      const bResponse = await fetch(bazikEndpoint, {
+      const bResponse = await fetch(`${baseUrl}/moncash/token`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${Deno.env.get("BAZIK_API_KEY")}`
+          "Authorization": `Bearer ${authData.token || authData.data?.token}`
         },
         body: JSON.stringify(bPayload)
       });
       
       const bData = await bResponse.json();
-      if (!bResponse.ok) throw new Error(`Bazik Error: ${JSON.stringify(bData)}`);
+      if (!bResponse.ok) throw new Error(`Bazik Payment Error: ${JSON.stringify(bData)}`);
       
-      const pay_url = bData.url || bData.payment_url || (bData.data && bData.data.url) || bData.checkoutUrl;
+      // L'URL de redirection correcte retournée par l'API de paiement Bazik (selon le SDK Node)
+      const pay_url = bData.redirectUrl || bData.url || (bData.data && bData.data.redirectUrl);
       
       return new Response(JSON.stringify({ url: pay_url }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
