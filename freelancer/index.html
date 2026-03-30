@@ -1482,15 +1482,37 @@
                 });
             });
 
-            const days = ['Lendi', 'Madi', 'Mèkredi', 'Jedi', 'Vandredi', 'Samdi', 'Dimanch'];
+            const moisHaitien = ['Janvye', 'Fevriye', 'Mas', 'Avril', 'Me', 'Jen', 'Jiyè', 'Out', 'Septanm', 'Oktòb', 'Novanm', 'Desanm'];
+            
+            // Calcul de la semaine en cours (du Lundi au Dimanche)
+            const dNow = new Date();
+            const dayOfWk = dNow.getDay(); 
+            const diffALundi = dNow.getDate() - dayOfWk + (dayOfWk === 0 ? -6 : 1);
+            const lundi = new Date(dNow.setDate(diffALundi));
+
+            const baseDays = ['Lendi', 'Madi', 'Mèkredi', 'Jedi', 'Vandredi', 'Samdi', 'Dimanch'];
+            const days = [];
+            
+            for(let i=0; i<7; i++) {
+                const stepDate = new Date(lundi);
+                stepDate.setDate(lundi.getDate() + i);
+                const dayNum = stepDate.getDate();
+                const moisStr = moisHaitien[stepDate.getMonth()].toLowerCase();
+                days.push(`${baseDays[i]}<br><span style="font-size:0.85rem; font-weight:normal; color:var(--text-2);">${dayNum}-${moisStr}</span>`);
+            }
+
             const hours = [];
             for(let h=8; h<=23; h++) hours.push(h);
 
-            let html = '<div style="display: grid; grid-template-columns: repeat(7, minmax(140px, 1fr)); gap: 12px; margin-top: 20px; overflow-x: auto; padding-bottom: 20px;">';
+            const trueT = new Date();
+            const nomMois = moisHaitien[trueT.getMonth()] + ' ' + trueT.getFullYear();
+
+            let html = `<div style="text-align: right; margin-bottom: 15px; font-weight: 600; font-size: 1.15rem; color: var(--primary);">🗓️ Semèn sa a (Kouran)</div>`;
+            html += '<div style="display: grid; grid-template-columns: repeat(7, minmax(140px, 1fr)); gap: 12px; margin-top: 10px; overflow-x: auto; padding-bottom: 20px;">';
             
             for (let i = 0; i < 7; i++) {
                 html += `<div style="display: flex; flex-direction: column; gap: 8px;">
-                    <div style="background: var(--surface); padding: 10px; text-align: center; border-radius: 8px; font-weight: 600; color: var(--primary);">
+                    <div style="background: var(--surface); border: 1px solid rgba(230, 169, 84, 0.2); padding: 10px; text-align: center; border-radius: 8px; font-weight: 600; color: var(--primary);">
                         ${days[i]}
                     </div>`;
                 hours.forEach(h => {

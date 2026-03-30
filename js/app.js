@@ -342,7 +342,25 @@ function setupEventListeners() {
     if (payBtn) {
         payBtn.onclick = async () => {
             try {
-                const { data, error } = await window.supabaseClient.functions.invoke('create-checkout-session', { body: state });
+                const svc = state.selectedServices[0];
+                const payload = {
+                    service_id: svc.id,
+                    prenom: state.customerInfo.prenom,
+                    non: state.customerInfo.non,
+                    email: state.customerInfo.email,
+                    telephone: state.customerInfo.telephone,
+                    message: state.customerInfo.message,
+                    mode_paiement: state.paymentMode,
+                    horaires: state.selectedSlots,
+                    gateway: state.gateway
+                };
+
+                const { data, error } = await window.supabaseClient.functions.invoke('create-checkout-session', { body: payload });
+                
+                if (data?.error) {
+                    throw new Error(data.error + " | " + JSON.stringify(data.traceback));
+                }
+                
                 if (data?.url) location.href = data.url;
                 if (error) throw error;
             } catch(e) {
@@ -383,6 +401,25 @@ document.querySelectorAll('.pay-card').forEach(card => {
     };
 });
 
+// Choix de la passerelle de paiement (Stripe ou MonCash)
+document.querySelectorAll('.pay-gateway').forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll('.pay-gateway').forEach(c => {
+            c.classList.remove('active');
+            c.style.borderColor = 'rgba(255,255,255,0.1)';
+        });
+        btn.classList.add('active');
+        btn.style.borderColor = 'var(--primary)';
+        state.gateway = btn.dataset.gateway || 'stripe';
+        
+        // Mettre à jour le texte du bouton final
+        const pBtn = document.getElementById('pay-button');
+        if (pBtn) {
+            pBtn.innerText = state.gateway === 'moncash' ? 'Peye ak MonCash' : 'Konfime epi Peye Sekirize';
+        }
+    };
+});
+
 function goToStep(s) {
     document.querySelectorAll('.step-section').forEach(sec => sec.classList.remove('active'));
     const target = document.getElementById(`step-${s}`);
@@ -397,6 +434,7 @@ function goToStep(s) {
 
 // État initial de paiement
 state.paymentMode = 'full';
+state.gateway = 'stripe';
 
 // Initialisation globale
 setupEventListeners();

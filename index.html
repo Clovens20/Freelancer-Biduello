@@ -178,9 +178,21 @@
 
         <section id="step-4" class="step-section">
             <button class="back-link" data-to="3">← Tounen</button>
-            <div class="payment-selector">
+
+            <h3 style="margin-bottom: 10px; font-size: 1.1rem; color: var(--primary);">1. Kijan ou vle peye?</h3>
+            <div class="payment-selector" style="margin-bottom: 24px;">
                 <div class="pay-card active" data-mode="full"><h3>Peman Total (100%)</h3></div>
                 <div class="pay-card" data-mode="depot"><h3>Avans (50%)</h3></div>
+            </div>
+
+            <h3 style="margin-bottom: 10px; font-size: 1.1rem; color: var(--primary);">2. Ki mwayen peman ou prefere?</h3>
+            <div class="payment-selector" style="margin-bottom: 24px;">
+                <div class="pay-gateway active" data-gateway="stripe" style="cursor:pointer; padding:20px; text-align:center; border:2px solid var(--primary); border-radius:12px; transition:0.3s; background:var(--surface);">
+                    <h3 style="margin:0; font-size:1.1rem; color:var(--text);">💳 Kat Kredi (Stripe)</h3>
+                </div>
+                <div class="pay-gateway" data-gateway="moncash" style="cursor:pointer; padding:20px; text-align:center; border:2px solid rgba(255,255,255,0.1); border-radius:12px; transition:0.3s; background:var(--surface);">
+                    <h3 style="margin:0; font-size:1.1rem; color:#d81e05; filter:brightness(1.5);">📱 MonCash</h3>
+                </div>
             </div>
             <div class="invoice-box">
                 <div class="invoice-line total"><span>Total:</span> <strong id="final-amount">$0</strong></div>

@@ -17,7 +17,7 @@ serve(async (req) => {
   }
 
   try {
-    const { service_id, prenom, non, email, telephone, message, mode_paiement, horaires } = await req.json();
+    const { service_id, prenom, non, email, telephone, message, mode_paiement, horaires, gateway } = await req.json();
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -39,13 +39,10 @@ serve(async (req) => {
     if (mode_paiement === '3x') amount = amount / 3;
 
     // Create reservation in DB
-    const { data: res, error: rErr } = await supabase
-      .from("reservations")
-      .insert({
-        service_id,
+    const insertPayload: any = {
         freelancer_id: service.freelancer_id,
         prenom,
-        non,
+        nom: non,
         email,
         telephone,
         message,
@@ -53,13 +50,52 @@ serve(async (req) => {
         montant_total: service.prix,
         horaires,
         statut: 'en_attente'
-      })
+    };
+    
+    // Support depending on if DB has service_id or service_ids
+    insertPayload['service_id'] = service_id;
+    
+    const { data: res, error: rErr } = await supabase
+      .from("reservations")
+      .insert(insertPayload)
       .select()
       .single();
 
     if (rErr) throw rErr;
 
-    // Create Stripe Session
+    // --- MONCASH (BAZIK.IO) PAYMENT ---
+    if (gateway === "moncash") {
+      const bPayload = {
+        amount: Math.round(amount),
+        currency: "USD",
+        merchant_reference: res.id,
+        customer_email: email,
+        description: `Pèman pou ${prenom} ${non}`,
+        callback_url: Deno.env.get("BAZIK_CALLBACK_URL"),
+        return_url: `${req.headers.get("origin")}/success.html?session_id=${res.id}`
+      };
+
+      const bResponse = await fetch(`${Deno.env.get("BAZIK_BASE_URL")}/payments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${Deno.env.get("BAZIK_API_KEY")}`
+        },
+        body: JSON.stringify(bPayload)
+      });
+      
+      const bData = await bResponse.json();
+      if (!bResponse.ok) throw new Error(`Bazik Error: ${JSON.stringify(bData)}`);
+      
+      const pay_url = bData.url || bData.payment_url || (bData.data && bData.data.url) || bData.checkoutUrl;
+      
+      return new Response(JSON.stringify({ url: pay_url }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    // --- STRIPE PAYMENT ---
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -96,9 +132,11 @@ serve(async (req) => {
       status: 200,
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    const errorDetails = err?.message || JSON.stringify(err);
+    // On retourne 200 temporairement pour gruger le SDK et pouvoir lire le vrai message d'erreur dans 'data.error' au lieu du message générique "non-2xx".
+    return new Response(JSON.stringify({ error: errorDetails, traceback: err }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 400,
+      status: 200, 
     });
   }
 });
