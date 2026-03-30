@@ -69,15 +69,17 @@ serve(async (req) => {
     if (gateway === "moncash") {
       const bPayload = {
         amount: Math.round(amount),
-        currency: "USD",
-        merchant_reference: res.id,
         customer_email: email,
         description: `Pèman pou ${prenom} ${non}`,
         callback_url: Deno.env.get("BAZIK_CALLBACK_URL"),
         return_url: `${req.headers.get("origin")}/success.html?session_id=${res.id}`
       };
 
-      const bResponse = await fetch(`${Deno.env.get("BAZIK_BASE_URL")}/payments`, {
+      // Configuration dynamique de l'URL pour ne pas avoir de doubles slashes et utiliser l'endpoint listé
+      const baseUrl = Deno.env.get("BAZIK_BASE_URL")?.replace(/\/+$/, '') || 'https://api.bazik.io';
+      const bazikEndpoint = `${baseUrl}/moncash/payments/${res.id}`;
+
+      const bResponse = await fetch(bazikEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
