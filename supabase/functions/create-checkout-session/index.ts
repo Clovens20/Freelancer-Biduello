@@ -40,7 +40,6 @@ serve(async (req) => {
 
     // Create reservation in DB
     const insertPayload: any = {
-        freelancer_id: service.freelancer_id,
         prenom,
         nom: non,
         email,
