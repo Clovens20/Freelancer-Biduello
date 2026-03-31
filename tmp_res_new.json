@@ -1,0 +1,32 @@
+[
+  {
+    "id": "26a814ed-f537-4f4e-b33a-21ebac3edb1f",
+    "statut": "en_attente",
+    "prenom": "Clodener",
+    "stripe_session_id": "cs_live_a1Trjr7y1GxZB8ohqkiFbDzDB9GpxC53pyjylflYwYmKjlLqfRhAAdYys8"
+  },
+  {
+    "id": "b886738f-4322-4481-9755-76f839d93e14",
+    "statut": "en_attente",
+    "prenom": "Clodener",
+    "stripe_session_id": "cs_live_a1OYsNXeDgiJeugoYIuKaqXn5GBshh7Jg1sEqMxxzGQqVJXT6y7laXZLQQ"
+  },
+  {
+    "id": "2d4d6373-1c4d-4caa-818e-787ffc020528",
+    "statut": "en_attente",
+    "prenom": "Clodener",
+    "stripe_session_id": null
+  },
+  {
+    "id": "59af90cd-95b4-4814-852c-4a4f23572443",
+    "statut": "en_attente",
+    "prenom": "Clodener",
+    "stripe_session_id": "cs_live_a1ITylvffHdJEr2AfzNb0iQZRlxFikBm1g178bWJho3dPXOrWNIi2wR0ln"
+  },
+  {
+    "id": "b24e335b-c2e0-44ef-a050-2075e477ba42",
+    "statut": "en_attente",
+    "prenom": "Clodener",
+    "stripe_session_id": "cs_live_a1TqatFn7LqNiQhEUHaL7rPhMKJnvROJ2eFwPmas9hFr91154KgeM6PiIn"
+  }
+]

@@ -918,6 +918,27 @@
                 grid-template-columns: 1fr;
             }
         }
+        /* ─── MODAL TRETE (PROCESS) ─── */
+        .process-modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            z-index: 10000; display: none; align-items: center; justify-content: center;
+        }
+        .process-modal {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl);
+            width: 90%; max-width: 500px; padding: 30px; position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+        .process-close {
+            position: absolute; top: 18px; right: 24px; font-size: 2rem; color: var(--text-2); cursor: pointer; line-height: 1;
+        }
+        .process-close:hover { color: var(--danger); }
+        .process-meta {
+            background: rgba(186, 117, 23, 0.05); padding: 15px; border-radius: var(--r-sm); border: 1px solid var(--border-gold);
+            margin-bottom: 20px; font-size: 0.9rem;
+        }
+        .process-meta strong { color: var(--text); }
+        .process-meta span { color: var(--text-2); display: block; margin-bottom: 5px; }
+        
     </style>
 </head>
 
@@ -1244,6 +1265,60 @@
         </div>
     </div>
 
+    <!-- MODAL TRETE -->
+    <div id="process-modal" class="process-modal-overlay">
+        <div class="process-modal">
+            <span class="process-close" onclick="closeProcessModal()">&times;</span>
+            <h2 style="margin-bottom: 15px; color: var(--primary);">Trete Rezèvasyon</h2>
+            <div id="process-client-info" class="process-meta"></div>
+            
+            <p style="margin-bottom: 15px; color: var(--text-2); font-size: 0.9rem;">
+                Apre ou fin pale ak kliyan an, chwazi yon orè pou li pou pyès lòt moun pa ka pran l sou kalandriye a ankò.
+            </p>
+            
+            <div class="field-group grid-2" style="align-items:end;">
+                <div class="field">
+                    <label>Jou nan semèn</label>
+                    <select id="process-day" class="dash-select">
+                        <option value="0">Lendi</option>
+                        <option value="1">Madi</option>
+                        <option value="2">Mèkredi</option>
+                        <option value="3">Jedi</option>
+                        <option value="4">Vandredi</option>
+                        <option value="5">Samdi</option>
+                        <option value="6">Dimanch</option>
+                    </select>
+                </div>
+                <div class="field" style="display:flex; gap:10px;">
+                    <div style="flex:1;">
+                        <label>Lè / Orè</label>
+                        <select id="process-hour" class="dash-select">
+                            <option value="8">8:00 AM</option>
+                            <option value="9">9:00 AM</option>
+                            <option value="10">10:00 AM</option>
+                            <option value="11">11:00 AM</option>
+                            <option value="12">12:00 PM</option>
+                            <option value="13">1:00 PM</option>
+                            <option value="14">2:00 PM</option>
+                            <option value="15">3:00 PM</option>
+                            <option value="16">4:00 PM</option>
+                            <option value="17">5:00 PM</option>
+                            <option value="18">6:00 PM</option>
+                            <option value="19">7:00 PM</option>
+                            <option value="20">8:00 PM</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-gold" style="padding:10px;" onclick="addProcessSlot()">+</button>
+                </div>
+            </div>
+
+            <!-- Ajoute les "badges" pour chaque heure choisie -->
+            <div id="manual-slots-container" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 20px;"></div>
+            
+            <button class="btn btn-gold btn-wide" id="btn-save-process" style="margin-top: 10px;">Konfime Orè yo</button>
+        </div>
+    </div>
+
     <script>
         // ═══════════════════════════════════════════════════════════
         //  DJ INNOVATIONS — DASHBOARD LOGIC (BUG FIXED)
@@ -1430,6 +1505,9 @@
 
             const paid = paidRez || [];
             const total = allRez || [];
+            
+            // On sauvegarde globalement pour le Modal
+            window.lastReservationsInfo = paid;
 
             const revenue = paid.reduce((acc, r) => acc + (r.montant_total || 0), 0);
 
@@ -1460,8 +1538,13 @@
                         ${r.horaires ? `<span>🗓 <strong>${Array.isArray(r.horaires) ? r.horaires.length + ' kreno' : 'Orè defini'}</strong></span>` : ''}
                     </div>
                     ${r.message ? `<p style="margin-top:10px;font-size:0.85rem;color:var(--text-2)">"${r.message}"</p>` : ''}
+                    ${r.message ? `<p style="margin-top:10px;font-size:0.85rem;color:var(--text-2)">"${r.message}"</p>` : ''}
                 </div>
-                <span class="rez-badge">✓ Payé</span>
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap: 10px;">
+                    <span class="rez-badge">✓ Payé</span>
+                    ${ (!r.horaires || Object.keys(r.horaires).length === 0) ? `<button onclick="openProcessModal('${r.id}')" class="btn btn-sm btn-gold">Trete (Ajoute Lè)</button>` : ''}
+                    <button onclick="deleteReservation('${r.id}')" class="btn btn-sm btn-danger" style="background:transparent; border:1px solid rgba(239, 68, 68, 0.4); padding: 5px 10px;">🗑️ Siprime</button>
+                </div>
             </div>
         `).join('');
 
@@ -1519,14 +1602,14 @@
                     const key = `D${i}_H${h}`;
                     const clients = booked[key];
                     if (clients && clients.length > 0) {
-                        const clientNames = clients.map(c => (c.prenom || '') + ' ' + (c.non || '')).join(', ').replace(/'/g, "&apos;");
-                        html += `<div style="background: rgba(230, 169, 84, 0.15); border: 1px solid var(--primary); padding: 12px 8px; border-radius: 6px; text-align: center; font-size: 0.85rem; cursor: pointer; transition: 0.2s;" title="Kliyan: ${clientNames}" onclick="showTab('rez', document.querySelector('[data-tab=rez]'))" onmouseover="this.style.background='rgba(230, 169, 84, 0.3)'" onmouseout="this.style.background='rgba(230, 169, 84, 0.15)'">
-                            <strong style="color: var(--primary); font-size: 1rem;">${h}:00</strong><br>
-                            <span style="display:inline-block; margin-top:4px;">${clients.length} Rezèvasyon</span>
+                        const clientNamesHtml = clients.map(c => `<div style="font-weight:bold; font-size:0.8rem; margin-top:3px; background:rgba(0,0,0,0.2); padding:2px; border-radius:3px;">👤 ${(c.prenom || '')} ${(c.non || '')}</div>`).join('');
+                        html += `<div style="background: rgba(230, 169, 84, 0.15); border: 1px solid var(--primary); padding: 8px; border-radius: 6px; text-align: center; cursor: pointer; transition: 0.2s;" onclick="showTab('rez', document.querySelector('[data-tab=rez]'))" onmouseover="this.style.background='rgba(230, 169, 84, 0.3)'" onmouseout="this.style.background='rgba(230, 169, 84, 0.15)'">
+                            <strong style="color: var(--primary); font-size: 0.95rem;">${h}:00</strong>
+                            ${clientNamesHtml}
                         </div>`;
                     } else {
                         html += `<div style="background: var(--surface); opacity: 0.4; padding: 12px 8px; border-radius: 6px; text-align: center; font-size: 0.85rem;">
-                            <strong style="color: var(--text-2); font-size: 1rem;">${h}:00</strong><br>
+                            <strong style="color: var(--text-2); font-size: 0.95rem;">${h}:00</strong><br>
                             <span style="display:inline-block; margin-top:4px;">Lib</span>
                         </div>`;
                     }
@@ -1800,6 +1883,115 @@
             t.className = `toast ${type} show`;
             clearTimeout(toastTimer);
             toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3500);
+        }
+
+        // ── PROCESS MODAL LOGIC ──
+        let currentProcessRezId = null;
+        let manualSlotsList = []; // Liste des créneaux sélectionnés
+
+        function openProcessModal(id) {
+            currentProcessRezId = id;
+            manualSlotsList = []; // Reset list
+            renderManualSlots();
+            
+            if(!window.lastReservationsInfo) return;
+            
+            const r = window.lastReservationsInfo.find(res => res.id === id);
+            if(r) {
+                document.getElementById('process-client-info').innerHTML = `
+                    <span><strong>Kliyan:</strong> ${r.prenom || '—'} ${r.non || ''}</span>
+                    <span><strong>Imèl:</strong> ${r.email || 'N/A'}</span>
+                    <span><strong>Telefòn:</strong> ${r.telephone || 'N/A'}</span>
+                    ${r.message ? `<span><strong>Mesaj:</strong> <em>"${r.message}"</em></span>` : ''}
+                `;
+            }
+            document.getElementById('process-modal').style.display = 'flex';
+        }
+
+        function closeProcessModal() {
+            document.getElementById('process-modal').style.display = 'none';
+        }
+
+        function addProcessSlot() {
+            const dayIdx = document.getElementById('process-day').value;
+            const hour = document.getElementById('process-hour').value;
+            
+            const dayName = document.getElementById('process-day').options[document.getElementById('process-day').selectedIndex].text;
+            const hourName = document.getElementById('process-hour').options[document.getElementById('process-hour').selectedIndex].text;
+            
+            const slotKey = `D${dayIdx}_H${hour}`;
+            const label = `${dayName} ${hourName}`;
+
+            if(manualSlotsList.find(s => s.key === slotKey)) {
+                showToast("Orè sa gentan ajoute !", "info");
+                return;
+            }
+
+            manualSlotsList.push({ key: slotKey, label: label });
+            renderManualSlots();
+        }
+
+        function removeProcessSlot(key) {
+            manualSlotsList = manualSlotsList.filter(s => s.key !== key);
+            renderManualSlots();
+        }
+
+        function renderManualSlots() {
+            const container = document.getElementById('manual-slots-container');
+            container.innerHTML = manualSlotsList.map(s => `
+                <span class="rez-badge" style="background: rgba(186, 117, 23, 0.1); border-color: var(--primary); color: var(--primary); font-size: 0.8rem; padding: 6px 14px;">
+                    🗓️ ${s.label}
+                    <button onclick="removeProcessSlot('${s.key}')" style="background:transparent; border:none; color:inherit; font-weight:bold; margin-left:8px; cursor:pointer;">&times;</button>
+                </span>
+            `).join('');
+        }
+
+        document.getElementById('btn-save-process').addEventListener('click', async () => {
+            if(manualSlotsList.length === 0) {
+                showToast('Tanpri chwazi omwen yon orè !', 'error');
+                return;
+            }
+
+            const slotKeysArray = manualSlotsList.map(s => s.key);
+            const horairesJson = { "antant_manuel": slotKeysArray };
+            
+            const btn = document.getElementById('btn-save-process');
+            const originalText = btn.innerText;
+            btn.innerText = 'Chaje...';
+            btn.disabled = true;
+
+            try {
+                const { error } = await sb.from('reservations')
+                    .update({ horaires: horairesJson })
+                    .eq('id', currentProcessRezId);
+                    
+                if (error) throw error;
+                
+                showToast('Orè yo anrejistre avèk siksè, kalandriye a bloke !', 'success');
+                closeProcessModal();
+                loadReservations(); // Actualise l'agenda et la liste
+            } catch (err) {
+                console.error(err);
+                alert('Erè, pa ka sove orè a: ' + err.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // ── DELETE RESERVATION LOGIC ──
+        async function deleteReservation(id) {
+            if(!confirm('Èske w sèten ou vle siprime rezèvasyon sa a definitivman? Sa pa ka anile.')) return;
+            
+            try {
+                const { error } = await sb.from('reservations').delete().eq('id', id);
+                if (error) throw error;
+                showToast('Rezèvasyon an byen siprime !', 'success');
+                loadReservations(); // Mettre à jour l'affichage
+            } catch(e) {
+                console.error(e);
+                showToast('Erè: pa ka siprime.', 'error');
+            }
         }
     </script>
 </body>

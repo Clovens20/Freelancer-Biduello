@@ -2,9 +2,6 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.0";
 import Stripe from "https://esm.sh/stripe@11.12.0?target=deno";
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-  httpClient: Stripe.createFetchHttpClient(),
-});
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -119,6 +116,10 @@ serve(async (req) => {
     }
 
     // --- STRIPE PAYMENT ---
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      httpClient: Stripe.createFetchHttpClient(),
+    });
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [

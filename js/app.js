@@ -1,24 +1,28 @@
 /**
- * DJ Innovations — Premium Pòtal (V2 - Mwa, Multi-Sèvis, 4 Semèn)
- * VERSION PROPRE & COMPLÈTE
+ * DJ Innovations — Premium Pòtal (V2)
+ * VERSION FINALE — Jou Horizontal + Kreno Opsyonèl + Notifikasyon
  */
 
 const state = {
-    services: [], 
-    selectedServices: [], 
-    currentWeek: 1, 
-    selectedSlots: {}, 
-    paymentMode: 'full', 
+    services: [],
+    selectedServices: [],
+    currentDay: null,   // index du jour ouvert, null = aucun
+    selectedSlots: {},     // clé: `${svcId}_D${i}`, valeur: ['H8', 'H9', …]
+    paymentMode: 'full',
     customerInfo: { prenom: '', non: '', email: '', telephone: '', message: '' },
     finalAmount: 0,
-    totalDiscount: 0
+    gateway: 'stripe'
 };
 
-// DOM SELECTORS
+const DAYS = ['Lendi', 'Madi', 'Mèkredi', 'Jedi', 'Vandredi', 'Samdi', 'Dimanch'];
+const HOURS = Array.from({ length: 16 }, (_, i) => i + 8); // 8h → 23h
+
+// ── DOM ───────────────────────────────────────────────────────
+
 const servicesGrid = document.getElementById('services-grid');
 const selectionBox = document.getElementById('selection-box');
 const countSelected = document.getElementById('count-selected');
-const subtotalDisplay = document.getElementById('subtotal-display'); // MODIFIÉ: Correspond à id="subtotal-display"
+const subtotalDisplay = document.getElementById('subtotal-display');
 const modal = document.getElementById('service-modal');
 const modalContainer = document.getElementById('modal-service-details');
 const modalSelectBtn = document.getElementById('modal-select-btn');
@@ -27,10 +31,9 @@ const toStep3Btn = document.getElementById('to-step-3');
 
 let currentViewedServiceId = null;
 
-// INIT
-document.addEventListener('DOMContentLoaded', () => {
-    initApp();
-});
+// ── INIT ──────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => initApp());
 
 async function initApp() {
     await loadLandingConfig();
@@ -38,69 +41,43 @@ async function initApp() {
     setupEventListeners();
 }
 
-/**
- * Charge dynamiquement le contenu de la landing page (Hero, AP, Footer)
- */
+// ── LANDING CONFIG ────────────────────────────────────────────
+
 async function loadLandingConfig() {
     try {
         const { data, error } = await window.supabaseClient
-            .from('landing_config')
-            .select('*')
-            .eq('id', 1)
-            .single();
-        
+            .from('landing_config').select('*').eq('id', 1).single();
         if (error || !data) return;
 
-        // Mise à jour du Hero
-        const badge = document.getElementById('hero-badge');
-        if (badge) badge.innerHTML = `<span class="badge-dot"></span> ${data.hero_badge}`;
-        
-        const title = document.getElementById('hero-title');
-        if (title) title.innerHTML = data.hero_title;
-        
-        const desc = document.getElementById('hero-description');
-        if (desc) desc.innerHTML = data.hero_description;
-        
-        const img = document.getElementById('hero-image');
-        if (img) img.src = data.hero_image_url;
+        const set = (id, val, attr = 'innerHTML') => {
+            const el = document.getElementById(id);
+            if (el) el[attr] = val;
+        };
+        set('hero-badge', `<span class="badge-dot"></span> ${data.hero_badge}`);
+        set('hero-title', data.hero_title);
+        set('hero-description', data.hero_description);
+        set('hero-image', data.hero_image_url, 'src');
+        set('ap-title', data.ap_title);
+        set('ap-description', data.ap_description);
+        set('ap-photo', data.ap_photo_url, 'src');
+        set('footer-slogan', data.footer_slogan);
 
-        // Mise à jour Avant-Propos
-        const apTitle = document.getElementById('ap-title');
-        if (apTitle) apTitle.innerHTML = data.ap_title;
-        
-        const apDesc = document.getElementById('ap-description');
-        if (apDesc) apDesc.innerHTML = data.ap_description;
-        
-        const apPhoto = document.getElementById('ap-photo');
-        if (apPhoto) apPhoto.src = data.ap_photo_url;
-
-        // Mise à jour Footer & Sosyal
-        const footerSlogan = document.getElementById('footer-slogan');
-        if (footerSlogan) footerSlogan.innerHTML = data.footer_slogan;
-
-        const fb = document.getElementById('facebook-link');
-        const ig = document.getElementById('instagram-link');
-        const tk = document.getElementById('tiktok-link');
-
-        if (fb && data.facebook_url) fb.href = data.facebook_url;
-        if (ig && data.instagram_url) ig.href = data.instagram_url;
-        if (tk && data.tiktok_url) tk.href = data.tiktok_url;
-
+        const links = { 'facebook-link': data.facebook_url, 'instagram-link': data.instagram_url, 'tiktok-link': data.tiktok_url };
+        Object.entries(links).forEach(([id, href]) => {
+            const el = document.getElementById(id);
+            if (el && href) el.href = href;
+        });
     } catch (err) {
         console.error('Erè config landing:', err);
     }
 }
 
-/**
- * Récupère les services actifs depuis Supabase
- */
+// ── SERVICES ──────────────────────────────────────────────────
+
 async function fetchServicesFromSupabase() {
     try {
         const { data, error } = await window.supabaseClient
-            .from('services')
-            .select('*')
-            .eq('actif', true);
-        
+            .from('services').select('*').eq('actif', true);
         if (error) throw error;
         state.services = data || [];
         renderServicesGrid();
@@ -110,9 +87,6 @@ async function fetchServicesFromSupabase() {
     }
 }
 
-/**
- * Affiche la grille des services
- */
 function renderServicesGrid() {
     if (!servicesGrid) return;
     servicesGrid.innerHTML = state.services.map(s => {
@@ -124,18 +98,15 @@ function renderServicesGrid() {
                 <div class="price">$${s.prix} <span>/mwa</span></div>
                 <p>${s.description ? s.description.substring(0, 100) + '...' : ''}</p>
                 <button class="btn-details">Fè rezèvasyon w</button>
-            </div>
-        `;
+            </div>`;
     }).join('');
 }
 
-/**
- * Ouvre le modal avec les détails du service
- */
-window.openServiceModal = function(id) {
+// ── MODAL ─────────────────────────────────────────────────────
+
+window.openServiceModal = function (id) {
     const s = state.services.find(x => x.id === id);
     if (!s) return;
-
     currentViewedServiceId = id;
     const isSelected = state.selectedServices.some(item => item.id === id);
 
@@ -144,38 +115,27 @@ window.openServiceModal = function(id) {
             <h2 class="modal-title-lux">${s.nom}</h2>
             <div class="modal-price-tag">${s.prix || 105}$<span>/ mwa</span></div>
         </div>
-        
         <div class="modal-scroll-area">
             <p class="modal-desc-lux">${s.description || 'Sèvis sa a ap ede w grandi rapidman.'}</p>
-            
             <div class="modal-features-grid-lux">
                 ${(s.fonctionnalites || []).map(f => `
                     <div class="modal-feature-item">
                         <span class="feature-bullet">✦</span>
                         <span class="feature-text">${f}</span>
-                    </div>
-                `).join('')}
+                    </div>`).join('')}
             </div>
-
             ${s.video_url ? `
                 <div class="modal-video-wrap">
                     <iframe src="${s.video_url.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen></iframe>
-                </div>
-            ` : ''}
-        </div>
-    `;
+                </div>` : ''}
+        </div>`;
 
-    // Update selection button status
     modalSelectBtn.innerHTML = isSelected ? '<span>✓ Sèvis Chwazi</span>' : `<span>Chwazi Sèvis sa a ($${s.prix || 105})</span>`;
     modalSelectBtn.className = isSelected ? 'btn gold wide active' : 'btn gold wide';
-
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 };
 
-/**
- * Gère la sélection/désélection depuis le modal
- */
 modalSelectBtn.onclick = () => {
     toggleServiceSelection(currentViewedServiceId);
     modal.style.display = 'none';
@@ -196,9 +156,6 @@ function toggleServiceSelection(id) {
     updateFunnelSelection();
 }
 
-/**
- * Met à jour le récapitulatif de sélection (Step 1)
- */
 function updateFunnelSelection() {
     const count = state.selectedServices.length;
     if (count > 0) {
@@ -213,101 +170,127 @@ function updateFunnelSelection() {
     }
 }
 
-// ── Funnel Steps (2: Horaires) ────────────────────────────────
+// ── ÉTAPE 2 — JOURS EN HORIZONTAL ────────────────────────────
 
-window.changeViewedWeek = function(w) {
-    state.currentWeek = w;
-    renderWeekTabs();
+/**
+ * Ouvre ou ferme un jour (toggle)
+ */
+window.toggleDay = function (dayIndex) {
+    state.currentDay = (state.currentDay === dayIndex) ? null : dayIndex;
+    renderDaySelector();
 };
 
-function renderWeekTabs() {
+/**
+ * Rendu principal : rangée de jours + panel de créneaux
+ */
+function renderDaySelector() {
     const container = document.getElementById('week-selector');
     if (!container) return;
-    container.innerHTML = [1, 2, 3, 4].map(w => `
-        <button class="week-btn ${state.currentWeek === w ? 'active' : ''}" onclick="changeViewedWeek(${w})">Semèn ${w}</button>
-    `).join('');
-    renderTimeSlots();
-}
-
-function renderTimeSlots() {
-    const grid = document.getElementById('time-slots-grid');
-    const progressIndicator = document.getElementById('selected-count');
     const currentSvc = state.selectedServices[0];
-    if (!currentSvc || !grid) return;
-    
-    // Calcul des heures choisies pour la semaine actuelle
-    const weekKey = `${currentSvc.id}_${state.currentWeek}`;
-    const selectedThisWeek = (state.selectedSlots[weekKey] || []).length;
-    if (progressIndicator) progressIndicator.innerText = selectedThisWeek;
+    if (!currentSvc) return;
 
-    const days = ['Lendi', 'Madi', 'Mèkred.', 'Jedi', 'Vandred.', 'Samdi', 'Dimanch'];
-    let html = '';
-    
-    // Génération des créneaux de 8h00 à 23h00
-    const hours = [];
-    for(let h=8; h<=23; h++) hours.push(h);
+    // Calcul total des créneaux sélectionnés
+    const totalSelected = DAYS.reduce((acc, _, i) =>
+        acc + (state.selectedSlots[`${currentSvc.id}_D${i}`] || []).length, 0);
 
-    for (let i = 0; i < 7; i++) {
-        html += `
-            <div class="day-col">
-                <div class="day-header">${days[i]}</div>
-                <div class="slots-list">
-                    ${hours.map(h => {
-                        const slot = `D${i}_H${h}`;
-                        const isSelected = (state.selectedSlots[weekKey] || []).includes(slot);
-                        // TODO: Ajouter check si le slot est déjà pris en DB
-                        return `<button class="slot-btn ${isSelected ? 'selected' : ''}" 
-                                onclick="toggleSlot('${currentSvc.id}', ${state.currentWeek}, '${slot}', this)">
-                                ${h}:00</button>`;
-                    }).join('')}
+    // Mise à jour de l'indicateur global
+    const progressEl = document.getElementById('selected-count');
+    if (progressEl) progressEl.innerText = totalSelected;
+
+    // ── Rangée des jours (pills horizontaux) ──
+    let tabsHtml = `<div class="days-tab-row">`;
+
+    DAYS.forEach((day, i) => {
+        const key = `${currentSvc.id}_D${i}`;
+        const count = (state.selectedSlots[key] || []).length;
+        const isActive = state.currentDay === i;
+        tabsHtml += `
+            <button class="day-tab-btn ${isActive ? 'active' : ''}"
+                    onclick="toggleDay(${i})">
+                ${day}
+                ${count > 0 ? `<span class="day-tab-dot"></span>` : ''}
+            </button>`;
+    });
+
+    tabsHtml += `</div>`;
+
+    // ── Panel de créneaux (s'ouvre sous les tabs) ──
+    let panelHtml = `<div class="day-slots-expand ${state.currentDay !== null ? 'open' : ''}">`;
+
+    if (state.currentDay !== null) {
+        const i = state.currentDay;
+        const key = `${currentSvc.id}_D${i}`;
+        const slots = state.selectedSlots[key] || [];
+        const count = slots.length;
+
+        panelHtml += `
+            <div class="slots-expand-inner">
+                <div class="slots-expand-header">
+                    <span class="slots-expand-title">
+                        Disponibilite pou <strong>${DAYS[i]}</strong>
+                    </span>
+                    ${count > 0 ? `
+                        <span class="slots-count-badge">
+                            <span class="badge-pulse-dot"></span>
+                            ${count} kreno chwazi
+                        </span>` : ''}
+                </div>
+                <div class="slots-time-grid">
+                    ${HOURS.map(h => {
+            const slot = `H${h}`;
+            const isSelected = slots.includes(slot);
+            const hour12 = h > 12 ? h - 12 : h;
+            const period = h >= 12 ? 'PM' : 'AM';
+            return `
+                        <button class="slot-btn ${isSelected ? 'selected' : ''}"
+                            onclick="toggleSlot('${currentSvc.id}', ${i}, '${slot}')">
+                            <span class="slot-time">${hour12}:00</span>
+                            <span class="slot-period">${period}</span>
+                        </button>`;
+        }).join('')}
                 </div>
             </div>`;
     }
-    grid.innerHTML = html;
+
+    panelHtml += `</div>`;
+
+    container.innerHTML = tabsHtml + panelHtml;
+
+    // Vider la grille legacy si elle existe
+    const legacyGrid = document.getElementById('time-slots-grid');
+    if (legacyGrid) legacyGrid.innerHTML = '';
 }
 
-window.toggleSlot = function(svcId, week, slot, btn) {
-    const key = `${svcId}_${week}`;
+/**
+ * Sélectionne / désélectionne un créneau
+ */
+window.toggleSlot = function (svcId, dayIndex, slot) {
+    const key = `${svcId}_D${dayIndex}`;
     if (!state.selectedSlots[key]) state.selectedSlots[key] = [];
-    
+
     const index = state.selectedSlots[key].indexOf(slot);
-    if (index > -1) {
-        state.selectedSlots[key].splice(index, 1);
-        btn.classList.remove('selected');
-    } else {
-        if (state.selectedSlots[key].length >= 6) {
-            alert('Ou ka chwazi sèlman 6 èdtan pa semèn. Retire yon lòt kreno si w vle chanje sa a.');
-            return;
-        }
-        state.selectedSlots[key].push(slot);
-        btn.classList.add('selected');
-    }
-    
-    // Update indicator
-    const progressIndicator = document.getElementById('selected-count');
-    if (progressIndicator) progressIndicator.innerText = state.selectedSlots[key].length;
-    
-    checkFinalStep();
-}
+    if (index > -1) state.selectedSlots[key].splice(index, 1);
+    else state.selectedSlots[key].push(slot);
 
-function checkFinalStep() {
-    const currentSvc = state.selectedServices[0];
-    if (!currentSvc) return;
-    
-    // Le bouton de l'étape 3 s'active uniquement si TOUTES les 4 semaines ont 6h chacune
-    let totalSelected = 0;
-    for(let w=1; w<=4; w++) {
-        totalSelected += (state.selectedSlots[`${currentSvc.id}_${w}`] || []).length;
-    }
-    
-    toStep3Btn.disabled = (totalSelected < 24);
-}
+    renderDaySelector(); // Re-render pour badges + compteur
+};
 
-// ── SETUP & EVENTS ───────────────────────────────────────────
+// ── SETUP & EVENTS ────────────────────────────────────────────
 
 function setupEventListeners() {
-    if (toStep2Btn) toStep2Btn.onclick = () => { goToStep(2); renderWeekTabs(); };
-    if (toStep3Btn) toStep3Btn.onclick = () => { calculatePrice(); goToStep(3); };
+    if (toStep2Btn) {
+        toStep2Btn.onclick = () => {
+            goToStep(2);
+            state.currentDay = null;
+            renderDaySelector();
+        };
+    }
+
+    // ✅ Créneaux OPTIONNELS — bouton toujours actif
+    if (toStep3Btn) {
+        toStep3Btn.disabled = false;
+        toStep3Btn.onclick = () => { calculatePrice(); goToStep(3); };
+    }
 
     const form = document.getElementById('contact-form');
     if (form) {
@@ -324,16 +307,12 @@ function setupEventListeners() {
         };
     }
 
-    // Anchor links (Smooth scroll)
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             const targetId = this.getAttribute('href');
             if (targetId === '#' || targetId === '#services-section') {
-                const targetElement = document.getElementById('services-section');
-                if (targetElement) {
-                    e.preventDefault();
-                    targetElement.scrollIntoView({ behavior: 'smooth' });
-                }
+                const el = document.getElementById('services-section');
+                if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); }
             }
         });
     });
@@ -343,6 +322,11 @@ function setupEventListeners() {
         payBtn.onclick = async () => {
             try {
                 const svc = state.selectedServices[0];
+
+                // Calcul du total des créneaux
+                const totalSlots = DAYS.reduce((acc, _, i) =>
+                    acc + (state.selectedSlots[`${svc.id}_D${i}`] || []).length, 0);
+
                 const payload = {
                     service_id: svc.id,
                     prenom: state.customerInfo.prenom,
@@ -352,90 +336,90 @@ function setupEventListeners() {
                     message: state.customerInfo.message,
                     mode_paiement: state.paymentMode,
                     horaires: state.selectedSlots,
-                    gateway: state.gateway
+                    gateway: state.gateway,
+                    // 🔔 Flag pour notifier le freelancer si aucun créneau choisi
+                    pas_de_creneaux: totalSlots === 0
                 };
 
-                const { data, error } = await window.supabaseClient.functions.invoke('create-checkout-session', { body: payload });
+                const res = await fetch(`${window.supabaseClient.supabaseUrl}/functions/v1/create-checkout-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.supabaseClient.supabaseKey}`
+                    },
+                    body: JSON.stringify(payload)
+                });
                 
-                if (data?.error) {
-                    throw new Error(data.error + " | " + JSON.stringify(data.traceback));
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    throw new Error(data.error || "Erreur HTTP : " + res.status);
                 }
-                
+
+                if (data?.error) throw new Error(data.error + (data.traceback ? ' | ' + JSON.stringify(data.traceback) : ''));
                 if (data?.url) location.href = data.url;
-                if (error) throw error;
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
-                alert("Erè pèman: " + e.message);
+                alert('Erè pèman: ' + e.message);
             }
         };
     }
+
+    document.querySelectorAll('.pay-card').forEach(card => {
+        card.onclick = () => {
+            document.querySelectorAll('.pay-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            state.paymentMode = card.dataset.mode || 'full';
+            calculatePrice();
+        };
+    });
+
+    document.querySelectorAll('.pay-gateway').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.pay-gateway').forEach(c => {
+                c.classList.remove('active');
+                c.style.borderColor = 'rgba(255,255,255,0.1)';
+            });
+            btn.classList.add('active');
+            btn.style.borderColor = 'var(--primary)';
+            state.gateway = btn.dataset.gateway || 'stripe';
+            const pBtn = document.getElementById('pay-button');
+            if (pBtn) pBtn.innerText = state.gateway === 'moncash'
+                ? 'Peye ak MonCash'
+                : 'Konfime epi Peye Sekirize';
+        };
+    });
 }
+
+// ── PRIX ──────────────────────────────────────────────────────
 
 function calculatePrice() {
     const subtotal = state.selectedServices.reduce((acc, s) => acc + (s.prix || 105), 0);
-    
-    // Calcul de la remise automatique si plus d'un service
     const discountPercent = state.selectedServices.length > 1 ? 10 : 0;
     const discountAmount = (subtotal * discountPercent) / 100;
-    const discountedTotal = subtotal - discountAmount;
+    const discounted = subtotal - discountAmount;
+    const finalAmount = state.paymentMode === 'depot' ? discounted / 2 : discounted;
 
-    // Si dépôt (50%), on divise le montant initial par deux
-    const finalAmount = state.paymentMode === 'depot' ? discountedTotal / 2 : discountedTotal;
-    
     const finalAmtEl = document.getElementById('final-amount');
     const discountTextEl = document.getElementById('final-discount-text');
-    
     if (finalAmtEl) finalAmtEl.innerText = `$${finalAmount.toFixed(2)}`;
     if (discountTextEl) discountTextEl.innerText = `${discountPercent}%`;
-
     state.finalAmount = finalAmount;
 }
 
-// Gestion du choix de paiement physique (cartes 100% ou 50%)
-document.querySelectorAll('.pay-card').forEach(card => {
-    card.onclick = () => {
-        document.querySelectorAll('.pay-card').forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-        state.paymentMode = card.dataset.mode || 'full';
-        calculatePrice(); // Recalculer le prix immédiatement
-    };
-});
-
-// Choix de la passerelle de paiement (Stripe ou MonCash)
-document.querySelectorAll('.pay-gateway').forEach(btn => {
-    btn.onclick = () => {
-        document.querySelectorAll('.pay-gateway').forEach(c => {
-            c.classList.remove('active');
-            c.style.borderColor = 'rgba(255,255,255,0.1)';
-        });
-        btn.classList.add('active');
-        btn.style.borderColor = 'var(--primary)';
-        state.gateway = btn.dataset.gateway || 'stripe';
-        
-        // Mettre à jour le texte du bouton final
-        const pBtn = document.getElementById('pay-button');
-        if (pBtn) {
-            pBtn.innerText = state.gateway === 'moncash' ? 'Peye ak MonCash' : 'Konfime epi Peye Sekirize';
-        }
-    };
-});
+// ── NAVIGATION ────────────────────────────────────────────────
 
 function goToStep(s) {
     document.querySelectorAll('.step-section').forEach(sec => sec.classList.remove('active'));
     const target = document.getElementById(`step-${s}`);
     if (target) target.classList.add('active');
-    
-    // Mise à jour visuelle des étapes
     document.querySelectorAll('#stepper .step').forEach(dot => {
         dot.classList.remove('active');
         if (dot.dataset.step == s) dot.classList.add('active');
     });
 }
 
-// État initial de paiement
-state.paymentMode = 'full';
-state.gateway = 'stripe';
+// ── LANCEMENT ─────────────────────────────────────────────────
 
-// Initialisation globale
 setupEventListeners();
 renderServicesGrid();
