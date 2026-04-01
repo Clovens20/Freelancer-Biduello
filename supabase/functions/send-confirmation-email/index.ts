@@ -285,7 +285,8 @@ serve(async (req) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { db: { schema: 'public' } }  // ✅ Schéma explicite — TOUJOURS 'public'
     );
 
     // If force=true (manual resend from dashboard), update statut to 'paye' first
@@ -307,12 +308,14 @@ serve(async (req) => {
     if (!res) throw new Error("Rezèvasyon pa jwenn.");
 
     // Check payment status (bypass if force=true)
+    // ✅ ROBUSTE: normalise 'payé', 'paye', 'paid', 'Payé' → toujours compare à 'paye'
     if (!force) {
       const statutNormalise = (res.statut || "")
         .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, "")
-        .toLowerCase();
-      if (statutNormalise !== "paye") {
+        .replace(/[\u0300-\u036f]/g, "")  // retire tous les accents
+        .toLowerCase()
+        .trim();
+      if (statutNormalise !== "paye" && statutNormalise !== "paid") {
         return new Response(
           JSON.stringify({ error: `Peman pa konfime. Statut aktyèl: ${res.statut}` }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }

@@ -1143,6 +1143,9 @@
                         <span class="nav-icon">✏️</span> Landing Page
                     </button>
                     <p class="sidebar-label">Kont</p>
+                    <button class="nav-item" onclick="showTab('profil', this)" data-tab="profil">
+                        <span class="nav-icon">👤</span> Profil Mwen
+                    </button>
                     <button class="nav-item" onclick="showTab('sec', this)" data-tab="sec">
                         <span class="nav-icon">🔒</span> Sekirite
                     </button>
@@ -1326,6 +1329,67 @@
                             passe</button>
                     </div>
                 </div>
+
+                <!-- Tab: Profil -->
+                <div class="tab-pane" id="tab-profil">
+                    <div class="pane-header">
+                        <div>
+                            <h2>Profil Mwen</h2>
+                            <p>Mete foto ou ak enfòmasyon pèsonèl ou</p>
+                        </div>
+                    </div>
+
+                    <!-- Aperçu profil actuel -->
+                    <div style="display:flex;align-items:center;gap:24px;background:var(--surface);border:1px solid var(--border-gold);border-radius:var(--r-lg);padding:28px;margin-bottom:24px">
+                        <div id="profil-avatar-preview" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;border:3px solid var(--border-gold)">
+                            <span id="profil-initial-preview">?</span>
+                        </div>
+                        <div>
+                            <div style="font-size:1.2rem;font-weight:700;margin-bottom:4px" id="profil-nom-display">—</div>
+                            <div style="color:var(--text-2);font-size:0.88rem" id="profil-email-display">—</div>
+                            <div style="margin-top:8px">
+                                <span style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:var(--success);padding:3px 10px;border-radius:50px;font-size:0.75rem;font-weight:600">✓ Aktif</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Photo -->
+                    <div class="config-section">
+                        <div class="config-section-title">📷 Foto Pwofil</div>
+
+                        <div style="background:rgba(186,117,23,0.06);border:1px solid var(--border-gold);border-radius:var(--r-md);padding:16px;margin-bottom:20px;font-size:0.85rem;color:var(--text-2)">
+                            <strong style="color:var(--accent)">💡 Kijan pou jwenn lyen dirèk foto ou:</strong><br>
+                            • <strong>PostImg.cc</strong>: Kòpye lyen paj la (ex: postimg.cc/abc) — sistèm nan ap konvèti l otomatikman ✅<br>
+                            • <strong>ImgBB</strong>: Kòpye lyen dirèk (img.ibb.co/...) ✅<br>
+                            • <strong>Imgur</strong>: Kòpye lyen imaaj (i.imgur.com/...) ✅<br>
+                            • <strong>Google Drive</strong>: Pataje → Kopye lyen → Kole isit la ✅
+                        </div>
+
+                        <div class="field-group">
+                            <label class="dash-label">URL Foto (PostImg, ImgBB, Imgur, etc.)</label>
+                            <div style="display:flex;gap:10px">
+                                <input type="text" id="profil-photo-url" class="dash-input"
+                                    placeholder="https://postimg.cc/5Hr9k1jz  ← kole lyen ou a isit"
+                                    oninput="previewProfilPhoto(this.value)">
+                                <button class="btn btn-gold btn-sm" onclick="saveProfilPhoto()">💾 Anrejitre</button>
+                            </div>
+                        </div>
+
+                        <!-- Preview de l'image -->
+                        <div id="photo-preview-box" style="display:none;margin-top:16px">
+                            <p style="font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-2);margin-bottom:10px">Apèsi Foto:</p>
+                            <div style="display:flex;align-items:center;gap:20px">
+                                <img id="photo-preview-img"
+                                    style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--border-gold);background:var(--surface-2)"
+                                    onerror="photoPreviewError()">
+                                <div>
+                                    <div id="photo-preview-status" style="font-size:0.88rem"></div>
+                                    <p id="photo-converted-url" style="font-size:0.75rem;color:var(--text-3);margin-top:6px;word-break:break-all"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
@@ -1385,6 +1449,38 @@
             </div>
             <div id="manual-slots-container" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px"></div>
             <button class="btn btn-gold btn-wide" id="btn-save-process" style="margin-top:10px">Konfime Orè yo</button>
+        </div>
+    </div>
+
+    <!-- ════ MODAL NOUVO SÈVIS ════ -->
+    <div id="new-svc-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px">
+        <div style="background:var(--surface);border:1px solid var(--border-gold);border-radius:var(--r-xl);padding:40px;width:100%;max-width:480px;position:relative;animation:loginReveal 0.3s ease">
+            <button onclick="closeNewSvcModal()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:var(--text-2);font-size:1.4rem;cursor:pointer">×</button>
+            <h2 style="font-family:'DM Serif Display',serif;margin-bottom:6px;color:var(--text)">➕ Nouvo Sèvis</h2>
+            <p style="color:var(--text-2);font-size:0.88rem;margin-bottom:28px">Ranpli enfòmasyon sèvis ou vle ajoute a.</p>
+
+            <div class="field-group">
+                <label class="dash-label">Non Sèvis</label>
+                <input type="text" id="new-svc-nom" class="dash-input" placeholder="Ex: Coaching Facebook 1-on-1">
+            </div>
+            <div class="field-group">
+                <label class="dash-label">Pri (USD)</label>
+                <div style="display:flex;align-items:center;gap:10px">
+                    <span style="color:var(--accent);font-size:1.2rem;font-weight:700">$</span>
+                    <input type="number" id="new-svc-prix" class="dash-input" placeholder="105" min="1" style="flex:1">
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="dash-label">Deskripsyon (opsyonèl)</label>
+                <textarea id="new-svc-desc" class="dash-textarea" rows="3" placeholder="Dekri sèvis ou a..."></textarea>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-top:8px">
+                <button id="btn-create-svc" class="btn btn-gold btn-wide" onclick="confirmCreateService()">
+                    ✅ Kreye Sèvis la
+                </button>
+                <button class="btn btn-ghost" onclick="closeNewSvcModal()">Anile</button>
+            </div>
         </div>
     </div>
 
@@ -1482,6 +1578,27 @@
             const name = currentFreelancer?.nom || 'Admin';
             document.getElementById('user-name-display').textContent = name;
             document.getElementById('user-initial').textContent = name.charAt(0).toUpperCase();
+
+            // ✅ Populer le tab Profil
+            const profilNom = document.getElementById('profil-nom-display');
+            const profilEmail = document.getElementById('profil-email-display');
+            const profilInitial = document.getElementById('profil-initial-preview');
+            if (profilNom) profilNom.textContent = currentFreelancer?.nom || '—';
+            if (profilEmail) profilEmail.textContent = currentFreelancer?.email || '—';
+            if (profilInitial) profilInitial.textContent = name.charAt(0).toUpperCase();
+
+            // ✅ Si le freelancer a déjà une photo enregistrée
+            if (currentFreelancer?.photo_url) {
+                updateAvatarDisplay(currentFreelancer.photo_url);
+                const input = document.getElementById('profil-photo-url');
+                if (input) {
+                    input.value = currentFreelancer.photo_url;
+                    previewProfilPhoto(currentFreelancer.photo_url);
+                }
+            } else {
+                updateAvatarDisplay(null);
+            }
+
             loadAllData();
         }
 
@@ -1606,8 +1723,16 @@
         // ✅ FIX 2: loadReservations — chak kat TOUT klikab
         // ══════════════════════════════════════════════════════════
         async function loadReservations() {
-            const { data: allRez } = await sb.from('reservations').select('*');
-            const { data: paidRez } = await sb.from('reservations').select('*').eq('statut', 'payé');
+            const { data: allRez, error: errAll } = await sb.from('reservations').select('*');
+            if (errAll) console.error('[loadReservations] erreur allRez:', errAll);
+
+            // ✅ FIX ACCENT: cherche 'payé', 'paye' ET 'paid' pour ne rien manquer
+            const { data: paidRez, error: errPaid } = await sb.from('reservations').select('*').in('statut', ['payé', 'paye', 'paid']);
+            if (errPaid) console.error('[loadReservations] erreur paidRez:', errPaid);
+
+            // DEBUG: affiche les statuts dans la console pour vérification
+            console.log('[loadReservations] Toutes reservations:', (allRez || []).map(r => ({ id: r.id.slice(0,8), statut: r.statut, prenom: r.prenom })));
+            console.log('[loadReservations] Payées:', (paidRez || []).length);
 
             const paid = paidRez || [];
             const total = allRez || [];
@@ -1870,11 +1995,54 @@
             showToast(error ? 'Erè: ' + error.message : 'Sèvis mizajou!', error ? 'error' : 'success');
         }
 
-        async function addNewService() {
+        // ✅ Ouvre modal pou kreye yon nouvo sèvis ak prix pèsonalize
+        function addNewService() {
             if (!currentFreelancer?.id) return showToast('Erè: Freelancer pa idantifye', 'error');
-            const { error } = await sb.from('services').insert({ nom: 'Nouvo Sèvis', description: 'Deskripsyon...', prix: 105, freelancer_id: currentFreelancer.id, actif: true });
-            if (error) showToast('Erè: ' + error.message, 'error');
-            else { showToast('Nouvo sèvis ajoute!', 'success'); loadServices(); }
+            // Vider les champs
+            document.getElementById('new-svc-nom').value = '';
+            document.getElementById('new-svc-prix').value = '';
+            document.getElementById('new-svc-desc').value = '';
+            document.getElementById('new-svc-modal').style.display = 'flex';
+        }
+
+        function closeNewSvcModal() {
+            document.getElementById('new-svc-modal').style.display = 'none';
+        }
+
+        async function confirmCreateService() {
+            const nom = document.getElementById('new-svc-nom').value.trim();
+            const prixVal = document.getElementById('new-svc-prix').value.trim();
+            const description = document.getElementById('new-svc-desc').value.trim();
+
+            if (!nom) { showToast('Tanpri antre non sèvis la!', 'error'); return; }
+            if (!prixVal || isNaN(parseFloat(prixVal)) || parseFloat(prixVal) <= 0) {
+                showToast('Tanpri antre yon pri valid (ex: 105)', 'error'); return;
+            }
+
+            const prix = parseFloat(prixVal);
+            const btn = document.getElementById('btn-create-svc');
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Ap kreye...';
+
+            const { error } = await sb.from('services').insert({
+                nom,
+                description: description || 'Deskripsyon pou sèvis sa a.',
+                prix,
+                freelancer_id: currentFreelancer.id,
+                actif: true
+            });
+
+            btn.disabled = false;
+            btn.innerHTML = '✅ Kreye Sèvis la';
+
+            if (error) {
+                console.error('[createService]', error);
+                showToast('Erè: ' + error.message, 'error');
+            } else {
+                showToast(`✅ Sèvis "${nom}" ($${prix}) kreye!`, 'success');
+                closeNewSvcModal();
+                loadServices();
+            }
         }
 
         async function deleteService(svcId) {
@@ -1952,6 +2120,117 @@
             const { error } = await sb.auth.updateUser({ password: np });
             if (error) showToast('Erè: ' + error.message, 'error');
             else { showToast('Mot de passe chanje!', 'success'); document.getElementById('new-password').value = ''; document.getElementById('confirm-password').value = ''; }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // 📷 PHOTO PROFIL — Konvètisyon URL Otomatik
+        // Sipòte: PostImg, Imgur, ImgBB, Google Drive, URL dirèk
+        // ══════════════════════════════════════════════════════════
+        function convertImageUrl(rawUrl) {
+            if (!rawUrl) return null;
+            const url = rawUrl.trim();
+
+            // ✅ PostImg: https://postimg.cc/CODE → https://i.postimg.cc/CODE
+            // Oswa: https://postimg.cc/gallery/CODE pa vle di menm
+            const postimgMatch = url.match(/^https?:\/\/(?:www\.)?postimg\.cc\/([^/\s?#]+)\/?/);
+            if (postimgMatch && !url.includes('i.postimg.cc')) {
+                return `https://i.postimg.cc/${postimgMatch[1]}`;
+            }
+
+            // ✅ Imgur paj: https://imgur.com/abc123 → https://i.imgur.com/abc123.jpg
+            const imgurPageMatch = url.match(/^https?:\/\/(?:www\.)?imgur\.com\/([a-zA-Z0-9]+)\/?$/);
+            if (imgurPageMatch) {
+                return `https://i.imgur.com/${imgurPageMatch[1]}.jpg`;
+            }
+
+            // ✅ Google Drive: https://drive.google.com/file/d/FILE_ID/view
+            //   → https://drive.google.com/uc?export=view&id=FILE_ID
+            const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+            if (driveMatch) {
+                return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+            }
+
+            // ✅ Google Drive link sharing: https://drive.google.com/open?id=FILE_ID
+            const driveOpenMatch = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+            if (driveOpenMatch) {
+                return `https://drive.google.com/uc?export=view&id=${driveOpenMatch[1]}`;
+            }
+
+            // Lyen dirèk dèjà bon (i.imgur, i.postimg, img.ibb, etc.)
+            return url;
+        }
+
+        function previewProfilPhoto(rawUrl) {
+            const converted = convertImageUrl(rawUrl);
+            const previewBox = document.getElementById('photo-preview-box');
+            const img = document.getElementById('photo-preview-img');
+            const status = document.getElementById('photo-preview-status');
+            const convertedUrlEl = document.getElementById('photo-converted-url');
+
+            if (!converted) { previewBox.style.display = 'none'; return; }
+
+            previewBox.style.display = 'block';
+            img.src = converted;
+            status.innerHTML = '<span style="color:var(--warning)">⏳ Ap vèrifye...</span>';
+
+            // Show converted URL if different from input
+            if (converted !== rawUrl.trim()) {
+                convertedUrlEl.innerHTML = `↪ Lyen konvèti: <span style="color:var(--accent)">${converted}</span>`;
+            } else {
+                convertedUrlEl.textContent = '';
+            }
+
+            img.onload = () => {
+                status.innerHTML = '<span style="color:var(--success)">✅ Foto jwenn! Wè apèsi a — klike "Anrejitre" pou sove l.</span>';
+            };
+        }
+
+        function photoPreviewError() {
+            const status = document.getElementById('photo-preview-status');
+            status.innerHTML = `
+                <span style="color:var(--danger)">❌ URL sa a pa bay yon imaaj dirèk.</span><br>
+                <span style="font-size:0.8rem;color:var(--text-2)">Pou PostImg: klike dwa sou foto ou → "Copy Image Address" elske itilize lyen paj la senpleman.</span>`;
+        }
+
+        async function saveProfilPhoto() {
+            const rawUrl = document.getElementById('profil-photo-url').value.trim();
+            if (!rawUrl) { showToast('Antre yon URL foto avan!', 'error'); return; }
+
+            const converted = convertImageUrl(rawUrl);
+            if (!currentFreelancer?.id) { showToast('Erè: ID freelancer pa jwenn.', 'error'); return; }
+
+            const { error } = await sb.from('freelancers')
+                .update({ photo_url: converted })
+                .eq('id', currentFreelancer.id);
+
+            if (error) {
+                showToast('Erè: ' + error.message, 'error');
+            } else {
+                currentFreelancer.photo_url = converted;
+                updateAvatarDisplay(converted);
+                showToast('✅ Foto pwofil anrejitre!', 'success');
+            }
+        }
+
+        // Met ajou avatar header + profil an mèm tan
+        function updateAvatarDisplay(photoUrl) {
+            const avatarEl = document.getElementById('user-initial');
+            const profilAvatar = document.getElementById('profil-avatar-preview');
+            const initialSpan = document.getElementById('profil-initial-preview');
+            const name = currentFreelancer?.nom || '?';
+            const initial = name.charAt(0).toUpperCase();
+
+            if (photoUrl) {
+                // Header avatar
+                avatarEl.innerHTML = `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML='${initial}'">`;
+                // Profil tab avatar
+                if (profilAvatar) {
+                    profilAvatar.innerHTML = `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span>${initial}</span>'">`;
+                }
+            } else {
+                avatarEl.textContent = initial;
+                if (initialSpan) initialSpan.textContent = initial;
+            }
         }
 
         // ── TOAST ─────────────────────────────────────────────────
