@@ -12,12 +12,8 @@
         href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap"
         rel="stylesheet">
 
-    <!-- Supabase: librairie DABÒ, apre a sèlman js/supabase.js -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Garanti: 'supabase' global disponib anvan supabase.js chaje
-        // cdn.jsdelivr.net ekspòze window.supabase = { createClient, ... }
-        // Nou jis konfime li egziste
         if (typeof supabase === 'undefined') {
             console.error('Supabase CDN pa chaje kòrèkteman!');
         }
@@ -25,7 +21,6 @@
     <script src="../js/supabase.js"></script>
 
     <style>
-        /* ─── VARIABLES ─── */
         :root {
             --primary: #BA7517;
             --primary-dark: #8E5E14;
@@ -79,7 +74,6 @@
             line-height: 1.2;
         }
 
-        /* ─── AMBIENT ─── */
         .ambient {
             position: fixed;
             inset: 0;
@@ -125,7 +119,7 @@
             }
         }
 
-        /* ─── LOGIN PAGE ─── */
+        /* ─── LOGIN ─── */
         #auth-view {
             position: relative;
             z-index: 10;
@@ -230,6 +224,7 @@
             color: var(--text-3);
         }
 
+        /* ─── BUTTONS ─── */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -308,7 +303,7 @@
             display: none;
         }
 
-        /* ─── DASHBOARD LAYOUT ─── */
+        /* ─── DASHBOARD ─── */
         #admin-view {
             display: none;
             position: relative;
@@ -364,7 +359,6 @@
             color: white;
         }
 
-        /* Sidebar + Main */
         .dash-body {
             display: grid;
             grid-template-columns: 240px 1fr;
@@ -430,13 +424,12 @@
             text-align: center;
         }
 
-        /* ─── MAIN CONTENT ─── */
         .dash-main {
             padding: 36px 40px;
             overflow-y: auto;
         }
 
-        /* Stats Row */
+        /* Stats */
         .stats-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -507,7 +500,7 @@
             margin-top: 4px;
         }
 
-        /* Tab Panes */
+        /* Tabs */
         .tab-pane {
             display: none;
             animation: fadePane 0.3s ease;
@@ -548,7 +541,7 @@
             margin-top: 4px;
         }
 
-        /* Reservation Cards */
+        /* ─── RESERVATION CARDS (CLICKABLE) ─── */
         .rez-grid {
             display: flex;
             flex-direction: column;
@@ -565,12 +558,16 @@
             grid-template-columns: 1fr auto;
             gap: 16px;
             align-items: start;
-            transition: border-color 0.25s;
+            transition: border-color 0.25s, transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            /* ✅ FIX: tout la kat klikab */
         }
 
         .rez-card:hover {
             border-color: var(--border-gold);
             border-left-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(186, 117, 23, 0.1);
         }
 
         .rez-name {
@@ -619,7 +616,7 @@
             opacity: 0.4;
         }
 
-        /* Service Management */
+        /* Services */
         .svc-grid {
             display: flex;
             flex-direction: column;
@@ -638,25 +635,7 @@
             border-color: var(--border-gold);
         }
 
-        .svc-card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .svc-card-title {
-            font-size: 1.2rem;
-            font-family: 'DM Serif Display', serif;
-        }
-
-        .svc-price {
-            font-size: 1.4rem;
-            color: var(--primary);
-            font-family: 'DM Serif Display', serif;
-        }
-
-        /* Form Inputs (Dashboard) */
+        /* Inputs */
         .dash-input,
         .dash-textarea,
         .dash-select {
@@ -760,7 +739,7 @@
             color: var(--danger);
         }
 
-        /* Security Tab */
+        /* Security */
         .security-card {
             max-width: 480px;
             background: var(--surface);
@@ -807,7 +786,7 @@
             border-left: 3px solid var(--primary);
         }
 
-        /* Loading overlay */
+        /* Loading */
         .loading-overlay {
             position: fixed;
             inset: 0;
@@ -840,7 +819,7 @@
             font-size: 0.9rem;
         }
 
-        /* Discount Banner */
+        /* Discount */
         .discount-row {
             background: rgba(186, 117, 23, 0.06);
             border: 1px solid var(--border-gold);
@@ -870,9 +849,172 @@
             gap: 12px;
         }
 
-        .discount-input-row input {
-            width: 80px;
+        /* ─── MODAL DETAY REZÈVASYON (NEW) ─── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(6px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--surface);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--r-xl);
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 36px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(186, 117, 23, 0.1);
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            font-size: 1.8rem;
+            color: var(--text-2);
+            cursor: pointer;
+            line-height: 1;
+            background: none;
+            border: none;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        /* Detail rows inside modal */
+        .detail-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .detail-row:last-of-type {
+            border-bottom: none;
+        }
+
+        .detail-icon {
+            font-size: 1rem;
+            width: 20px;
             text-align: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .detail-label {
+            color: var(--text-2);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* Slot chips */
+        .slot-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(186, 117, 23, 0.1);
+            border: 1px solid var(--border-gold);
+            border-radius: 50px;
+            font-size: 0.82rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin: 4px 4px 4px 0;
+        }
+
+        /* ─── MODAL TRETE (PROCESS) ─── */
+        .process-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 10001;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .process-modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-xl);
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .process-close {
+            position: absolute;
+            top: 18px;
+            right: 24px;
+            font-size: 2rem;
+            color: var(--text-2);
+            cursor: pointer;
+            line-height: 1;
+            background: none;
+            border: none;
+        }
+
+        .process-close:hover {
+            color: var(--danger);
+        }
+
+        .process-meta {
+            background: rgba(186, 117, 23, 0.05);
+            padding: 15px;
+            border-radius: var(--r-sm);
+            border: 1px solid var(--border-gold);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .process-meta strong {
+            color: var(--text);
+        }
+
+        .process-meta span {
+            color: var(--text-2);
+            display: block;
+            margin-bottom: 5px;
         }
 
         /* Responsive */
@@ -918,50 +1060,23 @@
                 grid-template-columns: 1fr;
             }
         }
-        /* ─── MODAL TRETE (PROCESS) ─── */
-        .process-modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-            z-index: 10000; display: none; align-items: center; justify-content: center;
-        }
-        .process-modal {
-            background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl);
-            width: 90%; max-width: 500px; padding: 30px; position: relative;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-        }
-        .process-close {
-            position: absolute; top: 18px; right: 24px; font-size: 2rem; color: var(--text-2); cursor: pointer; line-height: 1;
-        }
-        .process-close:hover { color: var(--danger); }
-        .process-meta {
-            background: rgba(186, 117, 23, 0.05); padding: 15px; border-radius: var(--r-sm); border: 1px solid var(--border-gold);
-            margin-bottom: 20px; font-size: 0.9rem;
-        }
-        .process-meta strong { color: var(--text); }
-        .process-meta span { color: var(--text-2); display: block; margin-bottom: 5px; }
-        
     </style>
 </head>
 
 <body>
-
-    <!-- Ambient -->
     <div class="ambient">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
     </div>
 
-    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loading-overlay">
         <div class="spinner"></div>
         <p class="loading-text">Verifikasyon seyans ou...</p>
     </div>
 
-    <!-- Toast -->
     <div class="toast" id="toast"></div>
 
-    <!-- ════════════════════════════════ -->
-    <!--          LOGIN VIEW             -->
-    <!-- ════════════════════════════════ -->
+    <!-- ════ LOGIN VIEW ════ -->
     <div id="auth-view" style="display:none">
         <div class="login-card">
             <div class="login-logo">
@@ -971,9 +1086,7 @@
             </div>
             <h1 class="login-title">Aksè Prive</h1>
             <p class="login-sub">Konekte pou jere biznis ou a</p>
-
             <div class="error-msg" id="login-error"></div>
-
             <div class="field">
                 <label>Imèl</label>
                 <input type="email" id="admin-email" placeholder="ou@gmail.com" autocomplete="email">
@@ -991,12 +1104,8 @@
         </div>
     </div>
 
-    <!-- ════════════════════════════════ -->
-    <!--         DASHBOARD VIEW          -->
-    <!-- ════════════════════════════════ -->
+    <!-- ════ DASHBOARD VIEW ════ -->
     <div id="admin-view">
-
-        <!-- Header -->
         <header class="dash-header">
             <div class="dash-logo">
                 <img src="../assets/logo.png" alt="DJ Innovations" onerror="this.style.display='none'">
@@ -1017,8 +1126,6 @@
         </header>
 
         <div class="dash-body">
-
-            <!-- Sidebar -->
             <aside class="sidebar">
                 <div class="sidebar-nav" id="sidebar-nav">
                     <p class="sidebar-label">Jesyon</p>
@@ -1031,12 +1138,10 @@
                     <button class="nav-item" onclick="showTab('svc', this)" data-tab="svc">
                         <span class="nav-icon">💼</span> Sèvis yo
                     </button>
-
                     <p class="sidebar-label">Konteni</p>
                     <button class="nav-item" onclick="showTab('landing', this)" data-tab="landing">
                         <span class="nav-icon">✏️</span> Landing Page
                     </button>
-
                     <p class="sidebar-label">Kont</p>
                     <button class="nav-item" onclick="showTab('sec', this)" data-tab="sec">
                         <span class="nav-icon">🔒</span> Sekirite
@@ -1044,9 +1149,7 @@
                 </div>
             </aside>
 
-            <!-- Main -->
             <main class="dash-main">
-
                 <!-- Stats -->
                 <div class="stats-row" id="stats-row">
                     <div class="stat-card">
@@ -1055,13 +1158,15 @@
                         <div class="stat-value" id="stat-revenue">$0</div>
                         <p class="stat-sub">Total kolekte</p>
                     </div>
-                    <div class="stat-card" style="cursor: pointer; transition: 0.2s;" onclick="showTab('rez', document.querySelector('[data-tab=rez]'))" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                    <div class="stat-card" style="cursor:pointer"
+                        onclick="showTab('rez', document.querySelector('[data-tab=rez]'))">
                         <div class="stat-icon">📦</div>
                         <p class="stat-label">Rezèvasyon Total</p>
                         <div class="stat-value" id="stat-total">0</div>
                         <p class="stat-sub" style="color:var(--primary)">Klike pou wè lis la</p>
                     </div>
-                    <div class="stat-card" style="cursor: pointer; transition: 0.2s;" onclick="showTab('rez', document.querySelector('[data-tab=rez]'))" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                    <div class="stat-card" style="cursor:pointer"
+                        onclick="showTab('rez', document.querySelector('[data-tab=rez]'))">
                         <div class="stat-icon">✅</div>
                         <p class="stat-label">Rezèvasyon Konfime</p>
                         <div class="stat-value" id="stat-paid">0</div>
@@ -1080,7 +1185,7 @@
                     <div class="pane-header">
                         <div>
                             <h2>Rezèvasyon</h2>
-                            <p>Tout kliyan ki peye pou sèvis yo</p>
+                            <p>Klike sou yon kat pou wè detay konplè kliyan an</p>
                         </div>
                     </div>
                     <div class="rez-grid" id="rez-list">
@@ -1096,7 +1201,7 @@
                     <div class="pane-header">
                         <div>
                             <h2>Agenda Ou (Kliyan Peye)</h2>
-                            <p>Gade ki lè jounen w okipe ak ki kliyan</p>
+                            <p>Gade ki lè jounen w okipe ak ki kliyan — Klike sou yon blòk pou wè detay</p>
                         </div>
                     </div>
                     <div id="agenda-calendar">
@@ -1115,8 +1220,6 @@
                             <p>Modifye deskripsyon ak prise sèvis yo</p>
                         </div>
                     </div>
-
-                    <!-- Discount Banner -->
                     <div class="discount-row">
                         <div class="discount-info">
                             <h4>🎁 Rabais Global</h4>
@@ -1124,12 +1227,14 @@
                         </div>
                         <div class="discount-input-row">
                             <input type="number" id="discount-global" class="dash-input" min="0" max="100"
-                                placeholder="0" style="width:80px; text-align:center;">
-                            <span style="color:var(--text-2)">%</span>
+                                placeholder="0" style="width:70px;text-align:center">
+                            <span style="color:var(--text-2);margin-right:10px">%</span>
+                            <select id="discount-service-target" class="dash-input" style="width:200px">
+                                <option value="all">Tout Sévis yo (Global)</option>
+                            </select>
                             <button class="btn btn-gold btn-sm" onclick="saveDiscount()">Anrejistre</button>
                         </div>
                     </div>
-
                     <div class="svc-grid" id="svc-list">
                         <div class="empty-state">
                             <div class="empty-icon">💼</div>
@@ -1138,100 +1243,65 @@
                     </div>
                 </div>
 
-                <!-- Tab: Landing Config -->
+                <!-- Tab: Landing -->
                 <div class="tab-pane" id="tab-landing">
                     <div class="pane-header">
                         <div>
                             <h2>Edite Landing Page</h2>
                             <p>Chanjman yo anrejistre otomatikman</p>
                         </div>
-                        <div class="save-indicator" id="save-status">
-                            <span>●</span> Tout sekirize
-                        </div>
+                        <div class="save-indicator" id="save-status"><span>●</span> Tout sekirize</div>
                     </div>
-
-                    <!-- Hero -->
                     <div class="config-section">
-                        <div class="config-section-title">
-                            <span>🦸</span> Hero Section
-                        </div>
+                        <div class="config-section-title"><span>🦸</span> Hero Section</div>
                         <div class="grid-2">
-                            <div class="field-group">
-                                <label class="dash-label">Badge</label>
-                                <input type="text" class="dash-input" id="edit-hero-badge" data-field="hero_badge"
-                                    oninput="autoSave(this)" placeholder="🔥 Premium Coaching Digitale">
-                            </div>
-                            <div class="field-group">
-                                <label class="dash-label">Hero Image URL</label>
-                                <input type="text" class="dash-input" id="edit-hero-img" data-field="hero_image_url"
-                                    oninput="autoSave(this)" placeholder="https://...">
-                            </div>
+                            <div class="field-group"><label class="dash-label">Badge</label><input type="text"
+                                    class="dash-input" id="edit-hero-badge" data-field="hero_badge"
+                                    oninput="autoSave(this)"></div>
+                            <div class="field-group"><label class="dash-label">Hero Image URL</label><input type="text"
+                                    class="dash-input" id="edit-hero-img" data-field="hero_image_url"
+                                    oninput="autoSave(this)"></div>
                         </div>
-                        <div class="field-group">
-                            <label class="dash-label">Tit Hero (HTML accepté)</label>
-                            <input type="text" class="dash-input" id="edit-hero-title" data-field="hero_title"
-                                oninput="autoSave(this)">
-                        </div>
-                        <div class="field-group">
-                            <label class="dash-label">Deskripsyon Hero</label>
-                            <textarea class="dash-textarea" id="edit-hero-desc" data-field="hero_description"
-                                oninput="autoSave(this)" rows="3"></textarea>
-                        </div>
+                        <div class="field-group"><label class="dash-label">Tit Hero</label><input type="text"
+                                class="dash-input" id="edit-hero-title" data-field="hero_title"
+                                oninput="autoSave(this)"></div>
+                        <div class="field-group"><label class="dash-label">Deskripsyon Hero</label><textarea
+                                class="dash-textarea" id="edit-hero-desc" data-field="hero_description"
+                                oninput="autoSave(this)" rows="3"></textarea></div>
                     </div>
-
-                    <!-- Avant-Propos -->
                     <div class="config-section">
-                        <div class="config-section-title">
-                            <span>👤</span> Avant-Propos (À Propos)
-                        </div>
+                        <div class="config-section-title"><span>👤</span> Avant-Propos</div>
                         <div class="grid-2">
-                            <div class="field-group">
-                                <label class="dash-label">Tit Section</label>
-                                <input type="text" class="dash-input" id="edit-ap-title" data-field="ap_title"
-                                    oninput="autoSave(this)">
-                            </div>
-                            <div class="field-group">
-                                <label class="dash-label">Photo URL</label>
-                                <input type="text" class="dash-input" id="edit-ap-photo" data-field="ap_photo_url"
-                                    oninput="autoSave(this)" placeholder="https://...">
-                            </div>
+                            <div class="field-group"><label class="dash-label">Tit Section</label><input type="text"
+                                    class="dash-input" id="edit-ap-title" data-field="ap_title"
+                                    oninput="autoSave(this)"></div>
+                            <div class="field-group"><label class="dash-label">Photo URL</label><input type="text"
+                                    class="dash-input" id="edit-ap-photo" data-field="ap_photo_url"
+                                    oninput="autoSave(this)"></div>
                         </div>
-                        <div class="field-group">
-                            <label class="dash-label">Deskripsyon (HTML accepté)</label>
-                            <textarea class="dash-textarea" id="edit-ap-desc" data-field="ap_description"
-                                oninput="autoSave(this)" rows="5" placeholder="<p>Bonjou! Mwen se...</p>"></textarea>
-                        </div>
+                        <div class="field-group"><label class="dash-label">Deskripsyon</label><textarea
+                                class="dash-textarea" id="edit-ap-desc" data-field="ap_description"
+                                oninput="autoSave(this)" rows="5"></textarea></div>
                     </div>
-
-                    <!-- Footer & Sosyal -->
                     <div class="config-section">
-                        <div class="config-section-title">
-                            <span>📱</span> Footer & Sosyal
-                        </div>
+                        <div class="config-section-title"><span>📱</span> Footer & Sosyal</div>
                         <div class="grid-3">
-                            <div class="field-group">
-                                <label class="dash-label">TikTok URL</label>
-                                <input type="text" class="dash-input" id="edit-tiktok" data-field="tiktok_url"
-                                    oninput="autoSave(this)" placeholder="https://tiktok.com/@...">
-                            </div>
-                            <div class="field-group">
-                                <label class="dash-label">Facebook URL</label>
-                                <input type="text" class="dash-input" id="edit-facebook" data-field="facebook_url"
-                                    oninput="autoSave(this)" placeholder="https://facebook.com/...">
-                            </div>
-                            <div class="field-group">
-                                <label class="dash-label">Instagram URL</label>
-                                <input type="text" class="dash-input" id="edit-instagram" data-field="instagram_url"
-                                    oninput="autoSave(this)" placeholder="https://instagram.com/...">
-                            </div>
+                            <div class="field-group"><label class="dash-label">TikTok URL</label><input type="text"
+                                    class="dash-input" id="edit-tiktok" data-field="tiktok_url"
+                                    oninput="autoSave(this)"></div>
+                            <div class="field-group"><label class="dash-label">Facebook URL</label><input type="text"
+                                    class="dash-input" id="edit-facebook" data-field="facebook_url"
+                                    oninput="autoSave(this)"></div>
+                            <div class="field-group"><label class="dash-label">Instagram URL</label><input type="text"
+                                    class="dash-input" id="edit-instagram" data-field="instagram_url"
+                                    oninput="autoSave(this)"></div>
                         </div>
-                        <div class="field-group" style="margin-top:16px;">
-                            <label class="dash-label">Slogan Footer</label>
-                            <input type="text" class="dash-input" id="edit-footer-slogan" data-field="footer_slogan"
-                                oninput="autoSave(this)">
-                        </div>
-                        <div style="margin-top: 24px; text-align: right;">
-                            <button class="btn btn-gold" onclick="forceSaveLanding(this)">Anrejistre Tout Chanjman (Landing & Footer)</button>
+                        <div class="field-group"><label class="dash-label">Slogan Footer</label><input type="text"
+                                class="dash-input" id="edit-footer-slogan" data-field="footer_slogan"
+                                oninput="autoSave(this)"></div>
+                        <div style="margin-top:24px;text-align:right">
+                            <button class="btn btn-gold" onclick="forceSaveLanding(this)">Anrejistre Tout
+                                Chanjman</button>
                         </div>
                     </div>
                 </div>
@@ -1246,37 +1316,39 @@
                     </div>
                     <div class="security-card">
                         <h3 style="margin-bottom:24px">Chanje Mot de passe</h3>
-                        <div class="field-group">
-                            <label class="dash-label">Nouvo Mot de passe</label>
-                            <input type="password" id="new-password" class="dash-input" placeholder="Minimòm 6 karaktè">
+                        <div class="field-group"><label class="dash-label">Nouvo Mot de passe</label><input
+                                type="password" id="new-password" class="dash-input" placeholder="Minimòm 6 karaktè">
                         </div>
-                        <div class="field-group">
-                            <label class="dash-label">Konfime Mot de passe</label>
-                            <input type="password" id="confirm-password" class="dash-input"
-                                placeholder="Repete menm mdp a">
-                        </div>
-                        <button class="btn btn-gold" style="margin-top:8px" onclick="updatePassword()">
-                            Mete Ajou Mot de passe
-                        </button>
+                        <div class="field-group"><label class="dash-label">Konfime Mot de passe</label><input
+                                type="password" id="confirm-password" class="dash-input"
+                                placeholder="Repete menm mdp a"></div>
+                        <button class="btn btn-gold" style="margin-top:8px" onclick="updatePassword()">Mete Ajou Mot de
+                            passe</button>
                     </div>
                 </div>
-
             </main>
         </div>
     </div>
 
-    <!-- MODAL TRETE -->
+    <!-- ════ MODAL DETAY REZÈVASYON (✅ NEW) ════ -->
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeDetailModal()">×</button>
+            <div id="detail-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- ════ MODAL TRETE (PROCESS) ════ -->
     <div id="process-modal" class="process-modal-overlay">
         <div class="process-modal">
-            <span class="process-close" onclick="closeProcessModal()">&times;</span>
-            <h2 style="margin-bottom: 15px; color: var(--primary);">Trete Rezèvasyon</h2>
+            <button class="process-close" onclick="closeProcessModal()">×</button>
+            <h2 style="margin-bottom:15px;color:var(--primary)">Trete Rezèvasyon</h2>
             <div id="process-client-info" class="process-meta"></div>
-            
-            <p style="margin-bottom: 15px; color: var(--text-2); font-size: 0.9rem;">
-                Apre ou fin pale ak kliyan an, chwazi yon orè pou li pou pyès lòt moun pa ka pran l sou kalandriye a ankò.
+            <p style="margin-bottom:15px;color:var(--text-2);font-size:0.9rem">
+                Apre ou fin pale ak kliyan an, chwazi yon orè pou li pou pyès lòt moun pa ka pran l sou kalandriye a
+                ankò.
             </p>
-            
-            <div class="field-group grid-2" style="align-items:end;">
+            <div class="field-group grid-2" style="align-items:end">
                 <div class="field">
                     <label>Jou nan semèn</label>
                     <select id="process-day" class="dash-select">
@@ -1289,8 +1361,8 @@
                         <option value="6">Dimanch</option>
                     </select>
                 </div>
-                <div class="field" style="display:flex; gap:10px;">
-                    <div style="flex:1;">
+                <div class="field" style="display:flex;gap:10px">
+                    <div style="flex:1">
                         <label>Lè / Orè</label>
                         <select id="process-hour" class="dash-select">
                             <option value="8">8:00 AM</option>
@@ -1308,139 +1380,80 @@
                             <option value="20">8:00 PM</option>
                         </select>
                     </div>
-                    <button class="btn btn-gold" style="padding:10px;" onclick="addProcessSlot()">+</button>
+                    <button class="btn btn-gold" style="padding:10px" onclick="addProcessSlot()">+</button>
                 </div>
             </div>
-
-            <!-- Ajoute les "badges" pour chaque heure choisie -->
-            <div id="manual-slots-container" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 20px;"></div>
-            
-            <button class="btn btn-gold btn-wide" id="btn-save-process" style="margin-top: 10px;">Konfime Orè yo</button>
+            <div id="manual-slots-container" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px"></div>
+            <button class="btn btn-gold btn-wide" id="btn-save-process" style="margin-top:10px">Konfime Orè yo</button>
         </div>
     </div>
 
     <script>
-        // ═══════════════════════════════════════════════════════════
-        //  DJ INNOVATIONS — DASHBOARD LOGIC (BUG FIXED)
-        //  FIX: "Database error querying schema" = RLS / table missing
-        //  Solution: use .maybeSingle() + proper error handling
-        // ═══════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════
+        //  DJ INNOVATIONS — DASHBOARD
+        //  ✅ FIX 1: renderAgenda() lit les 2 formats d'horaires
+        //  ✅ FIX 2: Chak kat rezèvasyon klikab → modal detay
+        // ══════════════════════════════════════════════════════════
 
         let sb = null;
         let currentFreelancer = null;
         let saveTimer = null;
+        let allPaidReservations = []; // ✅ Global store
 
-        // ── Init Supabase ─────────────────────────────────────────
-        // supabase.js fè: window.supabaseClient = supabase.createClient(...)
-        function getSupabaseClient() {
-            return window.supabaseClient || null;
-        }
+        function getSupabaseClient() { return window.supabaseClient || null; }
 
-        // ── Init ──────────────────────────────────────────────────
         window.addEventListener('load', async () => {
-            console.log("Dashboard: Inisyalizasyon...");
-            
             try {
-                // 1. Tann Supabase (4s max)
                 let tries = 0;
                 while (!window.supabaseClient && tries < 40) {
                     await new Promise(r => setTimeout(r, 100));
                     tries++;
                 }
-
                 sb = window.supabaseClient;
+                if (!sb) throw new Error("Supabase pa jwenn (Verifye js/supabase.js)");
 
-                if (!sb) {
-                    throw new Error("Supabase pa jwenn (Verifye fichye js/supabase.js)");
-                }
-
-                // 2. Tcheke sesyon an
-                const { data: { session }, error: sessionError } = await sb.auth.getSession();
-                
-                if (sessionError) throw sessionError;
-
-                if (session?.user) {
-                    await loadProfile(session.user.email);
-                } else {
-                    showAuth();
-                }
-
+                const { data: { session }, error } = await sb.auth.getSession();
+                if (error) throw error;
+                if (session?.user) await loadProfile(session.user.email);
+                else showAuth();
             } catch (err) {
-                console.error("Erè Inisyalizasyon:", err);
+                console.error("Erè Init:", err);
                 showLoginError("⚠ Erè: " + err.message);
-                showAuth(); 
+                showAuth();
             } finally {
-                // TOUJOU kache loading lan, menm si gen erè
                 hideLoading();
             }
-
-            // Keyboard enter on login
-            const pwdInput = document.getElementById('admin-password');
-            if (pwdInput) {
-                pwdInput.addEventListener('keydown', e => {
-                    if (e.key === 'Enter') loginAdmin();
-                });
-            }
+            document.getElementById('admin-password')?.addEventListener('keydown', e => {
+                if (e.key === 'Enter') loginAdmin();
+            });
         });
 
-        // ── AUTH ──────────────────────────────────────────────────
+        // ── AUTH ─────────────────────────────────────────────────
         async function loginAdmin() {
             const email = document.getElementById('admin-email').value.trim();
             const password = document.getElementById('admin-password').value;
             const btn = document.getElementById('login-btn');
-            const errEl = document.getElementById('login-error');
-
-            errEl.style.display = 'none';
-
-            if (!email || !password) {
-                showLoginError('Imèl ak Mot de passe oblije!');
-                return;
-            }
-
+            document.getElementById('login-error').style.display = 'none';
+            if (!email || !password) { showLoginError('Imèl ak Mot de passe oblije!'); return; }
             btn.disabled = true;
             btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px"></div> Verifikasyon...';
-
-            const { data: authData, error: authError } = await sb.auth.signInWithPassword({ email, password });
-
-            if (authError) {
-                btn.disabled = false;
-                btn.innerHTML = '→ Konekte kounye a';
-                showLoginError(translateAuthError(authError.message));
-                return;
-            }
-
-            await loadProfile(email);
+            const { error } = await sb.auth.signInWithPassword({ email, password });
             btn.disabled = false;
             btn.innerHTML = '→ Konekte kounye a';
+            if (error) { showLoginError(translateAuthError(error.message)); return; }
+            await loadProfile(email);
         }
 
-        // ── FIX: Use maybeSingle() instead of single() to avoid schema errors ──
         async function loadProfile(email) {
-            const { data: f, error } = await sb
-                .from('freelancers')
-                .select('*')
-                .eq('email', email)
-                .maybeSingle();   // ← KEY FIX: maybeSingle() won't throw if 0 rows
-
-            if (error) {
-                // If table doesn't exist yet, create a basic profile from auth
-                console.warn('freelancers table error:', error.message);
-                // Fallback: still show dashboard with auth user data
-                currentFreelancer = { email, nom: email.split('@')[0], id: null, discount_percent: 0 };
-            } else if (!f) {
-                // No profile row — use auth data as fallback
-                currentFreelancer = { email, nom: email.split('@')[0], id: null, discount_percent: 0 };
-            } else {
-                currentFreelancer = f;
-            }
-
+            const { data: f, error } = await sb.from('freelancers').select('*').eq('email', email).maybeSingle();
+            if (error) console.warn('freelancers table error:', error.message);
+            currentFreelancer = f || { email, nom: email.split('@')[0], id: null, discount_percent: 0 };
             showDashboard();
         }
 
         function showLoginError(msg) {
             const el = document.getElementById('login-error');
-            el.textContent = msg;
-            el.style.display = 'block';
+            el.textContent = msg; el.style.display = 'block';
         }
 
         function translateAuthError(msg) {
@@ -1458,7 +1471,6 @@
             showToast('Ou dekonekte avèk siksè.', 'info');
         }
 
-        // ── VIEWS ────────────────────────────────────────────────
         function showAuth() {
             document.getElementById('auth-view').style.display = 'flex';
             document.getElementById('admin-view').style.display = 'none';
@@ -1467,11 +1479,9 @@
         function showDashboard() {
             document.getElementById('auth-view').style.display = 'none';
             document.getElementById('admin-view').style.display = 'block';
-
             const name = currentFreelancer?.nom || 'Admin';
             document.getElementById('user-name-display').textContent = name;
             document.getElementById('user-initial').textContent = name.charAt(0).toUpperCase();
-
             loadAllData();
         }
 
@@ -1482,7 +1492,6 @@
             setTimeout(() => { ov.style.display = 'none'; }, 420);
         }
 
-        // ── TABS ─────────────────────────────────────────────────
         function showTab(tab, btn) {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1490,27 +1499,122 @@
             if (btn) btn.classList.add('active');
         }
 
-        // ── LOAD DATA ────────────────────────────────────────────
         async function loadAllData() {
-            await Promise.all([
-                loadReservations(),
-                loadServices(),
-                loadLandingConfig(),
-            ]);
+            await Promise.all([loadReservations(), loadServices(), loadLandingConfig()]);
         }
 
+        // ══════════════════════════════════════════════════════════
+        // parseHoraires — gere TOUT fòma orè yo
+        //
+        //  FORMAT REEL app.js ← clé: "{svcId}_D{dayIdx}", valeur: ["H10","H14"]
+        //  FORMAT manuel     ← { "antant_manuel": ["D0_H10", "D1_H14"] }
+        //  FORMAT timestamp  ← [ { date:"Lendi 5 Avril", time:"10:00 AM" }, ... ]
+        //
+        //  → Toujou retounen [ { label: "Lendi — 10:00 AM", key: "D0_H10" }, ... ]
+        // ══════════════════════════════════════════════════════════
+        const DAY_NAMES = ['Lendi', 'Madi', 'Mèkredi', 'Jedi', 'Vandredi', 'Samdi', 'Dimanch'];
+
+        function hourLabel(hour) {
+            const ampm = hour < 12 ? 'AM' : 'PM';
+            const h12  = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+            return `${h12}:00 ${ampm}`;
+        }
+
+        function parseHoraires(horaires) {
+            if (!horaires) return [];
+
+            // ── FORMAT TABLEAU (date/time objects) ──────────────────
+            if (Array.isArray(horaires)) {
+                return horaires.map(h => {
+                    if (h && h.date && h.time) {
+                        return { label: `${h.date} à ${h.time}`, key: null };
+                    }
+                    if (typeof h === 'string' && h.match(/^D\d+_H\d+$/)) {
+                        const dayIdx = parseInt(h.split('_')[0].replace('D', ''));
+                        const hour   = parseInt(h.split('_')[1].replace('H', ''));
+                        return { label: `${DAY_NAMES[dayIdx] ?? 'Jou '+dayIdx} — ${hourLabel(hour)}`, key: h };
+                    }
+                    return null;
+                }).filter(Boolean);
+            }
+
+            if (typeof horaires !== 'object') return [];
+
+            const results = [];
+
+            Object.entries(horaires).forEach(([objKey, slotList]) => {
+                if (!Array.isArray(slotList)) return;
+
+                // ── FORMAT REEL app.js: clé = "{svcId}_D{dayIdx}" ──
+                //    valeur = ["H10", "H14", ...]
+                const appMatch = objKey.match(/_D(\d+)$/);
+                if (appMatch) {
+                    const dayIdx = parseInt(appMatch[1]);
+                    slotList.forEach(slot => {
+                        // slot = "H10"
+                        const hMatch = String(slot).match(/^H(\d+)$/);
+                        if (hMatch) {
+                            const hour = parseInt(hMatch[1]);
+                            const agendaKey = `D${dayIdx}_H${hour}`;
+                            results.push({
+                                label: `${DAY_NAMES[dayIdx] ?? 'Jou '+dayIdx} — ${hourLabel(hour)}`,
+                                key:   agendaKey
+                            });
+                        }
+                    });
+                    return;
+                }
+
+                // ── FORMAT MANUEL freelancer: clé = "antant_manuel" ──
+                //    valeur = ["D0_H10", "D1_H14", ...]
+                slotList.forEach(slot => {
+                    const s = String(slot);
+                    if (s.match(/^D\d+_H\d+$/)) {
+                        const dayIdx = parseInt(s.split('_')[0].replace('D', ''));
+                        const hour   = parseInt(s.split('_')[1].replace('H', ''));
+                        results.push({
+                            label: `${DAY_NAMES[dayIdx] ?? 'Jou '+dayIdx} — ${hourLabel(hour)}`,
+                            key:   s
+                        });
+                    } else if (s.match(/^H\d+$/)) {
+                        // Jou enkoni (H sèlman san D)
+                        const hour = parseInt(s.replace('H', ''));
+                        results.push({ label: hourLabel(hour), key: null });
+                    }
+                });
+            });
+
+            return results;
+        }
+
+        // Konvèti slots parsés an map pou agenda: key → [reservations]
+        function buildBookedMap(reservations) {
+            const booked = {};
+            reservations.forEach(r => {
+                const slots = parseHoraires(r.horaires);
+                slots.forEach(({ key }) => {
+                    if (key) {
+                        if (!booked[key]) booked[key] = [];
+                        booked[key].push(r);
+                    }
+                });
+            });
+            return booked;
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // ✅ FIX 2: loadReservations — chak kat TOUT klikab
+        // ══════════════════════════════════════════════════════════
         async function loadReservations() {
             const { data: allRez } = await sb.from('reservations').select('*');
             const { data: paidRez } = await sb.from('reservations').select('*').eq('statut', 'payé');
 
             const paid = paidRez || [];
             const total = allRez || [];
-            
-            // On sauvegarde globalement pour le Modal
-            window.lastReservationsInfo = paid;
+
+            allPaidReservations = paid; // ✅ Stocké globalement
 
             const revenue = paid.reduce((acc, r) => acc + (r.montant_total || 0), 0);
-
             document.getElementById('stat-revenue').textContent = `$${revenue.toLocaleString()}`;
             document.getElementById('stat-total').textContent = total.length;
             document.getElementById('stat-paid').textContent = paid.length;
@@ -1518,314 +1622,310 @@
             const list = document.getElementById('rez-list');
 
             if (paid.length === 0) {
-                list.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">📋</div>
-                    <p>Poko gen rezèvasyon konfime.</p>
-                </div>`;
+                list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>Poko gen rezèvasyon konfime.</p></div>`;
                 renderAgenda(paid);
                 return;
             }
 
-            list.innerHTML = paid.map(r => `
-            <div class="rez-card">
+            list.innerHTML = paid.map(r => {
+                const slots = parseHoraires(r.horaires);
+                const hasSlots = slots.length > 0;
+                const slotLabel = hasSlots
+                    ? `<span>🗓 <strong style="color:var(--success)">${slots.length} kreno</strong></span>`
+                    : `<span style="color:var(--warning);font-size:0.82rem">⚠ Pa gen orè — klike pou trete</span>`;
+
+                return `
+            <div class="rez-card" onclick="openDetailModal('${r.id}')" title="Klike pou wè detay">
                 <div>
-                    <div class="rez-name">${r.prenom || '—'} ${r.non || ''}</div>
+                    <div class="rez-name">${r.prenom || '—'} ${r.nom || r.non || ''}</div>
                     <div class="rez-meta">
                         <span>📧 <strong>${r.email || 'N/A'}</strong></span>
                         <span>📱 <strong>${r.telephone || 'N/A'}</strong></span>
                         <span>💰 <strong style="color:var(--accent)">$${r.montant_total || 0}</strong></span>
-                        ${r.horaires ? `<span>🗓 <strong>${Array.isArray(r.horaires) ? r.horaires.length + ' kreno' : 'Orè defini'}</strong></span>` : ''}
+                        ${slotLabel}
                     </div>
                     ${r.message ? `<p style="margin-top:10px;font-size:0.85rem;color:var(--text-2)">"${r.message}"</p>` : ''}
-                    ${r.message ? `<p style="margin-top:10px;font-size:0.85rem;color:var(--text-2)">"${r.message}"</p>` : ''}
                 </div>
-                <div style="display:flex; flex-direction:column; align-items:flex-end; gap: 10px;">
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px" onclick="event.stopPropagation()">
                     <span class="rez-badge">✓ Payé</span>
-                    ${ (!r.horaires || Object.keys(r.horaires).length === 0) ? `<button onclick="openProcessModal('${r.id}')" class="btn btn-sm btn-gold">Trete (Ajoute Lè)</button>` : ''}
-                    <button onclick="deleteReservation('${r.id}')" class="btn btn-sm btn-danger" style="background:transparent; border:1px solid rgba(239, 68, 68, 0.4); padding: 5px 10px;">🗑️ Siprime</button>
+                    ${!hasSlots
+                        ? `<button onclick="event.stopPropagation(); openProcessModal('${r.id}')" class="btn btn-sm btn-gold">Trete (Ajoute Lè)</button>`
+                        : ''
+                    }
+                    <button id="resend-btn-${r.id}" onclick="event.stopPropagation(); resendInvoice('${r.id}', '${r.email}', this)" class="btn btn-sm" style="background:transparent;border:1px solid rgba(186,117,23,0.5);color:var(--primary);padding:5px 10px">📧 Renvoye Fakti</button>
+                    <button onclick="event.stopPropagation(); deleteReservation('${r.id}')" class="btn btn-sm btn-danger" style="background:transparent;border:1px solid rgba(239,68,68,0.4);padding:5px 10px">🗑️ Siprime</button>
                 </div>
-            </div>
-        `).join('');
+            </div>`;
+            }).join('');
 
             renderAgenda(paid);
         }
 
+        // ══════════════════════════════════════════════════════════
+        // ✅ FIX 3: renderAgenda — li tou de fòma orè yo
+        // ══════════════════════════════════════════════════════════
         function renderAgenda(reservations) {
-            let booked = {};
-            reservations.forEach(r => {
-                if (!r.horaires) return;
-                Object.values(r.horaires).forEach(slotList => {
-                    if (Array.isArray(slotList)) {
-                        slotList.forEach(slot => { // e.g., "D0_H8"
-                            if(!booked[slot]) booked[slot] = [];
-                            booked[slot].push(r);
-                        });
-                    }
-                });
-            });
+            const booked = buildBookedMap(reservations);
 
             const moisHaitien = ['Janvye', 'Fevriye', 'Mas', 'Avril', 'Me', 'Jen', 'Jiyè', 'Out', 'Septanm', 'Oktòb', 'Novanm', 'Desanm'];
-            
-            // Calcul de la semaine en cours (du Lundi au Dimanche)
             const dNow = new Date();
-            const dayOfWk = dNow.getDay(); 
+            const dayOfWk = dNow.getDay();
             const diffALundi = dNow.getDate() - dayOfWk + (dayOfWk === 0 ? -6 : 1);
-            const lundi = new Date(dNow.setDate(diffALundi));
+            const lundi = new Date(dNow);
+            lundi.setDate(diffALundi);
 
-            const baseDays = ['Lendi', 'Madi', 'Mèkredi', 'Jedi', 'Vandredi', 'Samdi', 'Dimanch'];
-            const days = [];
-            
-            for(let i=0; i<7; i++) {
-                const stepDate = new Date(lundi);
-                stepDate.setDate(lundi.getDate() + i);
-                const dayNum = stepDate.getDate();
-                const moisStr = moisHaitien[stepDate.getMonth()].toLowerCase();
-                days.push(`${baseDays[i]}<br><span style="font-size:0.85rem; font-weight:normal; color:var(--text-2);">${dayNum}-${moisStr}</span>`);
-            }
+            const days = DAY_NAMES.map((name, i) => {
+                const d = new Date(lundi);
+                d.setDate(lundi.getDate() + i);
+                return `${name}<br><span style="font-size:0.8rem;font-weight:normal;color:var(--text-2)">${d.getDate()} ${moisHaitien[d.getMonth()]}</span>`;
+            });
 
-            const hours = [];
-            for(let h=8; h<=23; h++) hours.push(h);
+            const hours = Array.from({ length: 16 }, (_, i) => i + 8); // 8h → 23h
 
-            const trueT = new Date();
-            const nomMois = moisHaitien[trueT.getMonth()] + ' ' + trueT.getFullYear();
+            let html = `<div style="text-align:right;margin-bottom:15px;font-weight:600;font-size:1.1rem;color:var(--primary)">🗓️ Semèn sa a (Kouran)</div>`;
+            html += `<div style="display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:10px;overflow-x:auto;padding-bottom:20px">`;
 
-            let html = `<div style="text-align: right; margin-bottom: 15px; font-weight: 600; font-size: 1.15rem; color: var(--primary);">🗓️ Semèn sa a (Kouran)</div>`;
-            html += '<div style="display: grid; grid-template-columns: repeat(7, minmax(140px, 1fr)); gap: 12px; margin-top: 10px; overflow-x: auto; padding-bottom: 20px;">';
-            
             for (let i = 0; i < 7; i++) {
-                html += `<div style="display: flex; flex-direction: column; gap: 8px;">
-                    <div style="background: var(--surface); border: 1px solid rgba(230, 169, 84, 0.2); padding: 10px; text-align: center; border-radius: 8px; font-weight: 600; color: var(--primary);">
-                        ${days[i]}
-                    </div>`;
+                html += `<div style="display:flex;flex-direction:column;gap:6px">
+                <div style="background:var(--surface);border:1px solid rgba(186,117,23,0.2);padding:10px;text-align:center;border-radius:8px;font-weight:600;color:var(--primary);font-size:0.85rem">
+                    ${days[i]}
+                </div>`;
+
                 hours.forEach(h => {
                     const key = `D${i}_H${h}`;
                     const clients = booked[key];
+                    const ampm = h < 12 ? 'AM' : 'PM';
+                    const h12 = h > 12 ? h - 12 : h;
+                    const timeLabel = `${h12}:00 ${ampm}`;
+
                     if (clients && clients.length > 0) {
-                        const clientNamesHtml = clients.map(c => `<div style="font-weight:bold; font-size:0.8rem; margin-top:3px; background:rgba(0,0,0,0.2); padding:2px; border-radius:3px;">👤 ${(c.prenom || '')} ${(c.non || '')}</div>`).join('');
-                        html += `<div style="background: rgba(230, 169, 84, 0.15); border: 1px solid var(--primary); padding: 8px; border-radius: 6px; text-align: center; cursor: pointer; transition: 0.2s;" onclick="showTab('rez', document.querySelector('[data-tab=rez]'))" onmouseover="this.style.background='rgba(230, 169, 84, 0.3)'" onmouseout="this.style.background='rgba(230, 169, 84, 0.15)'">
-                            <strong style="color: var(--primary); font-size: 0.95rem;">${h}:00</strong>
-                            ${clientNamesHtml}
-                        </div>`;
+                        const clientHtml = clients.map(c =>
+                            `<div style="font-size:0.75rem;margin-top:3px;background:rgba(0,0,0,0.3);padding:2px 4px;border-radius:3px;cursor:pointer"
+                              onclick="openDetailModal('${c.id}')">
+                            👤 ${c.prenom || ''} ${c.nom || c.non || ''}
+                        </div>`
+                        ).join('');
+
+                        html += `<div style="background:rgba(186,117,23,0.15);border:1px solid var(--primary);padding:8px;border-radius:6px;text-align:center;cursor:pointer;transition:0.2s"
+                                  onclick="openDetailModal('${clients[0].id}')"
+                                  onmouseover="this.style.background='rgba(186,117,23,0.3)'"
+                                  onmouseout="this.style.background='rgba(186,117,23,0.15)'">
+                        <strong style="color:var(--primary);font-size:0.88rem">${timeLabel}</strong>
+                        ${clientHtml}
+                    </div>`;
                     } else {
-                        html += `<div style="background: var(--surface); opacity: 0.4; padding: 12px 8px; border-radius: 6px; text-align: center; font-size: 0.85rem;">
-                            <strong style="color: var(--text-2); font-size: 0.95rem;">${h}:00</strong><br>
-                            <span style="display:inline-block; margin-top:4px;">Lib</span>
-                        </div>`;
+                        html += `<div style="background:var(--surface);opacity:0.35;padding:8px;border-radius:6px;text-align:center;font-size:0.8rem;color:var(--text-3)">
+                        ${timeLabel}
+                    </div>`;
                     }
                 });
+
                 html += `</div>`;
             }
-            
-            html += '</div>';
+            html += `</div>`;
+
             const cal = document.getElementById('agenda-calendar');
-            if(cal) cal.innerHTML = html;
+            if (cal) cal.innerHTML = html;
         }
 
+        // ══════════════════════════════════════════════════════════
+        // ✅ MODAL DETAY — Wè tout info rezervasyon an
+        // ══════════════════════════════════════════════════════════
+        function openDetailModal(id) {
+            const r = allPaidReservations.find(res => res.id === id);
+            if (!r) return;
+
+            const slots = parseHoraires(r.horaires);
+            const hasSlots = slots.length > 0;
+
+            const slotsHtml = hasSlots
+                ? slots.map(s => `<span class="slot-chip">🗓 ${s.label}</span>`).join('')
+                : `<span style="color:var(--warning);font-size:0.85rem">⚠ Kliyan pa chwazi orè — freelancer dwe kontakte l</span>`;
+
+            document.getElementById('detail-modal-content').innerHTML = `
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
+                <div style="width:52px;height:52px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;color:#fff;flex-shrink:0">
+                    ${(r.prenom || '?').charAt(0).toUpperCase()}
+                </div>
+                <div>
+                    <h2 style="font-size:1.5rem;margin-bottom:2px">${r.prenom || ''} ${r.nom || r.non || ''}</h2>
+                    <span class="rez-badge">✓ Payé — $${r.montant_total || 0} USD</span>
+                </div>
+            </div>
+
+            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:20px;margin-bottom:20px">
+                <div class="detail-row">
+                    <div class="detail-icon">📧</div>
+                    <div><div class="detail-label">Imèl</div><div class="detail-value"><a href="mailto:${r.email}" style="color:var(--accent)">${r.email || 'N/A'}</a></div></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-icon">📱</div>
+                    <div><div class="detail-label">Telefòn</div><div class="detail-value"><a href="tel:${r.telephone}" style="color:var(--accent)">${r.telephone || 'N/A'}</a></div></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-icon">💰</div>
+                    <div><div class="detail-label">Montan Peye</div><div class="detail-value" style="color:var(--accent);font-size:1.1rem">$${r.montant_total || 0} USD</div></div>
+                </div>
+                ${r.message ? `
+                <div class="detail-row">
+                    <div class="detail-icon">💬</div>
+                    <div><div class="detail-label">Mesaj Kliyan</div><div class="detail-value" style="font-style:italic;color:var(--text-2)">"${r.message}"</div></div>
+                </div>` : ''}
+                <div class="detail-row">
+                    <div class="detail-icon">🆔</div>
+                    <div><div class="detail-label">ID Rezèvasyon</div><div class="detail-value" style="font-size:0.8rem;color:var(--text-3)">${r.id}</div></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:20px">
+                <p style="font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-2);margin-bottom:10px">🗓 Kreno Orè yo</p>
+                <div>${slotsHtml}</div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+                ${!hasSlots ? `
+                <button class="btn btn-gold" onclick="closeDetailModal(); openProcessModal('${r.id}')">
+                    ➕ Ajoute Orè Manuèlman
+                </button>` : ''}
+                <a href="mailto:${r.email}" class="btn btn-ghost">
+                    📧 Voye Imèl
+                </a>
+                ${r.telephone ? `<a href="tel:${r.telephone}" class="btn btn-ghost">📱 Rele Kliyan</a>` : ''}
+                <button id="resend-btn-modal-${r.id}" class="btn btn-ghost" style="border-color:rgba(186,117,23,0.5);color:var(--primary)"
+                    onclick="resendInvoice('${r.id}', '${r.email}', this)">
+                    📧 Renvoye Fakti
+                </button>
+                <button class="btn btn-danger" onclick="closeDetailModal(); deleteReservation('${r.id}')">
+                    🗑️ Siprime
+                </button>
+            </div>
+        `;
+
+            document.getElementById('detail-modal').classList.add('open');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.remove('open');
+        }
+
+        // Klike deyò modal la pou fèmen li
+        document.getElementById('detail-modal').addEventListener('click', function (e) {
+            if (e.target === this) closeDetailModal();
+        });
+
+        // ── SERVICES ─────────────────────────────────────────────
         async function loadServices() {
             let query = sb.from('services').select('*');
-            if (currentFreelancer?.id) {
-                query = query.eq('freelancer_id', currentFreelancer.id);
-            }
-
+            if (currentFreelancer?.id) query = query.eq('freelancer_id', currentFreelancer.id);
             const { data: svcs } = await query;
-            let services = svcs || [];
-
-            // Placer les nouveaux services tout en haut pour qu'ils soient visibles immédiatement
-            services.sort((a, b) => {
-                const aNew = (a.nom === 'Nouvo Sèvis');
-                const bNew = (b.nom === 'Nouvo Sèvis');
-                if (aNew && !bNew) return -1;
-                if (!aNew && bNew) return 1;
-                return 0; // Garder l'ordre par défaut pour les autres
-            });
+            const services = (svcs || []).sort((a, b) => (a.nom === 'Nouvo Sèvis') ? -1 : 1);
 
             document.getElementById('stat-svcs').textContent = services.length;
-
-            if (currentFreelancer?.discount_percent !== undefined) {
+            if (currentFreelancer?.discount_percent !== undefined)
                 document.getElementById('discount-global').value = currentFreelancer.discount_percent || 0;
+
+            const tgt = document.getElementById('discount-service-target');
+            if (tgt) {
+                let opts = `<option value="all">Tout Sèvis yo (Global)</option>`;
+                services.forEach(s => {
+                    if (s.id && s.nom !== 'Nouvo Sèvis') opts += `<option value="${s.id}">${s.nom}</option>`;
+                });
+                tgt.innerHTML = opts;
+                if (currentFreelancer?.discount_service_id) tgt.value = currentFreelancer.discount_service_id;
             }
 
             const list = document.getElementById('svc-list');
-
-            let html = `<div style="margin-bottom: 24px;">
-                <button class="btn btn-gold" onclick="addNewService()">+ Ajoute yon nouvo Sèvis</button>
-            </div>`;
-
+            let html = `<div style="margin-bottom:24px"><button class="btn btn-gold" onclick="addNewService()">+ Ajoute yon nouvo Sèvis</button></div>`;
             if (services.length === 0) {
-                html += `
-                <div class="empty-state">
-                    <div class="empty-icon">💼</div>
-                    <p>Poko gen sèvis ajoute.</p>
-                </div>`;
+                html += `<div class="empty-state"><div class="empty-icon">💼</div><p>Poko gen sèvis ajoute.</p></div>`;
             } else {
                 html += services.map(s => `
-            <div class="svc-card" style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="svc-card" style="display:flex;flex-direction:column;gap:16px">
                 <div class="grid-2">
-                    <div class="field-group" style="margin: 0;">
-                        <label class="dash-label">Non Sèvis</label>
-                        <input type="text" class="dash-input" id="name-${s.id}" value="${s.nom || ''}">
-                    </div>
-                    <div class="field-group" style="margin: 0;">
-                        <label class="dash-label">Pri (USD)</label>
-                        <input type="number" class="dash-input" id="price-${s.id}" value="${s.prix || 105}">
-                    </div>
+                    <div class="field-group" style="margin:0"><label class="dash-label">Non Sèvis</label><input type="text" class="dash-input" id="name-${s.id}" value="${s.nom || ''}"></div>
+                    <div class="field-group" style="margin:0"><label class="dash-label">Pri (USD)</label><input type="number" class="dash-input" id="price-${s.id}" value="${s.prix || 105}"></div>
                 </div>
-                <div class="field-group" style="margin: 0;">
-                    <label class="dash-label">Deskripsyon</label>
-                    <textarea class="dash-textarea" id="desc-${s.id}" rows="3">${s.description || ''}</textarea>
+                <div class="field-group" style="margin:0"><label class="dash-label">Deskripsyon</label><textarea class="dash-textarea" id="desc-${s.id}" rows="3">${s.description || ''}</textarea></div>
+                <div class="field-group" style="margin:0"><label class="dash-label">Fonksyonalite (vigil "," ant chak)</label><input type="text" class="dash-input" id="feat-${s.id}" value="${(s.fonctionnalites || []).join(', ')}"></div>
+                <div class="field-group" style="margin:0"><label class="dash-label">URL Videyo</label><input type="text" class="dash-input" id="vid-${s.id}" value="${s.video_url || ''}"></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+                    <button class="btn btn-gold btn-sm" onclick="saveService('${s.id}', this)">Anrejistre Chanjman</button>
+                    <button class="btn btn-ghost btn-sm" style="color:#ff4a4a" onclick="deleteService('${s.id}')">Efase</button>
                 </div>
-                <div class="field-group" style="margin: 0;">
-                    <label class="dash-label">Fonksyonalite (Mete vigil "," ant chak)</label>
-                    <input type="text" class="dash-input" id="feat-${s.id}" value="${(s.fonctionnalites || []).join(', ')}" placeholder="Egz: 6 èdtan/semèn, Facebook Ads">
-                </div>
-                <div class="field-group" style="margin: 0;">
-                    <label class="dash-label">URL Videyo (Egz: https://www.youtube.com/embed/...)</label>
-                    <input type="text" class="dash-input" id="vid-${s.id}" value="${s.video_url || ''}">
-                </div>
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-                    <button class="btn btn-gold btn-sm" onclick="saveService('${s.id}', this)">
-                         Anrejistre Chanjman
-                    </button>
-                    <button class="btn btn-ghost btn-sm" style="color: #ff4a4a; padding: 0 12px;" onclick="deleteService('${s.id}')">
-                         Efase
-                    </button>
-                </div>
-            </div>
-            `).join('');
+            </div>`).join('');
             }
             list.innerHTML = html;
         }
 
-        async function loadLandingConfig() {
-            const { data: config } = await sb.from('landing_config').select('*').eq('id', 1).maybeSingle();
-            if (!config) return;
-
-            const fields = {
-                'edit-hero-badge': config.hero_badge,
-                'edit-hero-title': config.hero_title,
-                'edit-hero-desc': config.hero_description,
-                'edit-hero-img': config.hero_image_url,
-                'edit-ap-title': config.ap_title,
-                'edit-ap-desc': config.ap_description,
-                'edit-ap-photo': config.ap_photo_url,
-                'edit-footer-slogan': config.footer_slogan,
-                'edit-tiktok': config.tiktok_url,
-                'edit-facebook': config.facebook_url,
-                'edit-instagram': config.instagram_url,
-            };
-
-            Object.entries(fields).forEach(([id, val]) => {
-                const el = document.getElementById(id);
-                if (el) el.value = val || '';
-            });
-        }
-
-        // ── SAVE ACTIONS ─────────────────────────────────────────
         async function saveService(svcId, btn) {
             const nom = document.getElementById(`name-${svcId}`)?.value || 'Sèvis San Non';
             const prix = parseFloat(document.getElementById(`price-${svcId}`)?.value || 105);
             const description = document.getElementById(`desc-${svcId}`)?.value || '';
             const video_url = document.getElementById(`vid-${svcId}`)?.value || '';
             const featStr = document.getElementById(`feat-${svcId}`)?.value || '';
-            const fonctionnalites = featStr.split(',').map(f => f.trim()).filter(f => f);
-
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = 'Ap anrejistre...';
-            }
-
-            const { error } = await sb.from('services').update({ 
-                nom, prix, description, video_url, fonctionnalites 
-            }).eq('id', svcId);
-            
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = 'Anrejistre Chanjman';
-            }
-
-            if (error) {
-                showToast('Erè pandan anrejistreman: ' + error.message, 'error');
-            } else {
-                showToast('Sèvis mizajou avèk siksè!', 'success');
-                // Optionnel: Recharger juste le header si on veut, mais c'est bon comme ça.
-            }
+            const fonctionnalites = featStr.split(',').map(f => f.trim()).filter(Boolean);
+            if (btn) { btn.disabled = true; btn.innerHTML = 'Ap anrejistre...'; }
+            const { error } = await sb.from('services').update({ nom, prix, description, video_url, fonctionnalites }).eq('id', svcId);
+            if (btn) { btn.disabled = false; btn.innerHTML = 'Anrejistre Chanjman'; }
+            showToast(error ? 'Erè: ' + error.message : 'Sèvis mizajou!', error ? 'error' : 'success');
         }
 
         async function addNewService() {
             if (!currentFreelancer?.id) return showToast('Erè: Freelancer pa idantifye', 'error');
-            
-            const newSvc = {
-                nom: 'Nouvo Sèvis',
-                description: 'Deskripsyon kout sèvis la...',
-                prix: 105,
-                freelancer_id: currentFreelancer.id,
-                actif: true
-            };
-
-            const { error } = await sb.from('services').insert(newSvc);
-            if (error) {
-                showToast('Erè la kreyasyon: ' + error.message, 'error');
-            } else {
-                showToast('Nouvo sèvis ajoute!', 'success');
-                loadServices(); // Rafraîchir la liste
-            }
+            const { error } = await sb.from('services').insert({ nom: 'Nouvo Sèvis', description: 'Deskripsyon...', prix: 105, freelancer_id: currentFreelancer.id, actif: true });
+            if (error) showToast('Erè: ' + error.message, 'error');
+            else { showToast('Nouvo sèvis ajoute!', 'success'); loadServices(); }
         }
 
         async function deleteService(svcId) {
-            if (!confirm('Ou sèten ou vle efase sèvis sa m? Aksyon sa paka defèt.')) return;
+            if (!confirm('Ou sèten ou vle efase sèvis sa a?')) return;
             const { error } = await sb.from('services').delete().eq('id', svcId);
-            if (error) {
-                showToast('Erè lè efase: ' + error.message, 'error');
-            } else {
-                showToast('Sèvis efase!', 'success');
-                loadServices();
-            }
+            if (error) showToast('Erè lè efase: ' + error.message, 'error');
+            else { showToast('Sèvis efase!', 'success'); loadServices(); }
         }
 
         async function saveDiscount() {
             const val = parseInt(document.getElementById('discount-global').value) || 0;
-            if (!currentFreelancer?.id) {
-                showToast('ID freelancer pa disponib.', 'error');
-                return;
-            }
-            const { error } = await sb.from('freelancers').update({ discount_percent: val }).eq('id', currentFreelancer.id);
-            if (error) {
-                showToast('Erè: ' + error.message, 'error');
-            } else {
-                currentFreelancer.discount_percent = val;
-                showToast(`Rabais ${val}% anrejistre!`, 'success');
-            }
+            const targetVal = document.getElementById('discount-service-target').value;
+            const targetId = targetVal === 'all' ? null : targetVal;
+            if (!currentFreelancer?.id) return showToast('ID freelancer pa disponib.', 'error');
+            const { error } = await sb.from('freelancers').update({ discount_percent: val, discount_service_id: targetId }).eq('id', currentFreelancer.id);
+            if (error) showToast('Erè: ' + error.message, 'error');
+            else { currentFreelancer.discount_percent = val; showToast(`Rabais ${val}% anrejistre!`, 'success'); }
+        }
+
+        async function loadLandingConfig() {
+            const { data: config } = await sb.from('landing_config').select('*').eq('id', 1).maybeSingle();
+            if (!config) return;
+            const fields = {
+                'edit-hero-badge': config.hero_badge, 'edit-hero-title': config.hero_title,
+                'edit-hero-desc': config.hero_description, 'edit-hero-img': config.hero_image_url,
+                'edit-ap-title': config.ap_title, 'edit-ap-desc': config.ap_description,
+                'edit-ap-photo': config.ap_photo_url, 'edit-footer-slogan': config.footer_slogan,
+                'edit-tiktok': config.tiktok_url, 'edit-facebook': config.facebook_url,
+                'edit-instagram': config.instagram_url,
+            };
+            Object.entries(fields).forEach(([id, val]) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val || '';
+            });
         }
 
         function autoSave(el) {
             const status = document.getElementById('save-status');
             status.className = 'save-indicator saving';
             status.innerHTML = '<span>●</span> L ap anrejistre...';
-
             clearTimeout(saveTimer);
             saveTimer = setTimeout(async () => {
-                const { error } = await sb
-                    .from('landing_config')
-                    .update({ [el.dataset.field]: el.value })
-                    .eq('id', 1);
-
-                if (error) {
-                    status.className = 'save-indicator error';
-                    status.innerHTML = '<span>●</span> Erè anrejistreman';
-                } else {
-                    status.className = 'save-indicator';
-                    status.innerHTML = '<span>●</span> Tout sekirize';
-                }
+                const { error } = await sb.from('landing_config').update({ [el.dataset.field]: el.value }).eq('id', 1);
+                status.className = error ? 'save-indicator error' : 'save-indicator';
+                status.innerHTML = error ? '<span>●</span> Erè anrejistreman' : '<span>●</span> Tout sekirize';
             }, 900);
         }
 
         async function forceSaveLanding(btn) {
-            const origText = btn.innerHTML;
-            btn.innerHTML = 'Ap anrejistre...';
-            btn.disabled = true;
-
+            const orig = btn.innerHTML;
+            btn.innerHTML = 'Ap anrejistre...'; btn.disabled = true;
             const payload = {
                 hero_badge: document.getElementById('edit-hero-badge')?.value,
                 hero_title: document.getElementById('edit-hero-title')?.value,
@@ -1837,44 +1937,24 @@
                 tiktok_url: document.getElementById('edit-tiktok')?.value,
                 facebook_url: document.getElementById('edit-facebook')?.value,
                 instagram_url: document.getElementById('edit-instagram')?.value,
-                footer_slogan: document.getElementById('edit-footer-slogan')?.value
+                footer_slogan: document.getElementById('edit-footer-slogan')?.value,
             };
-
             const { error } = await sb.from('landing_config').update(payload).eq('id', 1);
-
-            btn.innerHTML = origText;
-            btn.disabled = false;
-
-            if (error) {
-                showToast('Erè pandan anrejistreman: ' + error.message, 'error');
-            } else {
-                showToast('Landing Page mizajou avèk siksè !', 'success');
-                const status = document.getElementById('save-status');
-                if(status) {
-                    status.className = 'save-indicator';
-                    status.innerHTML = '<span>●</span> Tout sekirize';
-                }
-            }
+            btn.innerHTML = orig; btn.disabled = false;
+            showToast(error ? 'Erè: ' + error.message : 'Landing Page mizajou!', error ? 'error' : 'success');
         }
 
         async function updatePassword() {
             const np = document.getElementById('new-password').value;
             const cp = document.getElementById('confirm-password').value;
-
             if (np.length < 6) { showToast('Mot de passe dwe gen 6 karaktè o mwen.', 'error'); return; }
             if (np !== cp) { showToast('Mot de passe yo pa menm!', 'error'); return; }
-
             const { error } = await sb.auth.updateUser({ password: np });
-            if (error) {
-                showToast('Erè: ' + error.message, 'error');
-            } else {
-                showToast('Mot de passe chanje avèk siksè!', 'success');
-                document.getElementById('new-password').value = '';
-                document.getElementById('confirm-password').value = '';
-            }
+            if (error) showToast('Erè: ' + error.message, 'error');
+            else { showToast('Mot de passe chanje!', 'success'); document.getElementById('new-password').value = ''; document.getElementById('confirm-password').value = ''; }
         }
 
-        // ── TOAST ────────────────────────────────────────────────
+        // ── TOAST ─────────────────────────────────────────────────
         let toastTimer = null;
         function showToast(msg, type = 'info') {
             const t = document.getElementById('toast');
@@ -1882,28 +1962,25 @@
             t.innerHTML = `<span style="font-size:1rem">${icons[type] || 'ℹ'}</span> ${msg}`;
             t.className = `toast ${type} show`;
             clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3500);
+            toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
         }
 
-        // ── PROCESS MODAL LOGIC ──
+        // ── PROCESS MODAL ─────────────────────────────────────────
         let currentProcessRezId = null;
-        let manualSlotsList = []; // Liste des créneaux sélectionnés
+        let manualSlotsList = [];
 
         function openProcessModal(id) {
             currentProcessRezId = id;
-            manualSlotsList = []; // Reset list
+            manualSlotsList = [];
             renderManualSlots();
-            
-            if(!window.lastReservationsInfo) return;
-            
-            const r = window.lastReservationsInfo.find(res => res.id === id);
-            if(r) {
+            const r = allPaidReservations.find(res => res.id === id);
+            if (r) {
                 document.getElementById('process-client-info').innerHTML = `
-                    <span><strong>Kliyan:</strong> ${r.prenom || '—'} ${r.non || ''}</span>
-                    <span><strong>Imèl:</strong> ${r.email || 'N/A'}</span>
-                    <span><strong>Telefòn:</strong> ${r.telephone || 'N/A'}</span>
-                    ${r.message ? `<span><strong>Mesaj:</strong> <em>"${r.message}"</em></span>` : ''}
-                `;
+                <span><strong>Kliyan:</strong> ${r.prenom || '—'} ${r.nom || r.non || ''}</span>
+                <span><strong>Imèl:</strong> ${r.email || 'N/A'}</span>
+                <span><strong>Telefòn:</strong> ${r.telephone || 'N/A'}</span>
+                ${r.message ? `<span><strong>Mesaj:</strong> <em>"${r.message}"</em></span>` : ''}
+            `;
             }
             document.getElementById('process-modal').style.display = 'flex';
         }
@@ -1915,19 +1992,11 @@
         function addProcessSlot() {
             const dayIdx = document.getElementById('process-day').value;
             const hour = document.getElementById('process-hour').value;
-            
             const dayName = document.getElementById('process-day').options[document.getElementById('process-day').selectedIndex].text;
             const hourName = document.getElementById('process-hour').options[document.getElementById('process-hour').selectedIndex].text;
-            
             const slotKey = `D${dayIdx}_H${hour}`;
-            const label = `${dayName} ${hourName}`;
-
-            if(manualSlotsList.find(s => s.key === slotKey)) {
-                showToast("Orè sa gentan ajoute !", "info");
-                return;
-            }
-
-            manualSlotsList.push({ key: slotKey, label: label });
+            if (manualSlotsList.find(s => s.key === slotKey)) { showToast("Orè sa gentan ajoute!", "info"); return; }
+            manualSlotsList.push({ key: slotKey, label: `${dayName} ${hourName}` });
             renderManualSlots();
         }
 
@@ -1937,60 +2006,93 @@
         }
 
         function renderManualSlots() {
-            const container = document.getElementById('manual-slots-container');
-            container.innerHTML = manualSlotsList.map(s => `
-                <span class="rez-badge" style="background: rgba(186, 117, 23, 0.1); border-color: var(--primary); color: var(--primary); font-size: 0.8rem; padding: 6px 14px;">
-                    🗓️ ${s.label}
-                    <button onclick="removeProcessSlot('${s.key}')" style="background:transparent; border:none; color:inherit; font-weight:bold; margin-left:8px; cursor:pointer;">&times;</button>
-                </span>
-            `).join('');
+            document.getElementById('manual-slots-container').innerHTML = manualSlotsList.map(s => `
+            <span class="rez-badge" style="background:rgba(186,117,23,0.1);border-color:var(--primary);color:var(--primary)">
+                🗓️ ${s.label}
+                <button onclick="removeProcessSlot('${s.key}')" style="background:transparent;border:none;color:inherit;font-weight:bold;margin-left:8px;cursor:pointer">×</button>
+            </span>
+        `).join('');
         }
 
         document.getElementById('btn-save-process').addEventListener('click', async () => {
-            if(manualSlotsList.length === 0) {
-                showToast('Tanpri chwazi omwen yon orè !', 'error');
-                return;
-            }
-
-            const slotKeysArray = manualSlotsList.map(s => s.key);
-            const horairesJson = { "antant_manuel": slotKeysArray };
-            
+            if (manualSlotsList.length === 0) { showToast('Tanpri chwazi omwen yon orè!', 'error'); return; }
             const btn = document.getElementById('btn-save-process');
-            const originalText = btn.innerText;
-            btn.innerText = 'Chaje...';
-            btn.disabled = true;
-
+            btn.innerText = 'Chaje...'; btn.disabled = true;
             try {
-                const { error } = await sb.from('reservations')
-                    .update({ horaires: horairesJson })
-                    .eq('id', currentProcessRezId);
-                    
+                const horairesJson = { "antant_manuel": manualSlotsList.map(s => s.key) };
+                const { error } = await sb.from('reservations').update({ horaires: horairesJson }).eq('id', currentProcessRezId);
                 if (error) throw error;
-                
-                showToast('Orè yo anrejistre avèk siksè, kalandriye a bloke !', 'success');
+                showToast('Orè yo anrejistre! Kalandriye a bloke.', 'success');
                 closeProcessModal();
-                loadReservations(); // Actualise l'agenda et la liste
+                loadReservations();
             } catch (err) {
-                console.error(err);
-                alert('Erè, pa ka sove orè a: ' + err.message);
+                showToast('Erè: ' + err.message, 'error');
             } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
+                btn.innerText = 'Konfime Orè yo'; btn.disabled = false;
             }
         });
 
-        // ── DELETE RESERVATION LOGIC ──
+        // ── DELETE ────────────────────────────────────────────────
         async function deleteReservation(id) {
-            if(!confirm('Èske w sèten ou vle siprime rezèvasyon sa a definitivman? Sa pa ka anile.')) return;
-            
+            if (!confirm('Ou sèten ou vle siprime rezèvasyon sa a definitivman?')) return;
             try {
                 const { error } = await sb.from('reservations').delete().eq('id', id);
                 if (error) throw error;
-                showToast('Rezèvasyon an byen siprime !', 'success');
-                loadReservations(); // Mettre à jour l'affichage
-            } catch(e) {
-                console.error(e);
+                showToast('Rezèvasyon siprime!', 'success');
+                loadReservations();
+            } catch (e) {
                 showToast('Erè: pa ka siprime.', 'error');
+            }
+        }
+
+        // ── RENVOYE FAKTI ─────────────────────────────────────────
+        async function resendInvoice(rezId, email, btn) {
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Ap voye...';
+
+            try {
+                const SUPA_URL  = 'https://uvgntflbylfbdfszthsa.supabase.co';
+                const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2Z250ZmxieWxmYmRmc3p0aHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4Mzc1OTQsImV4cCI6MjA5MDQxMzU5NH0.6ROSyoPIrMfF9hL9YOla_v1phAEPQ8Ck-hii_p_7a9A';
+
+                // Raw fetch: force=true → Edge Function met statut='paye' server-side + bypass check
+                const response = await fetch(`${SUPA_URL}/functions/v1/send-confirmation-email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type':  'application/json',
+                        'Authorization': `Bearer ${SUPA_KEY}`,
+                        'apikey':         SUPA_KEY,
+                    },
+                    body: JSON.stringify({ reservation_id: rezId, force: true }),
+                });
+
+                let result = {};
+                try { result = await response.json(); } catch(_) {}
+
+                console.log('[resendInvoice]', response.status, result);
+
+                if (response.ok && result?.success) {
+                    showToast(`✅ Fakti voye bay ${email}!`, 'success');
+                    btn.innerHTML = '✅ Voye!';
+                    btn.style.borderColor = 'rgba(34,197,94,0.5)';
+                    btn.style.color = 'var(--success)';
+                    setTimeout(() => {
+                        btn.innerHTML = orig;
+                        btn.style.borderColor = '';
+                        btn.style.color = '';
+                        btn.disabled = false;
+                    }, 4000);
+                } else {
+                    const msg = result?.error || `Erè ${response.status}`;
+                    showToast('❌ ' + msg, 'error');
+                    btn.innerHTML = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error('[resendInvoice]', e);
+                showToast('❌ Erè réseau: ' + e.message, 'error');
+                btn.innerHTML = orig;
+                btn.disabled = false;
             }
         }
     </script>

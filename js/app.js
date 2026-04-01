@@ -421,5 +421,6 @@ function goToStep(s) {
 
 // ── LANCEMENT ─────────────────────────────────────────────────
 
-setupEventListeners();
-renderServicesGrid();
+// Déjà appelés via initApp() dans DOMContentLoaded
+// setupEventListeners();
+// renderServicesGrid();

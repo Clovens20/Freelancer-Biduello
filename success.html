@@ -63,81 +63,71 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
-            // It might be 'session_id' (Stripe) or 'transactionId'/'session_id' (MonCash/Bazik)
             const sessionId = params.get('session_id') || params.get('transactionId');
             
-            if (sessionId) {
-                try {
-                    // 1. Confirmer la réservation via la fonction RPC (Contourne RLS)
-                    await supabase.rpc('confirm_payment', { sess_id: sessionId });
+            if (!sessionId) return;
+
+            // Wait for client to be ready (supabase.js injects window.supabaseClient)
+            let tries = 0;
+            while (!window.supabaseClient && tries < 40) {
+                await new Promise(r => setTimeout(r, 100));
+                tries++;
+            }
+            const sb = window.supabaseClient;
+            if (!sb) {
+                console.error('Supabase client pa prè — abòne.js pa chaje?');
+                return;
+            }
+
+            try {
+                // 1. Update statut = 'paye' directly (fallback, webhook does it too)
+                await sb.from('reservations')
+                    .update({ statut: 'paye' })
+                    .or(`stripe_session_id.eq.${sessionId},id.eq.${sessionId}`);
+
+                // 2. Fetch the reservation
+                const { data: res, error } = await sb
+                    .from('reservations')
+                    .select('*')
+                    .or(`stripe_session_id.eq.${sessionId},id.eq.${sessionId}`)
+                    .maybeSingle();
+
+                if (error) { console.error('Erè fetch rezèvasyon:', error); }
                     
-                    // 2. Récupérer la réservation (On cherche par id ou stripe_session_id)
-                    let { data: res, error } = await supabase
-                        .from('reservations')
-                        .select('*')
-                        .or(`stripe_session_id.eq.${sessionId},id.eq.${sessionId}`)
-                        .single();
-                        
-                    if (res) {
-                        document.getElementById('main-success-message').innerText = `Mèsi ${res.prenom || ''}! Peman ou pou sèvis la byen pase.`;
-                        
-                        // Si l'email n'a pas encore été envoyé localement pour cette session
-                        const emailSentKey = 'email_sent_' + sessionId;
-                        if (!localStorage.getItem(emailSentKey)) {
-                            localStorage.setItem(emailSentKey, 'true');
-                            
-                            // Récupérer les infos du service (Séparé du select pour éviter l'erreur de relation)
-                            let serviceNom = 'Sèvis DJ Innovations';
-                            if (res.service_ids && res.service_ids.length > 0) {
-                                const { data: sData } = await supabase.from('services').select('nom').eq('id', res.service_ids[0]).single();
-                                if (sData) serviceNom = sData.nom;
-                            }
-                            document.getElementById('service-name').innerText = serviceNom;
-                            
-                            const fName = res.freelancer_id ? 'Freelancer' : 'DJ Innovations';
-                            document.getElementById('freelancer-name').innerText = fName;
-                            
-                            // 3. Envoi du mail directement via Resend (Prototype Fallback)
-                            const RESEND_API_KEY = "re_gpehKksn_68smWrTd4bV7z8NduDmCHX9R"; // Clé copiée depuis .env.local
-                            let slotsHtml = '';
-                            if (res.horaires && typeof res.horaires === 'object' && !Array.isArray(res.horaires)) {
-                                Object.keys(res.horaires).forEach(key => {
-                                    if(Array.isArray(res.horaires[key])) {
-                                        slotsHtml += res.horaires[key].map(h => `<li>Kreno rezève: ${key.split('_')[1] || key} > ${h}</li>`).join('');
-                                    }
-                                });
-                            } else if (Array.isArray(res.horaires)) {
-                                slotsHtml = res.horaires.map(h => `<li>${h.date} à ${h.time}</li>`).join('');
-                            }
-                            
-                            // Envoi au client
-                            await fetch("https://api.resend.com/emails", {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_API_KEY}` },
-                                body: JSON.stringify({
-                                    from: "DJ Innovations <info@djinnovations.com>",
-                                    to: res.email,
-                                    subject: `Fakti Elektwonik - ${serviceNom} — DJ Innovations`,
-                                    html: `
-                                      <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px;">
-                                        <h2 style="color: #BA7517;">DJ Innovations</h2>
-                                        <hr>
-                                        <h1>Mèsi pou konfyans ou, ${res.prenom}!</h1>
-                                        <p>Peman ou pou sèvis <strong>${serviceNom}</strong> an byen pase. Sa se fakti elektwonik ou.</p>
-                                        <p><strong>Freelancer ou a ap kontakte w nan 24 a 48 èdtan pou kòmanse!</strong></p>
-                                        <p><strong>Orè ou chwazi yo:</strong></p>
-                                        <ul>${slotsHtml || '<li>Orè a pral konfime pa freelancer an.</li>'}</ul>
-                                        <hr>
-                                        <p style="font-size: 12px; color: #888;">© 2024 DJ Innovations. Tout dwa rezève.</p>
-                                      </div>
-                                    `
-                                })
-                            }).catch(console.error);
+                if (res) {
+                    document.getElementById('main-success-message').innerText =
+                        `Mèsi ${res.prenom || ''}! Peman ou pou sèvis la byen pase.`;
+
+                    // Fetch service name
+                    let serviceNom = 'Sèvis DJ Innovations';
+                    if (res.service_ids && res.service_ids.length > 0) {
+                        const { data: sData } = await sb.from('services').select('nom').eq('id', res.service_ids[0]).single();
+                        if (sData) serviceNom = sData.nom;
+                    }
+                    document.getElementById('service-name').innerText = serviceNom;
+                    document.getElementById('freelancer-name').innerText = res.freelancer_id ? 'Freelancer' : 'DJ Innovations';
+
+                    // 3. Send confirmation email (once per session via localStorage guard)
+                    const emailSentKey = 'email_sent_' + sessionId;
+                    if (!localStorage.getItem(emailSentKey)) {
+                        localStorage.setItem(emailSentKey, 'true');
+
+                        console.log('Ap voye imèl konfirmasyon pou rezèvasyon:', res.id);
+
+                        const { data: emailRes, error: emailErr } = await sb.functions.invoke(
+                            'send-confirmation-email',
+                            { body: { reservation_id: res.id } }
+                        );
+
+                        if (emailErr) {
+                            console.error('Erè Edge Function imèl:', emailErr);
+                        } else {
+                            console.log('✅ Imèl voye ak siksè:', emailRes);
                         }
                     }
-                } catch(err) {
-                    console.error("Erreur de confirmation post-paiement:", err);
                 }
+            } catch(err) {
+                console.error('Erreur de confirmation post-paiement:', err);
             }
         });
     </script>

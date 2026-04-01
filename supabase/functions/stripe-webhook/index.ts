@@ -30,7 +30,7 @@ serve(async (req) => {
       // Update reservation status
       await supabase
         .from("reservations")
-        .update({ statut: "payé" })
+        .update({ statut: "paye" })
         .eq("id", reservation_id);
 
       // Call another function to send confirmation emails
