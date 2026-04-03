@@ -1221,12 +1221,21 @@ nav {
     color: white;
 }
 
-#modal-container iframe {
+#modal-service-details iframe {
     width: 100%;
     aspect-ratio: 16/9;
     background: #000;
     border-radius: var(--radius-md);
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.modal-video-wrap {
+    width: 100%;
+    margin-top: 20px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: #000;
 }
 
 .modal-footer {

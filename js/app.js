@@ -40,6 +40,16 @@ let currentViewedServiceId = null;
 
 document.addEventListener('DOMContentLoaded', () => initApp());
 
+function getYoutubeEmbedUrl(url) {
+    if (!url) return '';
+    let id = '';
+    if (url.includes('watch?v=')) id = url.split('v=')[1].split('&')[0];
+    else if (url.includes('youtu.be/')) id = url.split('youtu.be/')[1].split('?')[0];
+    else if (url.includes('shorts/')) id = url.split('shorts/')[1].split('?')[0];
+    else if (url.includes('embed/')) return url;
+    return id ? `https://www.youtube.com/embed/${id}` : url;
+}
+
 async function initApp() {
     await loadLandingConfig();
     await fetchServicesFromSupabase();
@@ -191,7 +201,7 @@ window.openServiceModal = function (id) {
             </div>
             ${s.video_url ? `
                 <div class="modal-video-wrap">
-                    <iframe src="${s.video_url.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen></iframe>
+                    <iframe src="${getYoutubeEmbedUrl(s.video_url)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>` : ''}
         </div>`;
 
