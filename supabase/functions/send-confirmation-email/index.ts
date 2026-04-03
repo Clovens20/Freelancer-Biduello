@@ -293,22 +293,29 @@ serve(async (req) => {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY pa konfigire nan Edge Function.");
 
-    console.log("[send-confirmation-email] Sending email via Resend to:", res.email);
+    console.log("[send-confirmation-email] Sending email via Resend to client and freelancer...");
+    // recipients = Array: client + freelancer copy
+    const recipients = [res.email];
+    if (freelancerEmail && freelancerEmail !== res.email) {
+        recipients.push(freelancerEmail); 
+    }
+
     const emailResp = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({
         from: "DJ Innovations <noreply@freelancer.konektegroup.com>",
-        to: res.email,
+        to: recipients,
         subject: `Fakti Konfime - ${serviceList[0]}`,
         attachments: [{ filename: `fakti-${reservation_id.slice(0,8)}.pdf`, content: pdfBase64 }],
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:auto;border:1px solid #eee;padding:25px;border-radius:12px;">
             <h2 style="color:#BA7517;">DJ Innovations</h2>
-            <p>Bonjou ${res.prenom}, mèsi pou konfyans ou!</p>
-            <p>Peman ou pou sèvis <strong>${serviceList.join(", ")}</strong> an byen pase.</p>
-            <p><strong>Freelancer ou a:</strong> ${freelancerNom} (<a href="mailto:${freelancerEmail}">${freelancerEmail}</a>)</p>
-            <p>Ou ap jwenn faktis PDF ou a tache nan imèl sa a.</p>
+            <p>Bonjou, mèsi pou konfyans ou!</p>
+            <p>Peman pou sèvis <strong>${serviceList.join(", ")}</strong> an byen pase.</p>
+            <p><strong>Detay Kliyan:</strong> ${res.prenom} ${res.nom} (${res.email})</p>
+            <p><strong>Freelancer:</strong> ${freelancerNom} (<a href="mailto:${freelancerEmail}">${freelancerEmail}</a>)</p>
+            <p>Ou ap jwenn faktis PDF la tache nan imèl sa a.</p>
             <hr style="border:0;border-top:1px solid #eee;margin:20px 0;">
             <p style="font-size:12px;color:#888;">© ${new Date().getFullYear()} DJ Innovations. Siksè ou se priyorite nou.</p>
           </div>
