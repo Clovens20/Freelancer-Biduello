@@ -60,9 +60,15 @@ async function fetchBookedSlots() {
         (data || []).forEach(res => {
             if (res.horaires) {
                 Object.keys(res.horaires).forEach(key => {
-                    const dayPart = key.split('_').pop(); 
-                    const slots = res.horaires[key];
-                    slots.forEach(h => blocked.push(`${dayPart}_${h}`));
+                    const slots = res.horaires[key]; 
+                    if (key === 'antant_manuel') {
+                        // Kreno manyèl yo deja gen fòma "D0_H18"
+                        slots.forEach(s => blocked.push(s));
+                    } else {
+                        // Kreno nòmal yo nou dwe konstri yo
+                        const dayPart = key.split('_').pop(); 
+                        slots.forEach(h => blocked.push(`${dayPart}_${h}`));
+                    }
                 });
             }
         });
