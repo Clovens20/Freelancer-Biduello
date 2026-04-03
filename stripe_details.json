@@ -1,0 +1,128 @@
+﻿--- Rech├¿ch detay Peman Yves Mary Elastin ---
+Detay Sesyon: {
+  "id": "cs_live_a1MiLeusJ8jOnBqqGfahl1gAs2qyusxExrpE1xeOrE4LYBzABbtpulpqUn",
+  "object": "checkout.session",
+  "adaptive_pricing": {
+    "enabled": true
+  },
+  "after_expiration": null,
+  "allow_promotion_codes": null,
+  "amount_subtotal": 10500,
+  "amount_total": 10500,
+  "automatic_tax": {
+    "enabled": false,
+    "liability": null,
+    "provider": null,
+    "status": null
+  },
+  "billing_address_collection": null,
+  "branding_settings": {
+    "background_color": "#ffffff",
+    "border_style": "rounded",
+    "button_color": "#0074d4",
+    "display_name": "Freelancer Biduello",
+    "font_family": "default",
+    "icon": null,
+    "logo": null
+  },
+  "cancel_url": "https://freelancer.konektegroup.com/index.html",
+  "client_reference_id": null,
+  "client_secret": null,
+  "collected_information": {
+    "business_name": null,
+    "individual_name": null,
+    "shipping_details": null
+  },
+  "consent": null,
+  "consent_collection": null,
+  "created": 1775222164,
+  "currency": "usd",
+  "currency_conversion": null,
+  "custom_fields": [],
+  "custom_text": {
+    "after_submit": null,
+    "shipping_address": null,
+    "submit": null,
+    "terms_of_service_acceptance": null
+  },
+  "customer": null,
+  "customer_account": null,
+  "customer_creation": "if_required",
+  "customer_details": {
+    "address": {
+      "city": null,
+      "country": "BR",
+      "line1": null,
+      "line2": null,
+      "postal_code": null,
+      "state": null
+    },
+    "business_name": null,
+    "email": "yvesmaryelastin75@gmail.com",
+    "individual_name": null,
+    "name": "Yves Mary Elastin",
+    "phone": null,
+    "tax_exempt": "none",
+    "tax_ids": []
+  },
+  "customer_email": "yvesmaryelastin75@gmail.com",
+  "discounts": [],
+  "expires_at": 1775308563,
+  "integration_identifier": null,
+  "invoice": null,
+  "invoice_creation": {
+    "enabled": false,
+    "invoice_data": {
+      "account_tax_ids": null,
+      "custom_fields": null,
+      "description": null,
+      "footer": null,
+      "issuer": null,
+      "metadata": {},
+      "rendering_options": null
+    }
+  },
+  "livemode": true,
+  "locale": null,
+  "metadata": {
+    "reservation_id": "cc4283a8-d6a7-4ef2-8fcc-0c2e0d529b71",
+    "service_id": "ab53a1b7-1959-4239-a4ff-466bb2b6baaa"
+  },
+  "mode": "payment",
+  "origin_context": null,
+  "payment_intent": "pi_3TI7kPEaAk6aXVIT0EvdCjEp",
+  "payment_link": null,
+  "payment_method_collection": "if_required",
+  "payment_method_configuration_details": null,
+  "payment_method_options": {
+    "card": {
+      "request_three_d_secure": "automatic"
+    }
+  },
+  "payment_method_types": [
+    "card"
+  ],
+  "payment_status": "paid",
+  "permissions": null,
+  "phone_number_collection": {
+    "enabled": false
+  },
+  "recovered_from": null,
+  "saved_payment_method_options": null,
+  "setup_intent": null,
+  "shipping_address_collection": null,
+  "shipping_cost": null,
+  "shipping_options": [],
+  "status": "complete",
+  "submit_type": null,
+  "subscription": null,
+  "success_url": "https://freelancer.konektegroup.com/success.html?session_id={CHECKOUT_SESSION_ID}",
+  "total_details": {
+    "amount_discount": 0,
+    "amount_shipping": 0,
+    "amount_tax": 0
+  },
+  "ui_mode": "hosted_page",
+  "url": null,
+  "wallet_options": null
+}

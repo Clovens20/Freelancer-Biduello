@@ -27,236 +27,177 @@ async function generateInvoicePDF(params: {
   clientNom: string;
   clientEmail: string;
   clientTelephone: string | null;
-  serviceName: string;
+  serviceList: string[];
   freelancerNom: string;
   freelancerEmail: string;
   montantTotal: number;
+  prixUnitaire: number;
   horaires: { date: string; time: string }[];
   logoUrl: string | null;
 }): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
-
-  // A4 dimensions in points
   const W = 595.28;
   const H = 841.89;
   const page = pdfDoc.addPage([W, H]);
 
-  // Fonts
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-  // ── Optional logo ────────────────────────────────────────────────────────────
-  let logoImage: Awaited<ReturnType<typeof pdfDoc.embedPng>> | null = null;
+  let logoImage: any = null;
   if (params.logoUrl) {
     try {
       const logoResp = await fetch(params.logoUrl);
       if (logoResp.ok) {
         const logoBytes = await logoResp.arrayBuffer();
         const ct = logoResp.headers.get("content-type") ?? "";
-        if (ct.includes("png")) {
-          logoImage = await pdfDoc.embedPng(logoBytes);
-        } else if (ct.includes("jpeg") || ct.includes("jpg")) {
-          logoImage = await pdfDoc.embedJpg(logoBytes);
-        }
+        if (ct.includes("png")) logoImage = await pdfDoc.embedPng(logoBytes);
+        else if (ct.includes("jpeg") || ct.includes("jpg")) logoImage = await pdfDoc.embedJpg(logoBytes);
       }
-    } catch (_) {
-      // logo optional — skip on error
-    }
+    } catch (_) {}
   }
 
-  // ── Helper: drawText shorthand ────────────────────────────────────────────
-  const draw = (
-    text: string,
-    x: number,
-    y: number,
-    opts: {
-      font?: typeof fontBold | typeof fontRegular;
-      size?: number;
-      color?: ReturnType<typeof rgb>;
-    } = {}
-  ) => {
-    page.drawText(text, {
-      x,
-      y,
-      font: opts.font ?? fontRegular,
-      size: opts.size ?? 10,
-      color: opts.color ?? COLOR_DARK,
+  const draw = (text: string, x: number, y: number, opts: any = {}) => {
+    page.drawText(String(text), {
+      x, y, font: opts.font ?? fontRegular, size: opts.size ?? 10, color: opts.color ?? COLOR_DARK,
     });
   };
 
-  // ── Helper: rect ─────────────────────────────────────────────────────────
-  const rect = (
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    color: ReturnType<typeof rgb>
-  ) => {
+  const rect = (x: number, y: number, w: number, h: number, color: any) => {
     page.drawRectangle({ x, y, width: w, height: h, color });
   };
 
-  // ── Helper: horizontal line ───────────────────────────────────────────────
   const hline = (y: number, x1 = 40, x2 = W - 40) => {
-    page.drawLine({
-      start: { x: x1, y },
-      end: { x: x2, y },
-      thickness: 0.5,
-      color: COLOR_LINE,
-    });
+    page.drawLine({ start: { x: x1, y }, end: { x: x2, y }, thickness: 0.5, color: COLOR_LINE });
   };
 
-  // ════════════════════════════════════════════════════════════════════════════
   // HEADER BAND
-  // ════════════════════════════════════════════════════════════════════════════
-  rect(0, H - 90, W, 90, COLOR_GOLD);
-
+  rect(0, H - 95, W, 95, COLOR_GOLD);
+  
   if (logoImage) {
-    const logoDims = logoImage.scale(0.18);
-    page.drawImage(logoImage, {
-      x: 40,
-      y: H - 80,
-      width: logoDims.width,
-      height: logoDims.height,
+    const logoDims = logoImage.scale(0.22);
+    page.drawImage(logoImage, { 
+      x: 40, 
+      y: H - 75, 
+      width: logoDims.width, 
+      height: logoDims.height 
     });
   } else {
     draw("DJ Innovations", 40, H - 48, { font: fontBold, size: 22, color: COLOR_WHITE });
-    draw("Plateforme Freelance", 40, H - 66, { size: 9, color: COLOR_WHITE });
   }
 
-  // FACTURE label (right side)
-  draw("FACTURE", W - 160, H - 40, { font: fontBold, size: 26, color: COLOR_WHITE });
+  // FAKTI Label + Reference
+  draw("FAKTI", W - 160, H - 45, { font: fontBold, size: 28, color: COLOR_WHITE });
   const invoiceRef = `#${params.reservationId.slice(0, 8).toUpperCase()}`;
-  draw(invoiceRef, W - 160, H - 60, { font: fontBold, size: 11, color: COLOR_WHITE });
-  draw(new Date().toLocaleDateString("fr-FR"), W - 160, H - 74, { size: 9, color: COLOR_WHITE });
+  draw(invoiceRef, W - 160, H - 65, { font: fontBold, size: 12, color: COLOR_WHITE });
+  draw(new Date().toLocaleDateString("ht-HT"), W - 160, H - 80, { size: 10, color: COLOR_WHITE });
 
-  // ════════════════════════════════════════════════════════════════════════════
-  // SENDER / RECEIVER BLOCK
-  // ════════════════════════════════════════════════════════════════════════════
-  let y = H - 115;
-
-  // Left: emetteur
-  draw("Emetteur", 40, y, { font: fontBold, size: 9, color: COLOR_GRAY });
-  y -= 16;
-  draw("DJ Innovations", 40, y, { font: fontBold, size: 11 });
-  y -= 14;
-  draw("noreply@freelancer.konektegroup.com", 40, y, { size: 9, color: COLOR_GRAY });
+  // SENDER (Freelancer Real Info)
+  let y = H - 125;
+  draw("Soti nan / Emetteur", 40, y, { font: fontBold, size: 9, color: COLOR_GRAY });
+  y -= 18;
+  draw(params.freelancerNom, 40, y, { font: fontBold, size: 12 });
+  y -= 15;
+  draw(params.freelancerEmail, 40, y, { size: 10, color: COLOR_GOLD });
   y -= 12;
-  draw("djinnovations.com", 40, y, { size: 9, color: COLOR_GRAY });
+  draw("freelancer.konektegroup.com", 40, y, { size: 9, color: COLOR_GRAY });
 
-  // Right: destinataire
-  let yR = H - 115;
-  draw("Facture a", W / 2 + 20, yR, { font: fontBold, size: 9, color: COLOR_GRAY });
-  yR -= 16;
-  draw(`${params.clientPrenom} ${params.clientNom}`, W / 2 + 20, yR, { font: fontBold, size: 11 });
-  yR -= 14;
-  draw(params.clientEmail, W / 2 + 20, yR, { size: 9, color: COLOR_GRAY });
+  // RECEIVER (Client Info)
+  let yR = H - 125;
+  draw("Pou Kliyan / Destinataire", W / 2 + 20, yR, { font: fontBold, size: 9, color: COLOR_GRAY });
+  yR -= 18;
+  draw(`${params.clientPrenom} ${params.clientNom}`, W / 2 + 20, yR, { font: fontBold, size: 12 });
+  yR -= 15;
+  draw(params.clientEmail, W / 2 + 20, yR, { size: 10, color: COLOR_GRAY });
   if (params.clientTelephone) {
-    yR -= 12;
-    draw(params.clientTelephone, W / 2 + 20, yR, { size: 9, color: COLOR_GRAY });
+      yR -= 12;
+      draw(params.clientTelephone, W / 2 + 20, yR, { size: 9, color: COLOR_GRAY });
   }
 
-  // ── Separator ─────────────────────────────────────────────────────────────
-  y = Math.min(y, yR) - 20;
+  y = Math.min(y, yR) - 30;
   hline(y);
 
-  // ════════════════════════════════════════════════════════════════════════════
-  // DETAILS TABLE
-  // ════════════════════════════════════════════════════════════════════════════
+  // TABLE HEADER
+  y -= 25;
+  rect(40, y - 6, W - 80, 24, COLOR_GOLD);
+  draw("Deskripsyon Sèvis / Description", 52, y + 4, { font: fontBold, size: 9, color: COLOR_WHITE });
+  draw("Freelancer", 300, y + 4, { font: fontBold, size: 9, color: COLOR_WHITE });
+  draw("Montan (USD)", W - 140, y + 4, { font: fontBold, size: 9, color: COLOR_WHITE });
+
+  y -= 28;
+  // TABLE CONTENT
+  params.serviceList.forEach((svc, idx) => {
+    rect(40, y - 6, W - 80, 24, idx % 2 === 0 ? COLOR_LGRAY : COLOR_WHITE);
+    draw(svc, 52, y + 4, { size: 10 });
+    draw(params.freelancerNom, 300, y + 4, { size: 10 });
+    draw(idx === 0 ? `$${params.montantTotal.toFixed(2)}` : "-", W - 140, y + 4, { font: fontBold, size: 10 });
+    y -= 28;
+  });
+
+  y -= 15;
+  hline(y);
+
+  // TOTALS
   y -= 20;
-
-  // Table header background
-  rect(40, y - 6, W - 80, 22, COLOR_GOLD);
-  draw("Description", 52, y + 3, { font: fontBold, size: 9, color: COLOR_WHITE });
-  draw("Freelancer", 260, y + 3, { font: fontBold, size: 9, color: COLOR_WHITE });
-  draw("Montant (USD)", W - 140, y + 3, { font: fontBold, size: 9, color: COLOR_WHITE });
-
-  y -= 24;
-
-  // Table row 1 — service
-  rect(40, y - 6, W - 80, 22, COLOR_LGRAY);
-  draw(params.serviceName, 52, y + 3, { size: 9 });
-  draw(params.freelancerNom, 260, y + 3, { size: 9 });
-  draw(`$${params.montantTotal.toFixed(2)}`, W - 140, y + 3, { font: fontBold, size: 9 });
-
-  y -= 30;
-  hline(y);
-
-  // ── Total ─────────────────────────────────────────────────────────────────
-  y -= 16;
-  draw("Sous-total", W - 220, y, { size: 9, color: COLOR_GRAY });
-  draw(`$${params.montantTotal.toFixed(2)} USD`, W - 140, y, { size: 9 });
-  y -= 14;
-  draw("Taxes", W - 220, y, { size: 9, color: COLOR_GRAY });
-  draw("Incluses", W - 140, y, { size: 9, color: COLOR_GRAY });
-  y -= 5;
-  hline(y, W - 230, W - 40);
+  draw("Soutotal", W - 240, y, { size: 10, color: COLOR_GRAY });
+  draw(`$${params.montantTotal.toFixed(2)} USD`, W - 140, y, { size: 10 });
   y -= 18;
+  draw("Taks (Vat)", W - 240, y, { size: 10, color: COLOR_GRAY });
+  draw("Enkli", W - 140, y, { size: 10, color: COLOR_GRAY });
+  
+  y -= 10;
+  hline(y, W - 250, W - 40);
+  y -= 28;
 
-  // TOTAL box
-  rect(W - 230, y - 8, 190, 26, COLOR_GOLD);
-  draw("TOTAL PAYE", W - 220, y + 3, { font: fontBold, size: 10, color: COLOR_WHITE });
-  draw(`$${params.montantTotal.toFixed(2)} USD`, W - 120, y + 3, { font: fontBold, size: 11, color: COLOR_WHITE });
+  // BIG TOTAL BOX
+  rect(W - 250, y - 10, 210, 35, COLOR_GOLD);
+  draw("TOTAL PEYE", W - 240, y + 5, { font: fontBold, size: 11, color: COLOR_WHITE });
+  draw(`$${params.montantTotal.toFixed(2)} USD`, W - 140, y + 5, { font: fontBold, size: 14, color: COLOR_WHITE });
 
-  // ════════════════════════════════════════════════════════════════════════════
-  // SCHEDULE / HORAIRES
-  // ════════════════════════════════════════════════════════════════════════════
-  y -= 40;
-  hline(y + 10);
-  draw("Creneaux horaires selectionnes", 40, y - 8, { font: fontBold, size: 10 });
-  y -= 24;
+  // HORAIRES / SCHEDULE
+  y -= 60;
+  hline(y + 15);
+  draw("Orè ak Kreno ou chwazi yo / Schedule details", 40, y, { font: fontBold, size: 11, color: COLOR_GOLD });
+  y -= 25;
 
   if (params.horaires.length > 0) {
-    for (const slot of params.horaires) {
-      draw(`-  ${slot.date}   a   ${slot.time}`, 52, y, { size: 9 });
-      y -= 16;
-    }
+    params.horaires.forEach(slot => {
+      draw(`-  Dat: ${slot.date}   -   Lè: ${slot.time}`, 52, y, { size: 10 });
+      y -= 18;
+    });
   } else {
-    draw(
-      "Aucun creneau selectionne - le freelancer vous contactera dans 24-48h.",
-      52, y,
-      { size: 9, color: COLOR_GRAY }
-    );
-    y -= 16;
+    draw("Pa gen kreno chwazi anko. Freelancer a ap kontakte w pèsonèlman.", 52, y, { size: 10, color: COLOR_GRAY });
+    y -= 18;
   }
 
-  // ════════════════════════════════════════════════════════════════════════════
-  // FREELANCER CONTACT
-  // ════════════════════════════════════════════════════════════════════════════
-  y -= 20;
-  hline(y + 6);
-  y -= 16;
-  draw("Votre freelancer", 40, y, { font: fontBold, size: 10 });
-  y -= 16;
-  draw(`Nom :`, 52, y, { size: 9, color: COLOR_GRAY });
-  draw(params.freelancerNom, 110, y, { size: 9 });
-  y -= 14;
-  draw(`Courriel :`, 52, y, { size: 9, color: COLOR_GRAY });
-  draw(params.freelancerEmail, 110, y, { size: 9 });
+  // FREELANCER REAL CONTACT (Requested by user)
+  y -= 30;
+  hline(y + 10);
+  draw("Enfòmasyon Freelancer / Vendor Info", 40, y - 5, { font: fontBold, size: 11 });
+  y -= 22;
+  draw(`Non Freelancer:  ${params.freelancerNom}`, 52, y, { size: 10 });
+  y -= 18;
+  draw(`Imèl Sipò:    ${params.freelancerEmail}`, 52, y, { font: fontBold, size: 10, color: COLOR_GOLD });
 
-  // ════════════════════════════════════════════════════════════════════════════
-  // STATUT PAIEMENT BADGE
-  // ════════════════════════════════════════════════════════════════════════════
-  y -= 40;
-  rect(40, y - 6, 130, 22, rgb(0.18, 0.64, 0.44));
-  draw("[PAYE] PAIEMENT CONFIRME", 52, y + 3, { font: fontBold, size: 9, color: COLOR_WHITE });
+  // PEYE BADGE
+  y -= 45;
+  rect(40, y - 10, 180, 28, rgb(0.18, 0.64, 0.44));
+  draw("PÈMAN KONFIME [OK]", 52, y + 2, { font: fontBold, size: 10, color: COLOR_WHITE });
 
-  // ════════════════════════════════════════════════════════════════════════════
+  // DUREE LIMITE (Requested by user)
+  const dureeMwa = Math.max(1, Math.round(params.montantTotal / (params.prixUnitaire || params.montantTotal || 1)));
+  const labelMwa = dureeMwa === 1 ? "1 mwa" : `${dureeMwa} Mwa`;
+  
+  draw(`Dure limite:  ${labelMwa}`, 40 + 200, y + 2, { font: fontBold, size: 11, color: COLOR_GOLD });
+
   // FOOTER
-  // ════════════════════════════════════════════════════════════════════════════
-  rect(0, 0, W, 40, COLOR_LGRAY);
-  hline(40);
-  const year = new Date().getFullYear();
-  draw(
-    `(c) ${year} DJ Innovations - Tous droits reserves   |   noreply@freelancer.konektegroup.com`,
-    40, 14,
-    { size: 8, color: COLOR_GRAY }
-  );
-  draw(`Réf. ${params.reservationId}`, W - 180, 14, { size: 8, color: COLOR_GRAY });
+  rect(0, 0, W, 45, COLOR_LGRAY);
+  hline(45);
+  draw(`© ${new Date().getFullYear()} DJ Innovations — Siksè ou se priyorite nou.`, 40, 18, { size: 9, color: COLOR_GRAY });
+  draw(`Réf: ${params.reservationId}`, W - 180, 18, { size: 8, color: COLOR_GRAY });
 
   return await pdfDoc.save();
 }
 
-// ─── Uint8Array → base64 (safe for Deno) ─────────────────────────────────────
 function uint8ToBase64(bytes: Uint8Array): string {
   let binary = "";
   const chunkSize = 8192;
@@ -267,252 +208,125 @@ function uint8ToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-// ─── Main Handler ─────────────────────────────────────────────────────────────
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders, status: 200 });
-  }
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const { reservation_id, force } = await req.json();
+    const body = await req.json();
+    console.log("[send-confirmation-email] Body resevwa:", body);
+    const { reservation_id, force, download } = body;
 
-    if (!reservation_id) {
-      return new Response(
-        JSON.stringify({ error: "reservation_id manke nan demann nan." }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-      );
-    }
+    if (!reservation_id) throw new Error("reservation_id oblije.");
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { db: { schema: 'public' } }  // ✅ Schéma explicite — TOUJOURS 'public'
-    );
+    const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
-    // If force=true (manual resend from dashboard), update statut to 'paye' first
     if (force) {
-      await supabase
-        .from("reservations")
-        .update({ statut: "paye" })
-        .eq("id", reservation_id);
+        console.log("[send-confirmation-email] Force update statut to paye...");
+        await supabase.from("reservations").update({ statut: "paye" }).eq("id", reservation_id);
     }
 
-    // Fetch the reservation
-    const { data: res, error } = await supabase
-      .from("reservations")
-      .select("*")
-      .eq("id", reservation_id)
-      .single();
-
-    if (error) throw new Error(`Erè Supabase: ${error.message}`);
-    if (!res) throw new Error("Rezèvasyon pa jwenn.");
-
-    // Check payment status (bypass if force=true)
-    // ✅ ROBUSTE: normalise 'payé', 'paye', 'paid', 'Payé' → toujours compare à 'paye'
-    if (!force) {
-      const statutNormalise = (res.statut || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")  // retire tous les accents
-        .toLowerCase()
-        .trim();
-      if (statutNormalise !== "paye" && statutNormalise !== "paid") {
-        return new Response(
-          JSON.stringify({ error: `Peman pa konfime. Statut aktyèl: ${res.statut}` }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-        );
-      }
+    const { data: res, error } = await supabase.from("reservations").select("*").eq("id", reservation_id).single();
+    if (error || !res) {
+        console.error("[send-confirmation-email] Rezèvasyon pa jwenn:", error);
+        throw new Error("Rezèvasyon pa jwenn nan baz de done a.");
     }
 
-    // ── Fetch service + freelancer ──────────────────────────────────────────
-    let serviceName = "Sèvis DJ Innovations";
-    let freelancerNom = "DJ Innovations";
-    let freelancerEmail: string | null = null;
+    // Fetch services
+    let serviceList = ["Sèvis DJ Innovations"];
+    let freelancerNom = "Biduello Dieujuste";
+    let freelancerEmail = "dieujustebiduello@gmail.com";
+    let prixUnitaire = res.montant_total || 0;
 
-    if (res.service_ids && res.service_ids.length > 0) {
-      const { data: svc } = await supabase
-        .from("services")
-        .select("nom, freelancer_id")
-        .eq("id", res.service_ids[0])
-        .single();
+    let sIds = res.service_ids;
+    if (sIds && !Array.isArray(sIds)) {
+        if (typeof sIds === 'string') sIds = [sIds];
+        else sIds = [];
+    }
 
-      if (svc) {
-        serviceName = svc.nom;
-        if (svc.freelancer_id) {
-          const { data: fl } = await supabase
-            .from("freelancers")
-            .select("nom, email")
-            .eq("id", svc.freelancer_id)
-            .single();
-          if (fl) {
-            freelancerNom = fl.nom;
-            freelancerEmail = fl.email;
-          }
+    if (sIds && sIds.length > 0) {
+      console.log("[send-confirmation-email] TRACE: sIds =", sIds);
+      const { data: svcs } = await supabase.from("services").select("nom, freelancer_id, prix").in("id", sIds);
+      if (svcs && svcs.length > 0) {
+        serviceList = svcs.map(s => s.nom);
+        prixUnitaire = svcs[0].prix;
+        
+        const fId = svcs[0].freelancer_id;
+        if (fId) {
+            const { data: fl } = await supabase.from("freelancers").select("nom, email").eq("id", fId).single();
+            if (fl) { 
+                freelancerNom = fl.nom; 
+                freelancerEmail = fl.email; 
+            }
         }
       }
     }
 
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    const FORMATEUR_EMAIL = Deno.env.get("FORMATEUR_EMAIL");
-    const LOGO_URL = Deno.env.get("LOGO_URL") ?? null; // optional: public PNG/JPG URL
-
-    if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY pa konfigire.");
-    if (!res.email) throw new Error("Imèl kliyan an manke.");
-
-    const finalFreelancerEmail = freelancerEmail ?? FORMATEUR_EMAIL ?? "info@djinnovations.com";
-    const clientFullName = `${res.prenom ?? ""} ${res.nom ?? ""}`.trim();
-    const hasSlots = Array.isArray(res.horaires) && res.horaires.length > 0;
-
-    // ── Generate PDF ────────────────────────────────────────────────────────
+    console.log("[send-confirmation-email] Generating PDF for:", freelancerNom);
     const pdfBytes = await generateInvoicePDF({
       reservationId: reservation_id,
-      clientPrenom: res.prenom ?? "",
-      clientNom: res.nom ?? "",
+      clientPrenom: res.prenom || "",
+      clientNom: res.nom || "",
       clientEmail: res.email,
-      clientTelephone: res.telephone ?? null,
-      serviceName,
+      clientTelephone: res.telephone,
+      serviceList,
       freelancerNom,
-      freelancerEmail: finalFreelancerEmail,
-      montantTotal: res.montant_total ?? 0,
-      horaires: hasSlots ? res.horaires : [],
-      logoUrl: LOGO_URL,
+      freelancerEmail,
+      montantTotal: res.montant_total || 0,
+      prixUnitaire: prixUnitaire,
+      horaires: res.horaires || [],
+      logoUrl: Deno.env.get("LOGO_URL") || "https://freelancer.konektegroup.com/assets/logo.png",
     });
+    console.log("[send-confirmation-email] PDF Generated successfully.");
+
+    if (download) {
+      console.log("[send-confirmation-email] Returning PDF raw bytes for download/preview.");
+      return new Response(pdfBytes, {
+        headers: { 
+            ...corsHeaders, 
+            "Content-Type": "application/pdf",
+            "Content-Disposition": `inline; filename="fakti-${reservation_id}.pdf"`
+        }
+      });
+    }
 
     const pdfBase64 = uint8ToBase64(pdfBytes);
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY pa konfigire nan Edge Function.");
 
-    // ── HTML slots ──────────────────────────────────────────────────────────
-    const slotsHtmlClient = hasSlots
-      ? res.horaires.map((h: { date: string; time: string }) =>
-        `<li>${h.date} à ${h.time}</li>`
-      ).join("")
-      : `<li style="color:#BA7517;">⏳ Ou pa chwazi yon kreno orè. Freelancer w lan ap kontakte w dirèkteman.</li>`;
-
-    const slotsHtmlFreelancer = hasSlots
-      ? res.horaires.map((h: { date: string; time: string }) =>
-        `<li>${h.date} à ${h.time}</li>`
-      ).join("")
-      : `<li style="color:#c0392b;">⚠️ Kliyan an pa chwazi kreno orè. Ou dwe kontakte l dirèkteman.</li>`;
-
-    // ── Email to Customer (with PDF attachment) ──────────────────────────────
-    const customerRes = await fetch("https://api.resend.com/emails", {
+    console.log("[send-confirmation-email] Sending email via Resend to:", res.email);
+    const emailResp = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({
         from: "DJ Innovations <noreply@freelancer.konektegroup.com>",
         to: res.email,
-        subject: `Fakti Elektwonik - ${serviceName} — DJ Innovations`,
-        attachments: [
-          {
-            filename: `facture-djinnovations-${reservation_id.slice(0, 8)}.pdf`,
-            content: pdfBase64,
-          },
-        ],
+        subject: `Fakti Konfime - ${serviceList[0]}`,
+        attachments: [{ filename: `fakti-${reservation_id.slice(0,8)}.pdf`, content: pdfBase64 }],
         html: `
-          <div style="font-family:sans-serif;max-width:600px;margin:auto;border:1px solid #eee;padding:20px;border-radius:8px;">
-            <h2 style="color:#BA7517;margin-bottom:4px;">DJ Innovations</h2>
-            <hr style="border-color:#eee;">
-            <h1 style="font-size:22px;">Mèsi pou konfyans ou, ${res.prenom}!</h1>
-            <p>Peman ou pou sèvis <strong>${serviceName}</strong> an byen pase.
-               <strong>Fakti PDF ou nan pièce jointe.</strong></p>
-
-            <div style="background:#f9f9f9;padding:15px;border-radius:8px;margin:20px 0;">
-              <p style="margin:6px 0;"><strong>Freelancer ou:</strong> ${freelancerNom}</p>
-              <p style="margin:6px 0;"><strong>Imèl Freelancer:</strong> ${finalFreelancerEmail}</p>
-              <p style="margin:6px 0;"><strong>Sèvis:</strong> ${serviceName}</p>
-              <p style="margin:6px 0;"><strong>Pri peye:</strong> $${res.montant_total} USD</p>
-              <p style="margin:6px 0;"><strong>Nimewo Rezèvasyon:</strong> #${reservation_id}</p>
-            </div>
-
-            <p><strong>Orè ou chwazi yo:</strong></p>
-            <ul>${slotsHtmlClient}</ul>
-
-            ${hasSlots
-            ? `<p>Freelancer w lan ap kontakte w nan <strong>24 a 48 èdtan</strong> pou kòmanse.</p>`
-            : `<div style="background:#fff8e1;border-left:4px solid #BA7517;padding:12px 16px;border-radius:4px;margin:16px 0;">
-                   <p style="margin:0;"><strong>Pwochen etap:</strong> <strong>${freelancerNom}</strong> ap kontakte w nan <strong>24 a 48 èdtan</strong>.</p>
-                   <p style="margin:8px 0 0;">Imèl: <a href="mailto:${finalFreelancerEmail}">${finalFreelancerEmail}</a></p>
-                 </div>`
-          }
-            <hr style="border-color:#eee;">
-            <p style="font-size:12px;color:#888;">© ${new Date().getFullYear()} DJ Innovations. Tout dwa rezève.</p>
-          </div>
-        `,
-      }),
-    });
-
-    if (!customerRes.ok) {
-      const errBody = await customerRes.json();
-      throw new Error(`Erè anvwa imèl kliyan: ${JSON.stringify(errBody)}`);
-    }
-
-    // ── Email to Freelancer (no PDF attachment) ──────────────────────────────
-    const freelancerRes = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: "DJ Innovations <noreply@freelancer.konektegroup.com>",
-        to: finalFreelancerEmail,
-        subject: `Nouvo Peman Resevwa! — DJ Innovations`,
-        html: `
-          <div style="font-family:sans-serif;max-width:600px;margin:auto;border:1px solid #eee;padding:20px;border-radius:8px;">
+          <div style="font-family:sans-serif;max-width:600px;margin:auto;border:1px solid #eee;padding:25px;border-radius:12px;">
             <h2 style="color:#BA7517;">DJ Innovations</h2>
-            <hr style="border-color:#eee;">
-            <h1 style="font-size:22px;">Ou gen yon nouvo rezèvasyon, ${freelancerNom}!</h1>
-            <p>Kliyan <strong>${clientFullName}</strong> fenk peye pou sèvis <strong>${serviceName}</strong>.</p>
-
-            <div style="background:#f9f9f9;padding:15px;border-radius:8px;margin:20px 0;">
-              <p style="margin:6px 0;"><strong>Nimewo Rezèvasyon:</strong> #${reservation_id}</p>
-              <p style="margin:6px 0;"><strong>Imèl kliyan:</strong> ${res.email}</p>
-              <p style="margin:6px 0;"><strong>Telefòn:</strong> ${res.telephone ?? "Okenn"}</p>
-              <p style="margin:6px 0;"><strong>Mesaj:</strong> ${res.message ?? "Okenn"}</p>
-              <p style="margin:6px 0;"><strong>Montan resevwa:</strong> $${res.montant_total} USD</p>
-            </div>
-
-            <p><strong>Orè chwazi:</strong></p>
-            <ul>${slotsHtmlFreelancer}</ul>
-
-            ${hasSlots
-            ? `<p>Tanpri kontakte kliyan an nan <strong>24 a 48 èdtan</strong>.</p>`
-            : `<div style="background:#fff3f3;border-left:4px solid #c0392b;padding:12px 16px;border-radius:4px;margin:16px 0;">
-                   <p style="margin:0;"><strong>⚠️ Aksyon obligatwa:</strong> Kliyan an pa te chwazi yon kreno. Ou <strong>dwe kontakte l dirèkteman</strong> nan 24-48 èdtan.</p>
-                   <p style="margin:8px 0 0;">Imèl: <a href="mailto:${res.email}">${res.email}</a></p>
-                   ${res.telephone ? `<p style="margin:4px 0 0;">Telefòn: <strong>${res.telephone}</strong></p>` : ""}
-                 </div>`
-          }
-            <hr style="border-color:#eee;">
-            <p style="font-size:12px;color:#888;">© ${new Date().getFullYear()} DJ Innovations. Tout dwa rezève.</p>
+            <p>Bonjou ${res.prenom}, mèsi pou konfyans ou!</p>
+            <p>Peman ou pou sèvis <strong>${serviceList.join(", ")}</strong> an byen pase.</p>
+            <p><strong>Freelancer ou a:</strong> ${freelancerNom} (<a href="mailto:${freelancerEmail}">${freelancerEmail}</a>)</p>
+            <p>Ou ap jwenn faktis PDF ou a tache nan imèl sa a.</p>
+            <hr style="border:0;border-top:1px solid #eee;margin:20px 0;">
+            <p style="font-size:12px;color:#888;">© ${new Date().getFullYear()} DJ Innovations. Siksè ou se priyorite nou.</p>
           </div>
-        `,
+        `
       }),
     });
 
-    if (!freelancerRes.ok) {
-      const errBody = await freelancerRes.json();
-      throw new Error(`Erè anvwa imèl freelancer: ${JSON.stringify(errBody)}`);
+    if (!emailResp.ok) {
+        const emailErr = await emailResp.text();
+        console.error("[send-confirmation-email] Resend Error:", emailErr);
+        throw new Error(`Erè nan voye imèl: ${emailErr}`);
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: "Imèl ak fakti PDF voye ak siksè bay kliyan. Notifikasyon voye bay freelancer.",
-        sent_to: {
-          client: res.email,
-          freelancer: finalFreelancerEmail,
-        },
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-    );
+    console.log("[send-confirmation-email] Email sent successfully.");
+    return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   } catch (err) {
-    console.error("[send-invoice-email] Erè:", err);
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : "Erè enkoni." }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-    );
+    console.error("[send-confirmation-email] Global Catch Error:", err.message);
+    return new Response(JSON.stringify({ error: err.message }), { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 });
   }
 });

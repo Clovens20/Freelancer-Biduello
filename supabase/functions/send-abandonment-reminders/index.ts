@@ -21,18 +21,29 @@ serve(async (req) => {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY pa konfigire.");
 
+    // Parse body optionally for manual trigger
+    let manualId = null;
+    try {
+      const body = await req.json();
+      manualId = body.reservation_id;
+    } catch (_) {}
+
     // 1. Jwenn rezèvasyon ki an atant ki gen yon URL pèman
-    // Nou pran sa ki fèt depi plis pase 15 minit (pou evite voye pandan kliyan an ap peye an dirèk)
-    const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-    
-    const { data: pendingRez, error: fetchErr } = await supabase
+    let query = supabase
       .from("reservations")
       .select("*, services(nom)")
       .eq("statut", "en_attente")
-      .not("checkout_url", "is", null)
-      .lt("created_at", fifteenMinsAgo)
-      .limit(20); // Batch de 20 pour éviter les timeouts
+      .not("checkout_url", "is", null);
 
+    if (manualId) {
+      query = query.eq("id", manualId);
+    } else {
+      // Pour l'automate: On prend ceux faits il y a plus de 15 min
+      const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+      query = query.lt("created_at", fifteenMinsAgo).limit(20);
+    }
+    
+    const { data: pendingRez, error: fetchErr } = await query;
     if (fetchErr) throw fetchErr;
 
     const results = [];
@@ -45,7 +56,8 @@ serve(async (req) => {
       // Kondisyon: 
       // - Si se premye fwa (reminder_count = 0)
       // - OSWA si dènye fwa a depase 5 èdtan
-      if (res.reminder_count === 0 || hoursSinceLast >= 5) {
+      // - OSWA si se yon deman manyèl (manualId)
+      if (manualId || res.reminder_count === 0 || hoursSinceLast >= 5) {
         
         const serviceName = res.services?.nom || "sèvis nou an";
         const checkoutUrl = res.checkout_url;
