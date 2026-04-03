@@ -186,27 +186,26 @@ window.openServiceModal = function (id) {
     const isSelected = state.selectedServices.some(item => item.id === id);
 
     modalContainer.innerHTML = `
-        <div class="modal-header-premium">
-            <h2 class="modal-title-lux">${s.nom}</h2>
-            <div class="modal-price-tag">${s.prix || 105}$<span>/ mwa</span></div>
+        <div class="modal-header-box">
+            <h2 class="modal-title-lux" style="font-family:'DM Serif Display', serif; font-size:2.8rem; color:var(--primary); margin-bottom:10px;">${s.nom}</h2>
+            <div class="modal-price-tag" style="font-size:1.4rem; font-weight:700; color:var(--accent); margin-bottom:20px;">${s.prix || 105}$<span style="font-size:0.9rem; color:var(--text-muted); font-weight:400;">/ mwa</span></div>
         </div>
-        <div class="modal-scroll-area">
-            <p class="modal-desc-lux">${s.description || 'Sèvis sa a ap ede w grandi rapidman.'}</p>
-            <div class="modal-features-grid-lux">
+        <div class="modal-body">
+            <p class="modal-desc">${s.description || 'Sèvis sa a ap ede w grandi rapidman.'}</p>
+            <div class="modal-feat-grid">
                 ${(s.fonctionnalites || []).map(f => `
-                    <div class="modal-feature-item">
-                        <span class="feature-bullet">✦</span>
-                        <span class="feature-text">${f}</span>
+                    <div class="modal-feat-item">
+                        <span>${f}</span>
                     </div>`).join('')}
             </div>
             ${s.video_url ? `
-                <div class="modal-video-wrap">
-                    <iframe src="${getYoutubeEmbedUrl(s.video_url)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <div class="modal-video-wrap" style="margin-top:30px; border-radius:16px; overflow:hidden; aspect-ratio:16/9; background:#000; border:1px solid rgba(255,255,255,0.1);">
+                    <iframe src="${getYoutubeEmbedUrl(s.video_url)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; height:100%;"></iframe>
                 </div>` : ''}
         </div>`;
 
-    modalSelectBtn.innerHTML = isSelected ? '<span>✓ Sèvis Chwazi</span>' : `<span>Chwazi Sèvis sa a ($${s.prix || 105})</span>`;
-    modalSelectBtn.className = isSelected ? 'btn gold wide active' : 'btn gold wide';
+    modalSelectBtn.innerHTML = isSelected ? '✓ Sèvis sa a Chwazi' : `Chwazi Sèvis sa a ($${s.prix || 105})`;
+    modalSelectBtn.className = isSelected ? 'btn-modal-action active' : 'btn-modal-action';
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 };

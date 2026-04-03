@@ -1750,6 +1750,9 @@ nav {
     box-shadow: 0 50px 100px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.05);
     animation: modalSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
 }
 
 @keyframes modalSlideUp {
@@ -1784,7 +1787,9 @@ nav {
 }
 
 #modal-service-details {
-    padding: 0; /* On gère le padding par section */
+    padding: 0;
+    overflow-y: auto; /* Permet le scroll interne */
+    flex: 1;
 }
 
 .modal-header-box {
@@ -1848,10 +1853,13 @@ nav {
 }
 
 .modal-footer {
-    padding: 40px;
-    background: rgba(0,0,0,0.2);
-    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 20px 40px;
+    background: #111;
+    border-top: 1px solid rgba(255,255,255,0.1);
     text-align: center;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
 }
 
 .btn-modal-action {
