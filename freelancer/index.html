@@ -1060,6 +1060,36 @@
                 grid-template-columns: 1fr;
             }
         }
+        /* Mini Switch */
+        .switch-mini {
+            position: relative;
+            display: inline-block;
+            width: 32px;
+            height: 18px;
+        }
+        .switch-mini input { opacity: 0; width: 0; height: 0; }
+        .slider-mini {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: var(--surface-3);
+            transition: .3s;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+        .slider-mini:before {
+            position: absolute;
+            content: "";
+            height: 12px;
+            width: 12px;
+            left: 2px;
+            bottom: 2px;
+            background-color: var(--text-3);
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider-mini { background-color: rgba(34, 197, 94, 0.2); border-color: var(--success); }
+        input:checked + .slider-mini:before { transform: translateX(14px); background-color: var(--success); }
     </style>
 </head>
 
@@ -1286,25 +1316,34 @@
                                 class="dash-textarea" id="edit-ap-desc" data-field="ap_description"
                                 oninput="autoSave(this)" rows="5"></textarea></div>
                     </div>
+                    <!-- Section Sosyal Dynamic -->
                     <div class="config-section">
                         <div class="config-section-title"><span>📱</span> Footer & Sosyal</div>
-                        <div class="grid-3">
-                            <div class="field-group"><label class="dash-label">TikTok URL</label><input type="text"
-                                    class="dash-input" id="edit-tiktok" data-field="tiktok_url"
-                                    oninput="autoSave(this)"></div>
-                            <div class="field-group"><label class="dash-label">Facebook URL</label><input type="text"
-                                    class="dash-input" id="edit-facebook" data-field="facebook_url"
-                                    oninput="autoSave(this)"></div>
-                            <div class="field-group"><label class="dash-label">Instagram URL</label><input type="text"
-                                    class="dash-input" id="edit-instagram" data-field="instagram_url"
-                                    oninput="autoSave(this)"></div>
+                        
+                        <div style="background:rgba(186,117,23,0.04); border:1px solid var(--border-gold); border-radius:var(--r-md); padding:16px; margin-bottom:20px; font-size:0.85rem; color:var(--text-2)">
+                            <strong style="color:var(--accent)">💡 Jesyon Sosyal:</strong><br>
+                            Ou ka aktive/dezaktive rezo yo, ajoute sa ou vle, epi chanje lòd yo si w bezwen.
                         </div>
-                        <div class="field-group"><label class="dash-label">Slogan Footer</label><input type="text"
-                                class="dash-input" id="edit-footer-slogan" data-field="footer_slogan"
-                                oninput="autoSave(this)"></div>
+
+                        <div id="social-manager-list" style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px">
+                            <!-- Lis rezo yo ap parèt isit -->
+                        </div>
+
+                        <div style="display:flex; gap:10px; align-items:center; margin-bottom:24px">
+                            <button class="btn btn-ghost btn-sm" onclick="addSocialLinkItem()" style="border-style:dashed">
+                                ➕ Ajoute yon lòt rezo
+                            </button>
+                        </div>
+
+                        <div class="field-group" style="padding-top:20px; border-top:1px solid var(--border)">
+                            <label class="dash-label">Slogan Footer</label>
+                            <input type="text" class="dash-input" id="edit-footer-slogan" data-field="footer_slogan" oninput="autoSave(this)" placeholder="Ex: Siksè ou se priyorite nou.">
+                        </div>
+
                         <div style="margin-top:24px;text-align:right">
-                            <button class="btn btn-gold" onclick="forceSaveLanding(this)">Anrejistre Tout
-                                Chanjman</button>
+                            <button class="btn btn-gold" id="btn-save-socials" onclick="saveSocialLinksManually(this)">
+                                💾 Anrejitre Tout Sosyal yo
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -2065,18 +2104,117 @@
         async function loadLandingConfig() {
             const { data: config } = await sb.from('landing_config').select('*').eq('id', 1).maybeSingle();
             if (!config) return;
+            
+            // ✅ Populer les champs standard
             const fields = {
                 'edit-hero-badge': config.hero_badge, 'edit-hero-title': config.hero_title,
                 'edit-hero-desc': config.hero_description, 'edit-hero-img': config.hero_image_url,
                 'edit-ap-title': config.ap_title, 'edit-ap-desc': config.ap_description,
-                'edit-ap-photo': config.ap_photo_url, 'edit-footer-slogan': config.footer_slogan,
-                'edit-tiktok': config.tiktok_url, 'edit-facebook': config.facebook_url,
-                'edit-instagram': config.instagram_url,
+                'edit-ap-photo': config.ap_photo_url, 'edit-footer-slogan': config.footer_slogan
             };
             Object.entries(fields).forEach(([id, val]) => {
                 const el = document.getElementById(id);
                 if (el) el.value = val || '';
             });
+
+            // ✅ Gérer les Sosyal yo (format dynamic)
+            let socialLinks = [];
+            if (config.social_links && Array.isArray(config.social_links)) {
+                socialLinks = config.social_links;
+            } else {
+                // Fallback: migrate from old columns if possible
+                if (config.facebook_url) socialLinks.push({ platform: 'Facebook', url: config.facebook_url, enabled: true });
+                if (config.instagram_url) socialLinks.push({ platform: 'Instagram', url: config.instagram_url, enabled: true });
+                if (config.tiktok_url) socialLinks.push({ platform: 'TikTok', url: config.tiktok_url, enabled: true });
+                
+                if (socialLinks.length === 0) {
+                    socialLinks = [
+                        { platform: 'Facebook', url: '#', enabled: true },
+                        { platform: 'Instagram', url: '#', enabled: true },
+                        { platform: 'TikTok', url: '#', enabled: true }
+                    ];
+                }
+            }
+            window.currentSocialLinks = socialLinks;
+            renderSocialManager();
+        }
+
+        // ════ Sosyal Manager Logic ════
+        const SOCIAL_PLATFORMS = ['Facebook', 'Instagram', 'TikTok', 'YouTube', 'LinkedIn', 'WhatsApp', 'Twitter/X', 'Website'];
+        
+        function renderSocialManager() {
+            const list = document.getElementById('social-manager-list');
+            if (!list) return;
+            
+            if (!window.currentSocialLinks || window.currentSocialLinks.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-3); font-size:0.85rem">Poko gen rezo ajoute.</p>';
+                return;
+            }
+
+            list.innerHTML = window.currentSocialLinks.map((item, idx) => `
+                <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-md); padding:14px; display:grid; grid-template-columns: 140px 1fr 100px auto; gap:12px; align-items:center; transition:0.2s">
+                    <!-- Platform -->
+                    <select class="dash-select" onchange="updateSocialLink(${idx}, 'platform', this.value)" style="padding:8px 10px">
+                        ${SOCIAL_PLATFORMS.map(p => `<option value="${p}" ${item.platform === p ? 'selected' : ''}>${p}</option>`).join('')}
+                    </select>
+                    
+                    <!-- URL -->
+                    <input type="text" class="dash-input" placeholder="https://..." value="${item.url || ''}" 
+                           oninput="updateSocialLink(${idx}, 'url', this.value)" style="padding:8px 12px">
+                    
+                    <!-- Toggle On/Off -->
+                    <div style="display:flex; align-items:center; gap:8px">
+                        <label class="switch-mini" title="${item.enabled ? 'Aktif' : 'Dezaktive'}">
+                            <input type="checkbox" ${item.enabled ? 'checked' : ''} onchange="updateSocialLink(${idx}, 'enabled', this.checked)">
+                            <span class="slider-mini"></span>
+                        </label>
+                        <span style="font-size:0.75rem; color:var(--text-2)">${item.enabled ? 'ON' : 'OFF'}</span>
+                    </div>
+
+                    <!-- Delete -->
+                    <button class="btn btn-ghost" onclick="removeSocialLinkItem(${idx})" style="padding:8px; border:none; color:var(--danger)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addSocialLinkItem() {
+            if (!window.currentSocialLinks) window.currentSocialLinks = [];
+            window.currentSocialLinks.push({ platform: 'Facebook', url: '', enabled: true });
+            renderSocialManager();
+        }
+
+        function removeSocialLinkItem(idx) {
+            window.currentSocialLinks.splice(idx, 1);
+            renderSocialManager();
+        }
+
+        function updateSocialLink(idx, key, val) {
+            window.currentSocialLinks[idx][key] = val;
+            if (key === 'enabled') renderSocialManager(); // refresh labels
+        }
+
+        async function saveSocialLinksManually(btn) {
+            const orig = btn.innerHTML;
+            btn.innerHTML = '⏳ Ap anrejistre...'; btn.disabled = true;
+            try {
+                const { error } = await sb.from('landing_config').update({ 
+                    social_links: window.currentSocialLinks,
+                    // Backward compatibility: continue to update individual columns for the first 3
+                    facebook_url: window.currentSocialLinks.find(l => l.platform === 'Facebook')?.url || '#',
+                    instagram_url: window.currentSocialLinks.find(l => l.platform === 'Instagram')?.url || '#',
+                    tiktok_url: window.currentSocialLinks.find(l => l.platform === 'TikTok')?.url || '#'
+                }).eq('id', 1);
+                
+                if (error) throw error;
+                showToast('✅ Sosyal yo anrejistre avèk siksè!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('❌ Erè: ' + err.message, 'error');
+            } finally {
+                btn.innerHTML = orig; btn.disabled = false;
+            }
         }
 
         function autoSave(el) {
