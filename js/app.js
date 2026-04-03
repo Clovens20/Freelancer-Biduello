@@ -11,7 +11,11 @@ const state = {
     paymentMode: 'full',
     customerInfo: { prenom: '', non: '', email: '', telephone: '', message: '' },
     finalAmount: 0,
-    gateway: 'stripe'
+    gateway: 'stripe',
+    isVacation: false,
+    vacationMsg: '',
+    vacationStart: null,
+    vacationEnd: null
 };
 
 const DAYS = ['Lendi', 'Madi', 'Mèkredi', 'Jedi', 'Vandredi', 'Samdi', 'Dimanch'];
@@ -61,6 +65,11 @@ async function loadLandingConfig() {
         set('ap-description', data.ap_description);
         set('ap-photo', data.ap_photo_url, 'src');
         set('footer-slogan', data.footer_slogan);
+
+        state.isVacation = !!data.is_vacation;
+        state.vacationMsg = data.vacation_msg || 'Mwen an vakans pou kounye a, m ap tounen talè!';
+        state.vacationStart = data.vacation_start || null;
+        state.vacationEnd = data.vacation_end || null;
 
         const links = { 'facebook-link': data.facebook_url, 'instagram-link': data.instagram_url, 'tiktok-link': data.tiktok_url };
         Object.entries(links).forEach(([id, href]) => {
@@ -214,8 +223,31 @@ window.toggleDay = function (dayIndex) {
 function renderDaySelector() {
     const container = document.getElementById('week-selector');
     if (!container) return;
-    const currentSvc = state.selectedServices[0];
-    if (!currentSvc) return;
+    // ── Gérer le Mode Vakans (Switch ou Dates) ──
+    let onVacation = state.isVacation;
+    const now = new Date();
+    now.setHours(0,0,0,0);
+
+    if (state.vacationStart) {
+        const start = new Date(state.vacationStart);
+        const end = state.vacationEnd ? new Date(state.vacationEnd) : null;
+        if (now >= start && (!end || now <= end)) {
+            onVacation = true;
+        }
+    }
+
+    if (onVacation) {
+        container.innerHTML = `
+            <div class="vacation-mode-box" style="text-align:center; padding:40px; background:rgba(186,117,23,0.05); border:1px solid var(--border-gold); border-radius:18px; margin:20px 0;">
+                <div style="font-size:3rem; margin-bottom:15px;">🏖️</div>
+                <h3 style="color:var(--primary); font-family:'DM Serif Display',serif; font-size:1.8rem; margin-bottom:10px;">En Poz / Vakans</h3>
+                <p style="color:var(--text); font-size:1.1rem; line-height:1.6;">${state.vacationMsg}</p>
+                <p style="color:var(--text-2); font-size:0.9rem; margin-top:20px;">Nou tounen talè! Ou ka toujou kontinye pou kouri info w oswa kite yon mesaj.</p>
+            </div>`;
+        const nextBtn = document.getElementById('to-step-3');
+        if (nextBtn) nextBtn.disabled = false;
+        return;
+    }
 
     // Calcul total des créneaux sélectionnés
     const totalSelected = DAYS.reduce((acc, _, i) =>

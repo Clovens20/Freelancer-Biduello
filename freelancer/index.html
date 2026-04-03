@@ -1179,6 +1179,9 @@
                     <button class="nav-item" onclick="showTab('sec', this)" data-tab="sec">
                         <span class="nav-icon">🔒</span> Sekirite
                     </button>
+                    <button class="nav-item" onclick="showTab('dispo', this)" data-tab="dispo">
+                        <span class="nav-icon">🏖️</span> Mode Vakans
+                    </button>
                 </div>
             </aside>
 
@@ -1348,24 +1351,50 @@
                     </div>
                 </div>
 
-                <!-- Tab: Security -->
-                <div class="tab-pane" id="tab-sec">
+                    </div>
+                </div>
+
+                <!-- Tab: Disponibilité / Vakans -->
+                <div class="tab-pane" id="tab-dispo">
                     <div class="pane-header">
                         <div>
-                            <h2>Sekirite</h2>
-                            <p>Jere aksè kont ou a</p>
+                            <h2>Mode Vakans / Disponiblite</h2>
+                            <p>Si ou an vakans, kliyan yo p ap ka planifye orè kounye a.</p>
                         </div>
                     </div>
-                    <div class="security-card">
-                        <h3 style="margin-bottom:24px">Chanje Mot de passe</h3>
-                        <div class="field-group"><label class="dash-label">Nouvo Mot de passe</label><input
-                                type="password" id="new-password" class="dash-input" placeholder="Minimòm 6 karaktè">
+                    <div class="security-card" style="max-width: 600px;">
+                        <div style="display:flex; align-items:center; gap:16px; background:rgba(186,117,23,0.05); padding:20px; border-radius:var(--r-md); border:1px solid var(--border-gold); margin-bottom:24px">
+                            <label class="switch-mini" style="width:44px; height:24px">
+                                <input type="checkbox" id="edit-is-vacation" onchange="autoSaveVacation(this)">
+                                <span class="slider-mini" style="border-radius:24px"></span>
+                            </label>
+                            <div>
+                                <strong style="font-size:1.1rem" id="vacation-status-label">Mode Vakans OFF</strong>
+                                <p style="font-size:0.85rem; color:var(--text-2); margin-top:2px">Lè sa aktive, kalandriye a ap bloke pou kliyan yo.</p>
+                            </div>
                         </div>
-                        <div class="field-group"><label class="dash-label">Konfime Mot de passe</label><input
-                                type="password" id="confirm-password" class="dash-input"
-                                placeholder="Repete menm mdp a"></div>
-                        <button class="btn btn-gold" style="margin-top:8px" onclick="updatePassword()">Mete Ajou Mot de
-                            passe</button>
+
+                        <div class="field-group">
+                            <label class="dash-label">Mesaj pou Kliyan yo (si w an vakans)</label>
+                            <textarea id="edit-vacation-msg" class="dash-textarea" rows="2" 
+                                      oninput="autoSaveVacation(this)" data-field="vacation_msg"
+                                      placeholder="Ex: Mwen an vakans pou yon semèn, m ap tounen Lendi pwochen!"></textarea>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px">
+                            <div class="field-group">
+                                <label class="dash-label">📅 Soti nan (Dat Kòmanse)</label>
+                                <input type="date" id="edit-vacation-start" class="dash-input" onchange="autoSaveVacation(this)">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">📅 Rive nan (Dat Finisman)</label>
+                                <input type="date" id="edit-vacation-end" class="dash-input" onchange="autoSaveVacation(this)">
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top:20px; padding:12px; border-radius:8px; background:rgba(0,0,0,0.2); font-size:0.8rem; color:var(--text-3)">
+                            <strong>ℹ Nòt:</strong> Si ou mete dat yo, Mode Vakans lan ap aktive otomatikman lè dat la rive, epi li ap dezaktive lè vakans lan fini.
+                        </div>
                     </div>
                 </div>
 
@@ -1534,6 +1563,7 @@
         let currentFreelancer = null;
         let saveTimer = null;
         let allPaidReservations = []; // ✅ Global store
+        let agendaWeekOffset = 0; // ✅ Offset en semaines par rapport à aujourd'hui
 
         function getSupabaseClient() { return window.supabaseClient || null; }
 
@@ -1812,10 +1842,9 @@
                 </div>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px" onclick="event.stopPropagation()">
                     <span class="rez-badge">✓ Payé</span>
-                    ${!hasSlots
-                        ? `<button onclick="event.stopPropagation(); openProcessModal('${r.id}')" class="btn btn-sm btn-gold">Trete (Ajoute Lè)</button>`
-                        : ''
-                    }
+                    <button onclick="event.stopPropagation(); openProcessModal('${r.id}')" class="btn btn-sm btn-gold">
+                        ${hasSlots ? '📝 Modifye Orè' : '⚠ Trete (Ajoute Lè)'}
+                    </button>
                     <button id="resend-btn-${r.id}" onclick="event.stopPropagation(); resendInvoice('${r.id}', '${r.email}', this)" class="btn btn-sm" style="background:transparent;border:1px solid rgba(186,117,23,0.5);color:var(--primary);padding:5px 10px">📧 Renvoye Fakti</button>
                     <button onclick="event.stopPropagation(); deleteReservation('${r.id}')" class="btn btn-sm btn-danger" style="background:transparent;border:1px solid rgba(239,68,68,0.4);padding:5px 10px">🗑️ Siprime</button>
                 </div>
@@ -1825,17 +1854,17 @@
             renderAgenda(paid);
         }
 
-        // ══════════════════════════════════════════════════════════
-        // ✅ FIX 3: renderAgenda — li tou de fòma orè yo
-        // ══════════════════════════════════════════════════════════
         function renderAgenda(reservations) {
             const booked = buildBookedMap(reservations);
-
             const moisHaitien = ['Janvye', 'Fevriye', 'Mas', 'Avril', 'Me', 'Jen', 'Jiyè', 'Out', 'Septanm', 'Oktòb', 'Novanm', 'Desanm'];
-            const dNow = new Date();
-            const dayOfWk = dNow.getDay();
-            const diffALundi = dNow.getDate() - dayOfWk + (dayOfWk === 0 ? -6 : 1);
-            const lundi = new Date(dNow);
+
+            const dRef = new Date();
+            // Appliquer l'offset de semaines
+            dRef.setDate(dRef.getDate() + (agendaWeekOffset * 7));
+
+            const dayOfWk = dRef.getDay();
+            const diffALundi = dRef.getDate() - dayOfWk + (dayOfWk === 0 ? -6 : 1);
+            const lundi = new Date(dRef);
             lundi.setDate(diffALundi);
 
             const days = DAY_NAMES.map((name, i) => {
@@ -1846,7 +1875,24 @@
 
             const hours = Array.from({ length: 16 }, (_, i) => i + 8); // 8h → 23h
 
-            let html = `<div style="text-align:right;margin-bottom:15px;font-weight:600;font-size:1.1rem;color:var(--primary)">🗓️ Semèn sa a (Kouran)</div>`;
+            let headerLabel = agendaWeekOffset === 0 ? 'Semèn sa a (Kouran)' : 
+                             agendaWeekOffset === 1 ? 'Semèn Pwochain' :
+                             agendaWeekOffset === -1 ? 'Semèn Pase' : 
+                             `Semèn ${agendaWeekOffset > 0 ? '+' : ''}${agendaWeekOffset}`;
+
+            let html = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:15px">
+                <div style="display:flex; gap:8px">
+                    <button class="btn btn-sm btn-ghost" onclick="changeWeek(-1)" style="padding:8px">◀ Prev</button>
+                    <button class="btn btn-sm btn-ghost" onclick="changeWeek(0)" title="Retounen jodi a">Jodi a</button>
+                    <button class="btn btn-sm btn-ghost" onclick="changeWeek(1)" style="padding:8px">Next ▶</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px">
+                    <input type="date" class="dash-input" style="padding:5px 10px; font-size:0.85rem; width:150px" onchange="jumpToDate(this.value)">
+                    <div style="font-weight:600; font-size:1.1rem; color:var(--primary); min-width:180px; text-align:right">🗓️ ${headerLabel}</div>
+                </div>
+            </div>`;
+            
             html += `<div style="display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:10px;overflow-x:auto;padding-bottom:20px">`;
 
             for (let i = 0; i < 7; i++) {
@@ -1865,7 +1911,7 @@
                     if (clients && clients.length > 0) {
                         const clientHtml = clients.map(c =>
                             `<div style="font-size:0.75rem;margin-top:3px;background:rgba(0,0,0,0.3);padding:2px 4px;border-radius:3px;cursor:pointer"
-                              onclick="openDetailModal('${c.id}')">
+                               onclick="openDetailModal('${c.id}')">
                             👤 ${c.prenom || ''} ${c.nom || c.non || ''}
                         </div>`
                         ).join('');
@@ -1890,6 +1936,26 @@
 
             const cal = document.getElementById('agenda-calendar');
             if (cal) cal.innerHTML = html;
+        }
+
+        function changeWeek(offset) {
+            if (offset === 0) agendaWeekOffset = 0;
+            else agendaWeekOffset += offset;
+            renderAgenda(allPaidReservations);
+        }
+
+        function jumpToDate(dateStr) {
+            if (!dateStr) return;
+            const target = new Date(dateStr);
+            const today = new Date();
+            
+            // Calculer l'offset de semaines
+            const diffTime = target - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            agendaWeekOffset = Math.floor(diffDays / 7) + (today.getDay() === 0 ? 1 : 0);
+            
+            // Petit ajustement pour tomber sur le bon lundi
+            renderAgenda(allPaidReservations);
         }
 
         // ══════════════════════════════════════════════════════════
@@ -1947,10 +2013,9 @@
             </div>
 
             <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
-                ${!hasSlots ? `
                 <button class="btn btn-gold" onclick="closeDetailModal(); openProcessModal('${r.id}')">
-                    ➕ Ajoute Orè Manuèlman
-                </button>` : ''}
+                    ${hasSlots ? '📝 Modifye Orè' : '➕ Ajoute Orè Manuèlman'}
+                </button>
                 <a href="mailto:${r.email}" class="btn btn-ghost">
                     📧 Voye Imèl
                 </a>
@@ -2117,6 +2182,22 @@
                 if (el) el.value = val || '';
             });
 
+            // ✅ Mode Vakans
+            const vSwitch = document.getElementById('edit-is-vacation');
+            const vMsg = document.getElementById('edit-vacation-msg');
+            const vLabel = document.getElementById('vacation-status-label');
+            if (vSwitch) {
+                vSwitch.checked = !!config.is_vacation;
+                if (vLabel) vLabel.innerText = config.is_vacation ? 'Mode Vakans ON 🏖️' : 'Mode Vakans OFF';
+            }
+            if (vMsg) vMsg.value = config.vacation_msg || '';
+            
+            // ✅ Dat Vakans
+            const vStart = document.getElementById('edit-vacation-start');
+            const vEnd = document.getElementById('edit-vacation-end');
+            if (vStart) vStart.value = config.vacation_start || '';
+            if (vEnd) vEnd.value = config.vacation_end || '';
+
             // ✅ Gérer les Sosyal yo (format dynamic)
             let socialLinks = [];
             if (config.social_links && Array.isArray(config.social_links)) {
@@ -2227,6 +2308,31 @@
                 status.className = error ? 'save-indicator error' : 'save-indicator';
                 status.innerHTML = error ? '<span>●</span> Erè anrejistreman' : '<span>●</span> Tout sekirize';
             }, 900);
+        }
+
+        function autoSaveVacation(el) {
+            const status = document.getElementById('save-status');
+            status.className = 'save-indicator saving';
+            status.innerHTML = '<span>●</span> L ap anrejistre...';
+            
+            let val = el.type === 'checkbox' ? el.checked : el.value;
+            let field = '';
+            if (el.id === 'edit-is-vacation') field = 'is_vacation';
+            else if (el.id === 'edit-vacation-msg') field = 'vacation_msg';
+            else if (el.id === 'edit-vacation-start') field = 'vacation_start';
+            else if (el.id === 'edit-vacation-end') field = 'vacation_end';
+            
+            if (el.id === 'edit-is-vacation') {
+                const label = document.getElementById('vacation-status-label');
+                if (label) label.innerText = val ? 'Mode Vakans ON 🏖️' : 'Mode Vakans OFF';
+            }
+
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(async () => {
+                const { error } = await sb.from('landing_config').update({ [field]: val }).eq('id', 1);
+                status.className = error ? 'save-indicator error' : 'save-indicator';
+                status.innerHTML = error ? '<span>●</span> Erè anrejistreman' : '<span>●</span> Tout sekirize';
+            }, 800);
         }
 
         async function forceSaveLanding(btn) {
@@ -2388,9 +2494,10 @@
 
         function openProcessModal(id) {
             currentProcessRezId = id;
-            manualSlotsList = [];
-            renderManualSlots();
             const r = allPaidReservations.find(res => res.id === id);
+            // ✅ Pre-populer ak orè ki te la deja yo si genyen
+            manualSlotsList = r ? parseHoraires(r.horaires) : [];
+            renderManualSlots();
             if (r) {
                 document.getElementById('process-client-info').innerHTML = `
                 <span><strong>Kliyan:</strong> ${r.prenom || '—'} ${r.nom || r.non || ''}</span>
