@@ -110,6 +110,12 @@ serve(async (req) => {
       // L'URL de redirection correcte retournée par l'API de paiement Bazik (selon le SDK Node)
       const pay_url = bData.redirectUrl || bData.url || (bData.data && bData.data.redirectUrl);
       
+      // Update reservation with checkout URL
+      await supabase
+        .from("reservations")
+        .update({ checkout_url: pay_url })
+        .eq("id", res.id);
+      
       return new Response(JSON.stringify({ url: pay_url }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -146,10 +152,13 @@ serve(async (req) => {
       },
     });
 
-    // Update reservation with session ID
+    // Update reservation with session ID and checkout URL
     await supabase
       .from("reservations")
-      .update({ stripe_session_id: session.id })
+      .update({ 
+        stripe_session_id: session.id,
+        checkout_url: session.url 
+      })
       .eq("id", res.id);
 
     return new Response(JSON.stringify({ url: session.url }), {

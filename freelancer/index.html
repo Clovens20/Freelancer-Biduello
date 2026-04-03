@@ -1795,42 +1795,52 @@
             const { data: allRez, error: errAll } = await sb.from('reservations').select('*');
             if (errAll) console.error('[loadReservations] erreur allRez:', errAll);
 
-            // ✅ FIX: Nou rale tout rezèvasyon ki enpòtan (Peye, Konfime, Konplete) pou Agenda a parèt nèt
-            const activeStatuses = ['payé', 'paye', 'paid', 'confirme', 'confirmé', 'atribue', 'atribué', 'en_attente', 'termine', 'terminé', 'complete', 'complète'];
-            const { data: paidRez, error: errPaid } = await sb.from('reservations').select('*').in('statut', activeStatuses);
-            if (errPaid) console.error('[loadReservations] erreur paidRez:', errPaid);
+            // ✅ NOUVO: Separe rezèvasyon ki peye ak sa ki nan atant
+            const paidStatuses = ['payé', 'paye', 'paid', 'confirme', 'confirmé', 'atribue', 'atribué', 'termine', 'terminé', 'complete', 'complète'];
+            const confirmedRez = (allRez || []).filter(r => paidStatuses.includes(String(r.statut).toLowerCase()));
+            
+            // Rezèvasyon nou vle montre nan lis la (tout sa ki pa anile)
+            const displayStatuses = [...paidStatuses, 'en_attente'];
+            const displayRez = (allRez || []).filter(r => displayStatuses.includes(String(r.statut).toLowerCase()));
 
-            // DEBUG: affiche les statuts dans la console pour vérification
-            console.log('[loadReservations] Toutes reservations:', (allRez || []).map(r => ({ id: r.id.slice(0,8), statut: r.statut, prenom: r.prenom })));
-            console.log('[loadReservations] Payées:', (paidRez || []).length);
+            console.log('[loadReservations] Tout:', (allRez || []).length, 'Konfime:', confirmedRez.length);
 
-            const paid = paidRez || [];
-            const total = allRez || [];
+            allPaidReservations = displayRez; // ✅ Tout sa kap parèt nan lis/agenda
 
-            allPaidReservations = paid; // ✅ Stocké globalement
-
-            const revenue = paid.reduce((acc, r) => acc + (r.montant_total || 0), 0);
+            const revenue = confirmedRez.reduce((acc, r) => acc + (r.montant_total || 0), 0);
             document.getElementById('stat-revenue').textContent = `$${revenue.toLocaleString()}`;
-            document.getElementById('stat-total').textContent = total.length;
-            document.getElementById('stat-paid').textContent = paid.length;
+            document.getElementById('stat-total').textContent = (allRez || []).length;
+            document.getElementById('stat-paid').textContent = confirmedRez.length;
 
             const list = document.getElementById('rez-list');
 
-            if (paid.length === 0) {
-                list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>Poko gen rezèvasyon konfime.</p></div>`;
-                renderAgenda(paid);
+            if (displayRez.length === 0) {
+                list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>Poko gen okenn rezèvasyon pou kounye a.</p></div>`;
+                renderAgenda([]);
                 return;
             }
 
-            list.innerHTML = paid.map(r => {
+            list.innerHTML = displayRez.map(r => {
                 const slots = parseHoraires(r.horaires);
                 const hasSlots = slots.length > 0;
                 const slotLabel = hasSlots
                     ? `<span>🗓 <strong style="color:var(--success)">${slots.length} kreno</strong></span>`
                     : `<span style="color:var(--warning);font-size:0.82rem">⚠ Pa gen orè — klike pou trete</span>`;
 
+                const s = String(r.statut).toLowerCase();
+                let badge = '';
+                if (s === 'en_attente') {
+                    badge = '<span class="rez-badge" style="background:rgba(245,158,11,0.1); border-color:rgba(245,158,11,0.25); color:var(--warning)">⏳ Tann Pèman</span>';
+                } else if (s.includes('complete')) {
+                    badge = '<span class="rez-badge">🏁 Konplete</span>';
+                } else if (s.includes('confir')) {
+                    badge = '<span class="rez-badge">📅 Konfime</span>';
+                } else {
+                    badge = '<span class="rez-badge">✓ Peye</span>';
+                }
+
                 return `
-            <div class="rez-card" onclick="openDetailModal('${r.id}')" title="Klike pou wè detay">
+            <div class="rez-card" onclick="openDetailModal('${r.id}')" title="Klike pou wè detay" style="${s === 'en_attente' ? 'border-left-color:var(--warning)' : ''}">
                 <div>
                     <div class="rez-name">${r.prenom || '—'} ${r.nom || r.non || ''}</div>
                     <div class="rez-meta">
@@ -1842,7 +1852,7 @@
                     ${r.message ? `<p style="margin-top:10px;font-size:0.85rem;color:var(--text-2)">"${r.message}"</p>` : ''}
                 </div>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px" onclick="event.stopPropagation()">
-                    <span class="rez-badge">${String(r.statut).includes('complete') ? '🏁 Konplete' : (String(r.statut).includes('confir') ? '📅 Konfime' : '✓ Peye')}</span>
+                    ${badge}
                     <button onclick="event.stopPropagation(); openProcessModal('${r.id}')" class="btn btn-sm btn-gold">
                         ${hasSlots ? '📝 Modifye Orè' : '⚠ Trete (Ajoute Lè)'}
                     </button>
@@ -1852,7 +1862,7 @@
             </div>`;
             }).join('');
 
-            renderAgenda(paid);
+            renderAgenda(displayRez);
         }
 
         function renderAgenda(reservations) {
@@ -1973,6 +1983,18 @@
                 ? slots.map(s => `<span class="slot-chip">🗓 ${s.label}</span>`).join('')
                 : `<span style="color:var(--warning);font-size:0.85rem">⚠ Kliyan pa chwazi orè — freelancer dwe kontakte l</span>`;
 
+            const s = String(r.statut).toLowerCase();
+            let badge = '';
+            if (s === 'en_attente') {
+                badge = '<span class="rez-badge" style="background:rgba(245,158,11,0.1); border-color:rgba(245,158,11,0.25); color:var(--warning)">⏳ Tann Pèman</span>';
+            } else if (s.includes('complete')) {
+                badge = '<span class="rez-badge">🏁 Konplete — $' + (r.montant_total || 0) + ' USD</span>';
+            } else if (s.includes('confir')) {
+                badge = '<span class="rez-badge">📅 Konfime — $' + (r.montant_total || 0) + ' USD</span>';
+            } else {
+                badge = '<span class="rez-badge">✓ Peye — $' + (r.montant_total || 0) + ' USD</span>';
+            }
+
             document.getElementById('detail-modal-content').innerHTML = `
             <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
                 <div style="width:52px;height:52px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;color:#fff;flex-shrink:0">
@@ -1980,7 +2002,7 @@
                 </div>
                 <div>
                     <h2 style="font-size:1.5rem;margin-bottom:2px">${r.prenom || ''} ${r.nom || r.non || ''}</h2>
-                    <span class="rez-badge">✓ Payé — $${r.montant_total || 0} USD</span>
+                    ${badge}
                 </div>
             </div>
 
