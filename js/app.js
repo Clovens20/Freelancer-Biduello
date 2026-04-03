@@ -429,6 +429,7 @@ function setupEventListeners() {
                     mode_paiement: state.paymentMode,
                     horaires: state.selectedSlots,
                     gateway: state.gateway,
+                    rabais: state.urlDiscount, // ✅ PASE RABÈ A
                     pas_de_creneaux: totalSlots === 0
                 };
                 const res = await fetch(`${window.supabaseClient.supabaseUrl}/functions/v1/create-checkout-session`, {

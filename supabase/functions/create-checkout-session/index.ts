@@ -14,12 +14,12 @@ serve(async (req) => {
   }
 
   try {
-    const { service_id, prenom, non, email, telephone, message, mode_paiement, horaires, gateway } = await req.json();
+    const { service_id, prenom, non, email, telephone, message, mode_paiement, horaires, gateway, rabais } = await req.json();
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { db: { schema: 'public' } }  // ✅ Schéma explicite — TOUJOURS 'public'
+      { db: { schema: 'public' } }
     );
 
     // Get service details
@@ -31,10 +31,16 @@ serve(async (req) => {
 
     if (sErr) throw sErr;
 
-    // Calculate price based on mode
+    // Calculate initial price based on mode
     let amount = service.prix;
     if (mode_paiement === 'depot') amount = amount / 2;
     if (mode_paiement === '3x') amount = amount / 3;
+
+    // Apply Discount if present (rabais is percentage)
+    if (rabais && rabais > 0) {
+      console.log(`[Checkout] Appliquan rabè ${rabais}%`);
+      amount = amount - (amount * (rabais / 100));
+    }
 
     // Create reservation in DB
     const insertPayload: any = {
@@ -44,16 +50,11 @@ serve(async (req) => {
         telephone,
         message,
         mode_paiement,
-        montant_total: service.prix,
+        montant_total: amount, // ✅ Sèvi ak pri ak rabè a
         horaires,
-        statut: 'en_attente'
+        statut: 'en_attente',
+        service_ids: [service_id],
     };
-    
-    // Le schéma Supabase attend très probablement "service_ids" comme tableau au lieu de "service_id".
-    insertPayload['service_ids'] = [service_id];
-    
-    // Ajout de statuts robustes
-    insertPayload['statut'] = 'en_attente';
     
     const { data: res, error: rErr } = await supabase
       .from("reservations")
