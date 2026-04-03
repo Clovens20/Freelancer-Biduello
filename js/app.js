@@ -12,6 +12,7 @@ const state = {
     customerInfo: { prenom: '', non: '', email: '', telephone: '', message: '' },
     finalAmount: 0,
     gateway: 'stripe',
+    urlDiscount: 0, // ✅ NOUVO: Rabè ki soti nan URL la
     isVacation: false,
     vacationMsg: '',
     vacationStart: null,
@@ -51,6 +52,13 @@ function getYoutubeEmbedUrl(url) {
 }
 
 async function initApp() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const promo = urlParams.get('rabè') || urlParams.get('promo');
+    if (promo) {
+        state.urlDiscount = parseInt(promo) || 0;
+        console.log(`🎁 Rabè detekte nan URL: ${state.urlDiscount}%`);
+    }
+
     await loadLandingConfig();
     await fetchServicesFromSupabase();
     await fetchBookedSlots();
@@ -463,7 +471,8 @@ function setupEventListeners() {
 
 function calculatePrice() {
     const st = state.selectedServices.reduce((acc, s) => acc + (s.prix || 105), 0);
-    const dp = state.selectedServices.length > 1 ? 10 : 0;
+    // ✅ Utilise le rabais de l'URL s'il existe, sinon 0 (pas de rabais global automatique)
+    const dp = state.urlDiscount || 0; 
     const da = (st * dp) / 100;
     const dr = st - da;
     const fa = state.paymentMode === 'depot' ? dr / 2 : dr;

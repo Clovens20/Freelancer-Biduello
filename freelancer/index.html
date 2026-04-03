@@ -1258,17 +1258,21 @@
                     </div>
                     <div class="discount-row">
                         <div class="discount-info">
-                            <h4>🎁 Rabais Global</h4>
-                            <p>Pousantaj rediksyon pou kliyan ki chwazi plizyè sèvis</p>
+                            <h4>🎁 Jenere Lyen Rabè</h4>
+                            <p>Mete pousantaj rabè a epi jenere yon lyen espesyal pou kliyan w lan.</p>
                         </div>
-                        <div class="discount-input-row">
+                        <div class="discount-input-row" style="flex:1; justify-content: flex-end;">
                             <input type="number" id="discount-global" class="dash-input" min="0" max="100"
-                                placeholder="0" style="width:70px;text-align:center">
-                            <span style="color:var(--text-2);margin-right:10px">%</span>
-                            <select id="discount-service-target" class="dash-input" style="width:200px">
-                                <option value="all">Tout Sévis yo (Global)</option>
-                            </select>
-                            <button class="btn btn-gold btn-sm" onclick="saveDiscount()">Anrejistre</button>
+                                placeholder="0" style="width:80px;text-align:center">
+                            <span style="color:var(--text-2);margin-right:15px">%</span>
+                            <button class="btn btn-gold btn-sm" onclick="generatePromoLink()">Jenere Lyen 🔗</button>
+                        </div>
+                    </div>
+                    <div id="promo-link-result" style="display:none; margin-bottom:25px; padding:18px; background:rgba(186,117,23,0.08); border-radius:12px; border:1px dashed var(--primary); animation: fadeIn 0.3s ease;">
+                        <p style="font-size:0.88rem; color:var(--text-2); margin-bottom:10px;">✅ Lyen promo w lan pare (kopye l epi voye l bay kliyan an):</p>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="promo-url-input" readonly class="dash-input" style="flex:1; background:rgba(0,0,0,0.3); color:var(--accent); font-weight:600;">
+                            <button class="btn btn-gold btn-sm" onclick="copyPromoLink(this)">Kopye 📋</button>
                         </div>
                     </div>
                     <div class="svc-grid" id="svc-list">
@@ -2179,14 +2183,31 @@
             else { showToast('Sèvis efase!', 'success'); loadServices(); }
         }
 
-        async function saveDiscount() {
+        function generatePromoLink() {
             const val = parseInt(document.getElementById('discount-global').value) || 0;
-            const targetVal = document.getElementById('discount-service-target').value;
-            const targetId = targetVal === 'all' ? null : targetVal;
-            if (!currentFreelancer?.id) return showToast('ID freelancer pa disponib.', 'error');
-            const { error } = await sb.from('freelancers').update({ discount_percent: val, discount_service_id: targetId }).eq('id', currentFreelancer.id);
-            if (error) showToast('Erè: ' + error.message, 'error');
-            else { currentFreelancer.discount_percent = val; showToast(`Rabais ${val}% anrejistre!`, 'success'); }
+            if (val <= 0) return showToast('Tanpri mete yon pousantaj ki valab.', 'error');
+            
+            const baseUrl = window.location.origin + window.location.pathname.replace('/freelancer/', '/').replace('/index.html', '');
+            const finalUrl = `${baseUrl}/?rabè=${val}`;
+            
+            const resultBox = document.getElementById('promo-link-result');
+            const urlInput = document.getElementById('promo-url-input');
+            
+            urlInput.value = finalUrl;
+            resultBox.style.display = 'block';
+            showToast(`✅ Lyen ak ${val}% rabè jenere!`, 'success');
+        }
+
+        function copyPromoLink(btn) {
+            const input = document.getElementById('promo-url-input');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value);
+            
+            const orig = btn.innerHTML;
+            btn.innerHTML = 'Kopye! ✅';
+            setTimeout(() => { btn.innerHTML = orig; }, 2000);
+            showToast('Lyen kopye nan clipboard!', 'success');
         }
 
         async function loadLandingConfig() {
