@@ -15,7 +15,8 @@ const state = {
     isVacation: false,
     vacationMsg: '',
     vacationStart: null,
-    vacationEnd: null
+    vacationEnd: null,
+    bookedSlots: []
 };
 
 const DAYS = ['Lendi', 'Madi', 'Mèkredi', 'Jedi', 'Vandredi', 'Samdi', 'Dimanch'];
@@ -42,10 +43,33 @@ document.addEventListener('DOMContentLoaded', () => initApp());
 async function initApp() {
     await loadLandingConfig();
     await fetchServicesFromSupabase();
+    await fetchBookedSlots();
     setupEventListeners();
 }
 
 // ── LANDING CONFIG ────────────────────────────────────────────
+
+async function fetchBookedSlots() {
+    try {
+        const { data, error } = await window.supabaseClient
+            .from('reservations')
+            .select('horaires')
+            .in('statut', ['paye', 'payé', 'paid', 'confirme', 'confirmé', 'atribue', 'atribué', 'en_attente', 'termine', 'terminé', 'complete', 'complète']);
+        
+        let blocked = [];
+        (data || []).forEach(res => {
+            if (res.horaires) {
+                Object.keys(res.horaires).forEach(key => {
+                    const dayPart = key.split('_').pop(); 
+                    const slots = res.horaires[key];
+                    slots.forEach(h => blocked.push(`${dayPart}_${h}`));
+                });
+            }
+        });
+        state.bookedSlots = [...new Set(blocked)]; 
+        console.log('✅ Kreno ki bloke:', state.bookedSlots);
+    } catch (err) { console.error('Error fetching booked slots:', err); }
+}
 
 async function loadLandingConfig() {
     try {
@@ -281,9 +305,19 @@ function renderDaySelector() {
                 <div class="slots-time-grid">
                     ${HOURS.map(h => {
                         const slot = `H${h}`;
+                        const isBooked = state.bookedSlots.includes(`D${i}_${slot}`);
                         const isSelected = slots.includes(slot);
                         const h12 = h > 12 ? h - 12 : h;
                         const period = h >= 12 ? 'PM' : 'AM';
+
+                        if (isBooked) {
+                            return `<button class="slot-btn booked" disabled>
+                                <span class="slot-time">${h12}:00</span>
+                                <span class="slot-period">${period}</span>
+                                <div class="booked-label">Pran deja</div>
+                            </button>`;
+                        }
+
                         return `<button class="slot-btn ${isSelected ? 'selected' : ''}" onclick="toggleSlot('${currentSvc.id}', ${i}, '${slot}')">
                             <span class="slot-time">${h12}:00</span>
                             <span class="slot-period">${period}</span>
