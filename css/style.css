@@ -1664,27 +1664,43 @@ nav {
     .hero h1 {
         font-size: 2.4rem;
     }
-
+ 
     .ap-content-col h2 {
         font-size: 1.9rem;
     }
-
+ 
     .modal-premium-content {
         padding: 26px 20px;
         margin: 20px auto;
     }
-
+ 
     .premium-form {
         padding: 28px 20px;
     }
-
+ 
     .hero-actions {
         flex-direction: column;
         align-items: center;
     }
-
+ 
     .nav-links .nav-link {
         display: none;
+    }
+
+    /* 🔥 Optimisation Slots pou mobil */
+    .slots-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    .slot-btn {
+        padding: 16px 10px !important;
+        min-height: 54px;
+        font-size: 0.9rem !important;
+    }
+
+    .booked-label {
+        font-size: 0.65rem !important;
     }
 }
 
