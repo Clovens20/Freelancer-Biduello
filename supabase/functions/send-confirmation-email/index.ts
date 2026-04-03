@@ -261,6 +261,42 @@ serve(async (req) => {
       }
     }
 
+    // Format Horaires properly for the PDF
+    const DAYS_HT = ['Lendi', 'Madi', 'Mèkredi', 'Jedi', 'Vandredi', 'Samdi', 'Dimanch', 
+                    'Lendi (sem 2)', 'Madi (sem 2)', 'Mèkredi (sem 2)', 'Jedi (sem 2)', 'Vandredi (sem 2)', 'Samdi (sem 2)', 'Dimanch (sem 2)',
+                    'Lendi (sem 3)', 'Madi (sem 3)', 'Mèkredi (sem 3)', 'Jedi (sem 3)', 'Vandredi (sem 3)', 'Samdi (sem 3)', 'Dimanch (sem 3)',
+                    'Lendi (sem 4)', 'Madi (sem 4)', 'Mèkredi (sem 4)', 'Jedi (sem 4)', 'Vandredi (sem 4)', 'Samdi (sem 4)', 'Dimanch (sem 4)'];
+    
+    let formattedHoraires: { date: string; time: string }[] = [];
+    const rawHoraires = res.horaires || {};
+
+    if (Array.isArray(rawHoraires)) {
+        // If it's already an array (maybe manual or different format)
+        formattedHoraires = rawHoraires.map(h => typeof h === 'string' ? { date: h, time: "" } : h);
+    } else {
+        // Standard object format: { "svcId_D0": ["H8", "H9"] }
+        Object.keys(rawHoraires).forEach(key => {
+            const parts = key.split('_');
+            const dayPart = parts[parts.length - 1]; // "D0", "D1" etc.
+            if (dayPart.startsWith('D')) {
+                const dayIndex = parseInt(dayPart.substring(1));
+                const dayName = DAYS_HT[dayIndex] || `Jou ${dayIndex}`;
+                const slots = rawHoraires[key];
+                if (Array.isArray(slots)) {
+                    slots.forEach(s => {
+                        const time = s.startsWith('H') ? `${s.substring(1)}:00` : s;
+                        formattedHoraires.push({ date: dayName, time });
+                    });
+                }
+            } else if (key === 'antant_manuel' && Array.isArray(rawHoraires[key])) {
+                // Support for manual slots if needed
+                rawHoraires[key].forEach((s: string) => {
+                   formattedHoraires.push({ date: s, time: "" });
+                });
+            }
+        });
+    }
+
     console.log("[send-confirmation-email] Generating PDF for:", freelancerNom);
     const pdfBytes = await generateInvoicePDF({
       reservationId: reservation_id,
@@ -273,7 +309,7 @@ serve(async (req) => {
       freelancerEmail,
       montantTotal: res.montant_total || 0,
       prixUnitaire: prixUnitaire,
-      horaires: res.horaires || [],
+      horaires: formattedHoraires, // ✅ Sèvi ak orè ki fòmate a
       logoUrl: Deno.env.get("LOGO_URL") || "https://freelancer.konektegroup.com/assets/logo.png",
     });
     console.log("[send-confirmation-email] PDF Generated successfully.");
