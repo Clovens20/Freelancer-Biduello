@@ -19,8 +19,11 @@ const state = {
     vacationMsg: '',
     vacationStart: null,
     vacationEnd: null,
-    bookedSlots: []
+    bookedSlots: [],
+    userOffset: -4 // Default to Freelancer (Dominican Republic)
 };
+
+const FREELANCER_OFFSET = -4; // Dominican Republic (GMT-4)
 
 const DAYS = ['Lendi', 'Madi', 'Mèkredi', 'Jedi', 'Vandredi', 'Samdi', 'Dimanch'];
 const HOURS = Array.from({ length: 16 }, (_, i) => i + 8); // 8h → 23h
@@ -67,6 +70,7 @@ async function initApp() {
     trackVisit(); // ✅ Track site traffic
     setupEventListeners();
     setupCategoryHandlers(); // ✅ Add listeners for category buttons
+    detectUserTimezone(); // ✅ Detect user's local timezone
 }
 
 function setupCategoryHandlers() {
@@ -546,8 +550,21 @@ function renderDaySelector() {
                         const slot = `H${h}`;
                         const isBooked = state.bookedSlots.includes(`D${i}_${slot}`);
                         const isSelected = slots.includes(slot);
-                        const h12 = h > 12 ? h - 12 : h;
-                        const period = h >= 12 ? 'PM' : 'AM';
+                        // ── TIMEZONE CALCULATION ──
+                        // formula: userTime = baseTime + (userOffset - baseOffset)
+                        const offsetDiff = state.userOffset - FREELANCER_OFFSET;
+                        let localHour = h + offsetDiff;
+                        
+                        // Handle wraps (if it goes below 0 or above 23)
+                        let displayDayName = '';
+                        if (localHour < 0) { 
+                            localHour += 24; displayDayName = '(Jou avan)'; 
+                        } else if (localHour >= 24) { 
+                            localHour -= 24; displayDayName = '(Jou apre)'; 
+                        }
+
+                        const h12 = localHour === 0 ? 12 : (localHour > 12 ? localHour - 12 : localHour);
+                        const period = localHour >= 12 ? 'PM' : 'AM';
 
                         if (isBooked) {
                             return `<button class="slot-btn booked" disabled>
@@ -560,6 +577,7 @@ function renderDaySelector() {
                         return `<button class="slot-btn ${isSelected ? 'selected' : ''}" onclick="toggleSlot('${currentSvc.id}', ${i}, '${slot}')">
                             <span class="slot-time">${h12}:00</span>
                             <span class="slot-period">${period}</span>
+                            <div style="font-size:0.6rem; opacity:0.6; margin-top:2px">${displayDayName}</div>
                         </button>`;
                     }).join('')}
                 </div>
@@ -585,6 +603,48 @@ window.toggleSlot = function (svcId, dayIndex, slot) {
     else state.selectedSlots[key].push(slot);
     renderDaySelector();
 };
+
+window.updateTimezoneOffset = function() {
+    const selector = document.getElementById('user-timezone');
+    if (!selector) return;
+    state.userOffset = parseInt(selector.value);
+    
+    // Update color based on if it's the same or different
+    const box = document.getElementById('timezone-selector-box');
+    const msg = document.getElementById('tz-info-msg');
+    
+    if (state.userOffset === FREELANCER_OFFSET) {
+        box.style.borderColor = 'var(--border-gold)';
+        msg.innerText = "✅ Ou nan menm orè ak Biduello (Sen Domeng).";
+    } else {
+        box.style.borderColor = 'var(--primary)';
+        msg.innerText = `💡 Atansyon: Ou nan GMT${state.userOffset >= 0 ? '+' : ''}${state.userOffset}. N ap montre w lè yo selon peyi w la.`;
+    }
+    
+    renderDaySelector();
+};
+
+function detectUserTimezone() {
+    try {
+        const offsetMinutes = -new Date().getTimezoneOffset();
+        const offsetHours = Math.round(offsetMinutes / 60);
+        
+        const selector = document.getElementById('user-timezone');
+        if (selector) {
+            // Find if this offset exists in our select options
+            const options = Array.from(selector.options);
+            const found = options.find(o => parseInt(o.value) === offsetHours);
+            if (found) {
+                selector.value = offsetHours;
+                state.userOffset = offsetHours;
+            } else {
+                // If not in the list, we might want to add it or just stick to default
+                console.log("Timezone offset not in basic list:", offsetHours);
+            }
+            updateTimezoneOffset();
+        }
+    } catch (e) { console.error("Timezone detect error:", e); }
+}
 
 // ── SETUP & EVENTS ────────────────────────────────────────────
 
@@ -664,8 +724,10 @@ function setupEventListeners() {
                     horaires: state.selectedSlots,
                     gateway: state.gateway,
                     rabais: state.urlDiscount,
-                    qty_months: state.qtyMonths, // ✅ NOUVO: Pase kantite mwa
-                    pas_de_creneaux: totalSlots === 0
+                    qty_months: state.qtyMonths, 
+                    pas_de_creneaux: totalSlots === 0,
+                    timezone_offset: state.userOffset,
+                    timezone_name: document.getElementById('user-timezone')?.options[document.getElementById('user-timezone')?.selectedIndex]?.text || 'GMT' + state.userOffset
                 };
                 const res = await fetch(`${window.supabaseClient.supabaseUrl}/functions/v1/create-checkout-session`, {
                     method: 'POST',

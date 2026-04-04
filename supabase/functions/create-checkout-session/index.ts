@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { service_id, prenom, non, email, telephone, message, mode_paiement, horaires, gateway, rabais, qty_months = 1 } = await req.json();
+    const { service_id, prenom, non, email, telephone, message, mode_paiement, horaires, gateway, rabais, qty_months = 1, timezone_offset, timezone_name } = await req.json();
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -30,6 +30,48 @@ serve(async (req) => {
       .single();
 
     if (sErr) throw sErr;
+
+    // --- DOUBLE BOOKING PREVENTION ---
+    // 1. Fetch all reservations that are PAID and NOT EXPIRED
+    const paidStatuses = ['payé', 'paye', 'paid', 'confirme', 'confirmé', 'atribue', 'atribué', 'termine', 'terminé', 'complete', 'complète'];
+    const today = new Date().toISOString().split('T')[0];
+    
+    const { data: existingRez, error: rezErr } = await supabase
+      .from("reservations")
+      .select("horaires, valide_juska")
+      .in("statut", paidStatuses)
+      .or(`valide_juska.gte.${today},valide_juska.is.null`);
+
+    if (rezErr) console.warn("[Checkout] Error fetching existing rez:", rezErr);
+
+    // 2. Map all taken slots (Normalize key to DX_HY to prevent multi-service overlaps)
+    const takenSlots = new Set();
+    (existingRez || []).forEach((r: any) => {
+        if (!r.horaires) return;
+        Object.entries(r.horaires).forEach(([key, slots]: [string, any]) => {
+            const dayPart = key.split('_').pop(); // extracts "D0", "D1", etc.
+            if (Array.isArray(slots) && dayPart) {
+                slots.forEach(s => takenSlots.add(`${dayPart}_${s}`));
+            }
+        });
+    });
+
+    // 3. Verify if new request conflicts with taken slots
+    if (horaires) {
+        let conflict = false;
+        Object.entries(horaires).forEach(([key, slots]: [string, any]) => {
+            const dayPart = key.split('_').pop();
+            if (Array.isArray(slots) && dayPart) {
+                slots.forEach(s => {
+                    if (takenSlots.has(`${dayPart}_${s}`)) conflict = true;
+                });
+            }
+        });
+
+        if (conflict) {
+            throw new Error("Eskize nou, youn nan lè ou chwazi yo sot rezève pa yon lòt moun (oswa li ekspire pandan w t ap chwazi a). Tanpri chwazi yon lòt lè.");
+        }
+    }
 
     // Calculate initial price based on quantity of months
     const basePrice = service.prix * qty_months;
@@ -61,7 +103,9 @@ serve(async (req) => {
         horaires,
         statut: 'en_attente',
         service_ids: [service_id],
-        valide_juska: valide_juska // ✅ Date d'expiration
+        valide_juska: valide_juska,
+        timezone_offset,
+        timezone_name
     };
     
     const { data: res, error: rErr } = await supabase

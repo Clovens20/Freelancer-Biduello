@@ -181,6 +181,24 @@
         <section id="step-2" class="step-section">
             <button class="back-link" data-to="1">← Tounen</button>
             <div id="week-selector" class="week-tabs"></div>
+            
+            <!-- NOUVO: Timezone Selector -->
+            <div id="timezone-selector-box" style="margin-bottom:20px; padding:15px; background:rgba(186,117,23,0.08); border-radius:12px; border:1px solid var(--border-gold); display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <span style="font-size:0.85rem; color:var(--text-2); font-weight:600;">🌍 Orè bò kote pa w la :</span>
+                <select id="user-timezone" class="dash-select" style="width:auto; min-width:240px; padding:6px 12px; font-size:0.88rem; background:var(--surface);" onchange="updateTimezoneOffset()">
+                    <option value="-8">Los Angeles / Vancouver (GMT-8)</option>
+                    <option value="-7">Denver / Phoenix (GMT-7)</option>
+                    <option value="-6">Mexique (Mexico City) / Chicago (GMT-6)</option>
+                    <option value="-5">Ayiti / New York / Montréal (GMT-5)</option>
+                    <option value="-4" selected>Sen Domeng / Chili (Santiago) / Porto Rico (GMT-4)</option>
+                    <option value="-3">Brezil (Brasilia) / Ajantin (GMT-3)</option>
+                    <option value="0">Londres / GMT (GMT+0)</option>
+                    <option value="1">Lafrans (Paris) / Espay / Afrik de Lwès (GMT+1)</option>
+                    <option value="2">Afrique du Sud / Echip / Rwanda (GMT+2)</option>
+                </select>
+                <p id="tz-info-msg" style="font-size:0.75rem; color:var(--accent); margin:0; flex:1; min-width:200px;">✅ N ap montre w lè ki koresponn nan peyi w la.</p>
+            </div>
+
             <div id="time-slots-grid" class="slots-container"></div>
             <div class="actions-centered">
                 <button id="to-step-3" class="btn primary gold">Antre enfòmasyon w</button>

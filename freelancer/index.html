@@ -2532,6 +2532,7 @@
                     <div class="rez-meta">
                         <span>📧 <strong>${r.email || 'N/A'}</strong></span>
                         <span>📱 <strong>${r.telephone || 'N/A'}</strong></span>
+                        ${r.timezone_name ? `<span title="Orè kliyan an">🌍 <strong>${r.timezone_name}</strong></span>` : ''}
                         <span>💰 <strong style="color:var(--accent)">$${r.montant_total || 0}</strong></span>
                         ${slotLabel}
                     </div>
@@ -2731,6 +2732,11 @@
                     <div class="detail-icon">💰</div>
                     <div><div class="detail-label">Montan Peye</div><div class="detail-value" style="color:var(--accent);font-size:1.1rem">$${r.montant_total || 0} USD</div></div>
                 </div>
+                ${r.timezone_name ? `
+                <div class="detail-row">
+                    <div class="detail-icon">🌍</div>
+                    <div><div class="detail-label">Orè Kliyan (Timezone)</div><div class="detail-value" style="color:var(--primary)">${r.timezone_name}</div></div>
+                </div>` : ''}
                 ${r.message ? `
                 <div class="detail-row">
                     <div class="detail-icon">💬</div>
