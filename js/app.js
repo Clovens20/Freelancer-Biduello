@@ -14,6 +14,7 @@ const state = {
     gateway: 'stripe',
     urlDiscount: 0,
     currentCategory: 'coaching', // 'coaching' ou 'business'
+    qtyMonths: 1, // ✅ NOUVO: Default 1 mwa
     isVacation: false,
     vacationMsg: '',
     vacationStart: null,
@@ -100,10 +101,12 @@ async function trackVisit() {
 
 async function fetchBookedSlots() {
     try {
+        const today = new Date().toISOString().split('T')[0];
         const { data, error } = await window.supabaseClient
             .from('reservations')
             .select('horaires')
-            .in('statut', ['paye', 'payé', 'paid', 'confirme', 'confirmé', 'atribue', 'atribué', 'en_attente', 'termine', 'terminé', 'complete', 'complète']);
+            .in('statut', ['paye', 'payé', 'paid', 'confirme', 'confirmé', 'atribue', 'atribué', 'en_attente', 'termine', 'terminé', 'complete', 'complète'])
+            .gte('valide_juska', today); // ✅ SELMAN KI POKO EKSPIRÉ
         
         let blocked = [];
         (data || []).forEach(res => {
@@ -560,6 +563,9 @@ function renderDaySelector() {
                         </button>`;
                     }).join('')}
                 </div>
+                <div style="margin-top:20px; color:var(--text-3); font-size:0.85rem; text-align:center;">
+                    * Coaching sa a se pou 24 èdtan pa mwa.
+                </div>
             </div>`;
     }
     panelHtml += `</div>`;
@@ -657,7 +663,8 @@ function setupEventListeners() {
                     mode_paiement: state.paymentMode,
                     horaires: state.selectedSlots,
                     gateway: state.gateway,
-                    rabais: state.urlDiscount, // ✅ PASE RABÈ A
+                    rabais: state.urlDiscount,
+                    qty_months: state.qtyMonths, // ✅ NOUVO: Pase kantite mwa
                     pas_de_creneaux: totalSlots === 0
                 };
                 const res = await fetch(`${window.supabaseClient.supabaseUrl}/functions/v1/create-checkout-session`, {
@@ -699,18 +706,29 @@ function setupEventListeners() {
 }
 
 function calculatePrice() {
-    const st = state.selectedServices.reduce((acc, s) => acc + (s.prix || 105), 0);
-    // ✅ Utilise le rabais de l'URL s'il existe, sinon 0 (pas de rabais global automatique)
+    const baseTotal = state.selectedServices.reduce((acc, s) => acc + (s.prix || 105), 0);
+    const st = baseTotal * state.qtyMonths; // ✅ Faktore mwa yo
+    
     const dp = state.urlDiscount || 0; 
     const da = (st * dp) / 100;
     const dr = st - da;
     const fa = state.paymentMode === 'depot' ? dr / 2 : dr;
     const fe = document.getElementById('final-amount');
+    const qe = document.getElementById('qty-months');
+    if (qe) qe.value = state.qtyMonths;
+
     const te = document.getElementById('final-discount-text');
     if (fe) fe.innerText = `$${fa.toFixed(2)}`;
     if (te) te.innerText = `${dp}%`;
     state.finalAmount = fa;
 }
+
+window.changeQty = function(val) {
+    state.qtyMonths += val;
+    if (state.qtyMonths < 1) state.qtyMonths = 1;
+    if (state.qtyMonths > 12) state.qtyMonths = 12;
+    calculatePrice();
+};
 
 function goToStep(s) {
     if (s === 3) {

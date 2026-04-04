@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { service_id, prenom, non, email, telephone, message, mode_paiement, horaires, gateway, rabais } = await req.json();
+    const { service_id, prenom, non, email, telephone, message, mode_paiement, horaires, gateway, rabais, qty_months = 1 } = await req.json();
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -31,8 +31,9 @@ serve(async (req) => {
 
     if (sErr) throw sErr;
 
-    // Calculate initial price based on mode
-    let amount = service.prix;
+    // Calculate initial price based on quantity of months
+    const basePrice = service.prix * qty_months;
+    let amount = basePrice;
     if (mode_paiement === 'depot') amount = amount / 2;
     if (mode_paiement === '3x') amount = amount / 3;
 
@@ -42,6 +43,12 @@ serve(async (req) => {
       amount = amount - (amount * (rabais / 100));
     }
 
+    // Calculate Validity Date (valide_juska)
+    // Default = 30 days per month
+    const validityDate = new Date();
+    validityDate.setDate(validityDate.getDate() + (qty_months * 30));
+    const valide_juska = validityDate.toISOString().split('T')[0];
+
     // Create reservation in DB
     const insertPayload: any = {
         prenom,
@@ -50,10 +57,11 @@ serve(async (req) => {
         telephone,
         message,
         mode_paiement,
-        montant_total: amount, // ✅ Sèvi ak pri ak rabè a
+        montant_total: amount,
         horaires,
         statut: 'en_attente',
         service_ids: [service_id],
+        valide_juska: valide_juska // ✅ Date d'expiration
     };
     
     const { data: res, error: rErr } = await supabase

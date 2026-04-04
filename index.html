@@ -41,10 +41,10 @@
                 </div>
                 <div class="nav-links">
                     <a href="#hero-section" class="nav-link">Akey</a>
-                    <a href="#avant-propos" class="nav-link">À Propos</a>
-                    <a href="#services-section" class="nav-link" onclick="setCategory('coaching')">Sèvis</a>
-                    <a href="#services-section" class="nav-link" style="color:var(--accent); font-weight:700;" onclick="setCategory('business')">🏢 Business</a>
-                    <a href="freelancer/index.html" class="btn btn-sm primary gold">Konekte</a>
+                    <a href="#avant-propos" class="nav-link">Pòtre Ekspè a</a>
+                    <a href="#services-section" class="nav-link" onclick="setCategory('coaching')">Sèvis Coaching</a>
+                    <a href="#services-section" class="nav-link" style="color:var(--accent); font-weight:700;" onclick="setCategory('business')">🏢 Sèvis Business</a>
+                    <a href="#services-section" class="btn btn-sm primary gold">Kòmanse Kounye a</a>
                 </div>
             </nav>
         </div>
@@ -111,11 +111,11 @@
                     </div>
                 </div>
                 <div class="ap-content-col" data-animate="fade-up">
-                    <span class="section-eyebrow">✦ Avant-Propos</span>
-                    <h2 id="ap-title">Kisa <span class="gradient-text">DJ Innovations</span> ye?</h2>
-                    <div class="ap-text-body" id="ap-description">
-                        <p>Bonjou! Mwen se <strong>[Non Ou]</strong>, fondatè DJ Innovations. Misyon mwen se senp: pran lide ou epi transfòme l an <strong>rezilta reyèl</strong>.</p>
-                    </div>
+                    <span class="badge-accent" id="ap-title">✦ Avant-Propos</span>
+                <h2 style="font-family:'DM Serif Display',serif; font-size:3.5rem; color:var(--primary); line-height:1.1; margin-bottom:25px;">Kiyès ki pral <br><span style="color:var(--accent)">Akousante</span> rèv ou?</h2>
+                <div class="ap-text" id="ap-description">
+                    <p>Mwen se yon ekspè nan maketing dijital ki gen plis pase 5 lane eksperyans nan akonpaye antreprenè. Misyon mwen se ede w domine rezo sosyal yo epi konvèti kontak ou yo an kliyan fidel.</p>
+                </div>
                     <div class="ap-tags">
                         <span class="ap-tag">📱 TikTok Expert</span>
                         <span class="ap-tag">📣 Facebook Ads</span>
@@ -205,7 +205,15 @@
         <section id="step-4" class="step-section">
             <button class="back-link" data-to="3">← Tounen</button>
 
-            <h3 style="margin-bottom: 10px; font-size: 1.1rem; color: var(--primary);">1. Kijan ou vle peye?</h3>
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: var(--primary);">1. Pou konbyen mwa w ap peye?</h3>
+            <div class="qty-selector" style="margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
+                <button class="btn btn-sm secondary" onclick="changeQty(-1)" style="padding: 10px 20px; font-weight: 900;">-</button>
+                <input type="number" id="qty-months" value="1" min="1" max="12" readonly style="background: var(--surface-2); border: 1px solid var(--border); color: var(--accent); font-weight: 700; width: 60px; text-align: center; padding: 10px; border-radius: 8px;">
+                <button class="btn btn-sm secondary" onclick="changeQty(1)" style="padding: 10px 20px; font-weight: 900;">+</button>
+                <span style="color: var(--text-2); font-size: 0.9rem;">(1 mwa = 24 èdtan coaching)</span>
+            </div>
+
+            <h3 style="margin-bottom: 10px; font-size: 1.1rem; color: var(--primary);">2. Kijan ou vle peye?</h3>
             <div class="payment-selector" style="margin-bottom: 24px;">
                 <div class="pay-card active" data-mode="full"><h3>Peman Total (100%)</h3></div>
                 <div class="pay-card" data-mode="depot"><h3>Avans (50%)</h3></div>

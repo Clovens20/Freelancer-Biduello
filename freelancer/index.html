@@ -312,11 +312,14 @@
             position: relative;
             z-index: 10;
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
         }
 
         .dash-header {
             position: sticky;
             top: 0;
+            width: 100%;
             z-index: 200;
             background: rgba(8, 8, 8, 0.92);
             backdrop-filter: blur(20px);
@@ -1166,33 +1169,33 @@
                         <span class="nav-icon">📋</span> Rezèvasyon
                     </button>
                     <button class="nav-item" onclick="showTab('fakti', this)" data-tab="fakti">
-                        <span class="nav-icon">🧾</span> Fakti (Bill)
+                        <span class="nav-icon">🧾</span> Lis Fakti
                     </button>
                     <button class="nav-item" onclick="showTab('agenda', this)" data-tab="agenda">
-                        <span class="nav-icon">📅</span> Agenda (Orè)
+                        <span class="nav-icon">📅</span> Orè (Agenda)
                     </button>
                     <button class="nav-item" onclick="showTab('svc', this)" data-tab="svc">
-                        <span class="nav-icon">💼</span> Sèvis yo
+                        <span class="nav-icon">💼</span> Katalòg Sèvis
                     </button>
-                    <p class="sidebar-label">Konteni</p>
+                    <p class="sidebar-label">Paj la</p>
                     <button class="nav-item" onclick="showTab('landing', this)" data-tab="landing">
-                        <span class="nav-icon">✏️</span> Landing Page
+                        <span class="nav-icon">✏️</span> Kontni Paj Akey
                     </button>
                     <button class="nav-item" onclick="showTab('biz', this)" data-tab="biz">
-                        <span class="nav-icon">🏢</span> Sèvis Business
+                        <span class="nav-icon">🏢</span> Kontni Business
                     </button>
-                    <p class="sidebar-label">Kont</p>
+                    <p class="sidebar-label">Kont Mwen</p>
                     <button class="nav-item" onclick="showTab('profil', this)" data-tab="profil">
-                        <span class="nav-icon">👤</span> Profil Mwen
+                        <span class="nav-icon">👤</span> Pwofil Mwen
                     </button>
                     <button class="nav-item" onclick="showTab('traffic', this)" data-tab="traffic">
-                        <span class="nav-icon">📊</span> Trafik Site
+                        <span class="nav-icon">📊</span> Trafik Site la
                     </button>
                     <button class="nav-item" onclick="showTab('sec', this)" data-tab="sec">
                         <span class="nav-icon">🔒</span> Sekirite
                     </button>
                     <button class="nav-item" onclick="showTab('dispo', this)" data-tab="dispo">
-                        <span class="nav-icon">🏖️</span> Mode Vakans
+                        <span class="nav-icon">🏖️</span> Mòd Vakans
                     </button>
                 </div>
             </aside>
@@ -1202,9 +1205,9 @@
                 <div class="stats-row" id="stats-row">
                     <div class="stat-card">
                         <div class="stat-icon">💰</div>
-                        <p class="stat-label">Chif d'Afè (Payé)</p>
+                        <p class="stat-label">Lajan Kolekte (Peye)</p>
                         <div class="stat-value" id="stat-revenue">$0</div>
-                        <p class="stat-sub">Total kolekte</p>
+                        <p class="stat-sub">Total nèt</p>
                     </div>
                     <div class="stat-card" style="cursor:pointer"
                         onclick="showTab('rez', document.querySelector('[data-tab=rez]'))">
@@ -1313,7 +1316,7 @@
                 </div>
 
                 <!-- Tab: Landing -->
-                <div class="tab-pane active" id="tab-landing">
+                <div class="tab-pane" id="tab-landing">
                     <div class="pane-header">
                         <div>
                             <h2>Landing Page UX</h2>
@@ -2327,6 +2330,11 @@
             btn.innerHTML = '⏳ Ap kreye...';
 
             try {
+                // Kalkile dat ekspirasyon
+                const dLimit = new Date();
+                dLimit.setDate(dLimit.getDate() + (qty * 30));
+                const valide_juska = dLimit.toISOString().split('T')[0];
+
                 // 1. Mete done nan DB
                 const { data: newRez, error } = await sb.from('reservations').insert({
                     prenom, nom, email, telephone,
@@ -2334,6 +2342,7 @@
                     montant_total: parseFloat(svcPrix) * qty,
                     statut: 'paye',
                     mode_paiement: 'Peman Manyèl',
+                    valide_juska: valide_juska, // ✅ Dat limit
                     message: `Rezèvasyon ajoute manyèlman pa freelancer a. (${qty} mwa)`
                 }).select().single();
 
@@ -2558,9 +2567,12 @@
             const lundi = new Date(dRef);
             lundi.setDate(diffALundi);
 
-            const days = DAY_NAMES.map((name, i) => {
+            // Kalkile tout dat pou semèn nan
+            const weekDates = [];
+            const daysHeaders = DAY_NAMES.map((name, i) => {
                 const d = new Date(lundi);
                 d.setDate(lundi.getDate() + i);
+                weekDates[i] = new Date(d); // Garder l'objet Date pour comparaison
                 return `${name}<br><span style="font-size:0.8rem;font-weight:normal;color:var(--text-2)">${d.getDate()} ${moisHaitien[d.getMonth()]}</span>`;
             });
 
@@ -2587,14 +2599,34 @@
             html += `<div style="display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:10px;overflow-x:auto;padding-bottom:20px">`;
 
             for (let i = 0; i < 7; i++) {
+                const currentDayDate = weekDates[i];
+                currentDayDate.setHours(23,59,59,999); // Fen jounen an
+
                 html += `<div style="display:flex;flex-direction:column;gap:6px">
                 <div style="background:var(--surface);border:1px solid rgba(186,117,23,0.2);padding:10px;text-align:center;border-radius:8px;font-weight:600;color:var(--primary);font-size:0.85rem">
-                    ${days[i]}
+                    ${daysHeaders[i]}
                 </div>`;
 
                 hours.forEach(h => {
                     const key = `D${i}_H${h}`;
-                    const clients = booked[key];
+                    // FILTRE STRIK : Sèlman montre kliyan ki gen yon pèman ki valid pou jounen sa a
+                    const allClientsForSlot = booked[key] || [];
+                    const clients = allClientsForSlot.filter(c => {
+                        // Kalkile dat limit la
+                        let expiry;
+                        if (c.valide_juska) {
+                            expiry = new Date(c.valide_juska);
+                        } else {
+                            // Fallback : Si pa gen dat limit (ansyen kliyan), nou ba yo 30 jou depi dat yo te kreye a
+                            const baseDate = c.created_at ? new Date(c.created_at) : new Date();
+                            expiry = new Date(baseDate);
+                            expiry.setDate(expiry.getDate() + 30);
+                        }
+                        
+                        expiry.setHours(23,59,59,999);
+                        return expiry >= currentDayDate; 
+                    });
+
                     const ampm = h < 12 ? 'AM' : 'PM';
                     const h12 = h > 12 ? h - 12 : h;
                     const timeLabel = `${h12}:00 ${ampm}`;
