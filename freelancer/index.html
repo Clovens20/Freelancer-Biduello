@@ -1393,6 +1393,21 @@
                         </div>
                     </div>
 
+                    <!-- Coaching Meeting Link -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>📹</span> Coaching & Randevou</div>
+                        <div style="background:rgba(186,117,23,0.04); border:1px solid var(--border-gold); border-radius:var(--r-md); padding:16px; margin-bottom:15px; font-size:0.85rem; color:var(--text-2)">
+                            <strong style="color:var(--accent)">💡 Remak :</strong><br>
+                            Lyen sa a pral parèt otomatikman nan imèl rapèl kliyan an ap resevwa 15 minit anvan coaching nan kòmanse.
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Lyen Randevou (Google Meet, Zoom, etc.)</label>
+                            <input type="text" class="dash-input" id="edit-meeting-url" 
+                                   data-field="coaching_meeting_url" oninput="autoSave(this)" 
+                                   placeholder="https://meet.google.com/xxx-xxxx-xxx">
+                        </div>
+                    </div>
+
                     <!-- Hero Section Config -->
                     <div class="config-section">
                         <div class="config-section-title"><span>🦸</span> Hero Section</div>
@@ -2547,6 +2562,7 @@
                         ${hasSlots ? '📝 Modifye Orè' : '⚠ Trete (Ajoute Lè)'}
                     </button>
                     <button id="resend-btn-${r.id}" onclick="event.stopPropagation(); resendInvoice('${r.id}', '${r.email}', this)" class="btn btn-sm" style="background:transparent;border:1px solid rgba(186,117,23,0.5);color:var(--primary);padding:5px 10px">📧 Renvoye Fakti</button>
+                    <button id="reminder-btn-${r.id}" onclick="event.stopPropagation(); sendManualSessionReminder('${r.id}', this)" class="btn btn-sm" style="background:transparent;border:1px solid var(--primary);color:var(--primary);padding:5px 10px">🔔 Rapèl</button>
                     <button onclick="event.stopPropagation(); deleteReservation('${r.id}')" class="btn btn-sm btn-danger" style="background:transparent;border:1px solid rgba(239,68,68,0.4);padding:5px 10px">🗑️ Siprime</button>
                 </div>
             </div>`;
@@ -2765,6 +2781,10 @@
                     onclick="resendInvoice('${r.id}', '${r.email}', this)">
                     📧 Renvoye Fakti
                 </button>
+                <button id="reminder-btn-modal-${r.id}" class="btn btn-ghost" style="border-color:var(--primary);color:var(--primary)"
+                    onclick="sendManualSessionReminder('${r.id}', this)">
+                    🔔 Voye Rapèl Sesyon (Tès)
+                </button>
                 <button class="btn btn-danger" onclick="closeDetailModal(); deleteReservation('${r.id}')">
                     🗑️ Siprime
                 </button>
@@ -2934,6 +2954,7 @@
                 'edit-hero-desc': config.hero_description, 'edit-hero-img': config.hero_image_url,
                 'edit-ap-title': config.ap_title, 'edit-ap-desc': config.ap_description,
                 'edit-ap-photo': config.ap_photo_url, 'edit-footer-slogan': config.footer_slogan,
+                'edit-meeting-url': config.coaching_meeting_url,
                 // Global Sections
                 'edit-eyebrow-ap': config.section_eyebrow_ap, 'edit-eyebrow-step1': config.section_eyebrow_step1,
                 'edit-label-cat-coaching': config.label_coaching_tab, 'edit-label-cat-business': config.label_business_tab,
@@ -3130,6 +3151,7 @@
                 facebook_url: document.getElementById('edit-facebook')?.value,
                 instagram_url: document.getElementById('edit-instagram')?.value,
                 footer_slogan: document.getElementById('edit-footer-slogan')?.value,
+                coaching_meeting_url: document.getElementById('edit-meeting-url')?.value,
             };
             const { error } = await sb.from('landing_config').update(payload).eq('id', 1);
             btn.innerHTML = orig; btn.disabled = false;
@@ -3433,6 +3455,43 @@
                 }
             } catch (e) {
                 console.error('[sendManualReminder]', e);
+                showToast('❌ Erè réseau: ' + e.message, 'error');
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }
+        }
+
+        async function sendManualSessionReminder(rezId, btn) {
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Ap voye rapèl...';
+
+            try {
+                const response = await fetch('https://uvgntflbylfbdfszthsa.supabase.co/functions/v1/send-session-reminder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.supabaseClient.supabaseKey}`,
+                        'apikey': window.supabaseClient.supabaseKey,
+                    },
+                    body: JSON.stringify({ reservation_id: rezId }),
+                });
+
+                if (response.ok) {
+                    showToast(`✅ Rapèl sesyon voye bay kliyan an!`, 'success');
+                    btn.innerHTML = '✅ Rapèl Voye!';
+                    setTimeout(() => {
+                        btn.innerHTML = orig;
+                        btn.disabled = false;
+                    }, 4000);
+                } else {
+                    const result = await response.json().catch(() => ({}));
+                    showToast('❌ Erè: ' + (result.error || 'Erè unknown'), 'error');
+                    btn.innerHTML = orig;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error('[sendManualSessionReminder]', e);
                 showToast('❌ Erè réseau: ' + e.message, 'error');
                 btn.innerHTML = orig;
                 btn.disabled = false;
