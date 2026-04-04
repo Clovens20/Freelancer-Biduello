@@ -1178,9 +1178,15 @@
                     <button class="nav-item" onclick="showTab('landing', this)" data-tab="landing">
                         <span class="nav-icon">✏️</span> Landing Page
                     </button>
+                    <button class="nav-item" onclick="showTab('biz', this)" data-tab="biz">
+                        <span class="nav-icon">🏢</span> Sèvis Business
+                    </button>
                     <p class="sidebar-label">Kont</p>
                     <button class="nav-item" onclick="showTab('profil', this)" data-tab="profil">
                         <span class="nav-icon">👤</span> Profil Mwen
+                    </button>
+                    <button class="nav-item" onclick="showTab('traffic', this)" data-tab="traffic">
+                        <span class="nav-icon">📊</span> Trafik Site
                     </button>
                     <button class="nav-item" onclick="showTab('sec', this)" data-tab="sec">
                         <span class="nav-icon">🔒</span> Sekirite
@@ -1307,14 +1313,84 @@
                 </div>
 
                 <!-- Tab: Landing -->
-                <div class="tab-pane" id="tab-landing">
+                <div class="tab-pane active" id="tab-landing">
                     <div class="pane-header">
                         <div>
-                            <h2>Edite Landing Page</h2>
-                            <p>Chanjman yo anrejistre otomatikman</p>
+                            <h2>Landing Page UX</h2>
+                            <p>Personnalisez le contenu de votre page d'accueil pour attirer vos clients.</p>
                         </div>
                         <div class="save-indicator" id="save-status"><span>●</span> Tout sekirize</div>
                     </div>
+
+                    <div style="text-align:center; padding:30px; background:rgba(186,117,23,0.05); border:1px solid var(--border-gold); border-radius:var(--r-xl); margin-bottom:24px">
+                        <h3 style="font-family:'DM Serif Display',serif; color:var(--primary); margin-bottom:10px">🎨 Personnalisation Glòbal</h3>
+                        <p style="color:var(--text-2); font-size:0.9rem">Modifye tèks ki parèt sou tout site la, kèlkeswa kategori a.</p>
+                    </div>
+
+                    <!-- Global Eyebrows -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>🏷️</span> Tit Seksyon yo (Eyebrows)</div>
+                        <div class="grid-2">
+                            <div class="field-group">
+                                <label class="dash-label">Eyebrow Avant-Propos</label>
+                                <input type="text" class="dash-input" id="edit-eyebrow-ap" 
+                                       data-field="section_eyebrow_ap" oninput="autoSave(this)">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Eyebrow Étap 1</label>
+                                <input type="text" class="dash-input" id="edit-eyebrow-step1" 
+                                       data-field="section_eyebrow_step1" oninput="autoSave(this)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Labels -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>📑</span> Tèks Bouton Kategori yo</div>
+                        <div class="grid-2">
+                            <div class="field-group">
+                                <label class="dash-label">Kategori Coaching</label>
+                                <input type="text" class="dash-input" id="edit-label-cat-coaching" 
+                                       data-field="label_coaching_tab" oninput="autoSave(this)">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Kategori Business</label>
+                                <input type="text" class="dash-input" id="edit-label-cat-business" 
+                                       data-field="label_business_tab" oninput="autoSave(this)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Coaching Form Labels -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>📝</span> Fòm Coaching (Labels & Placeholders)</div>
+                        <div class="grid-2">
+                            <div class="field-group">
+                                <label class="dash-label">Label Prenon</label>
+                                <input type="text" class="dash-input" id="edit-coach-f-label-p" 
+                                       data-field="coaching_form_label_prenom" oninput="autoSave(this)">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Placeholder Prenon</label>
+                                <input type="text" class="dash-input" id="edit-coach-f-place-p" 
+                                       data-field="coaching_form_placeholder_prenom" oninput="autoSave(this)">
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="field-group">
+                                <label class="dash-label">Label Non</label>
+                                <input type="text" class="dash-input" id="edit-coach-f-label-n" 
+                                       data-field="coaching_form_label_nom" oninput="autoSave(this)">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Placeholder Non</label>
+                                <input type="text" class="dash-input" id="edit-coach-f-place-n" 
+                                       data-field="coaching_form_placeholder_nom" oninput="autoSave(this)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hero Section Config -->
                     <div class="config-section">
                         <div class="config-section-title"><span>🦸</span> Hero Section</div>
                         <div class="grid-2">
@@ -1378,6 +1454,192 @@
                     </div>
                 </div>
 
+                <!-- Tab: Business Service -->
+                <div class="tab-pane" id="tab-biz">
+                    <div class="pane-header">
+                        <div>
+                            <h2>Sèvis Business</h2>
+                            <p>Jere kontni ak plan pèsonalize pou antrepriz yo</p>
+                        </div>
+                        <div class="save-indicator" id="save-status-biz"><span>●</span> Tout sekirize</div>
+                    </div>
+
+                    <!-- Hero Config -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>📢</span> Kontni Hero Paj la</div>
+                        <div class="field-group">
+                            <label class="dash-label">Badge Hero</label>
+                            <input type="text" class="dash-input" id="edit-biz-hero-badge" 
+                                   data-field="business_hero_badge" oninput="autoSave(this, 'save-status-biz')">
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Tit Hero (HTML pèmèt)</label>
+                            <input type="text" class="dash-input" id="edit-biz-hero-title" 
+                                   data-field="business_hero_title" oninput="autoSave(this, 'save-status-biz')">
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Deskripsyon Hero</label>
+                            <textarea class="dash-textarea" id="edit-biz-hero-desc" 
+                                      data-field="business_hero_description" oninput="autoSave(this, 'save-status-biz')" rows="3"></textarea>
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">URL Foto Hero (Optionèl)</label>
+                            <input type="text" class="dash-input" id="edit-biz-hero-img" 
+                                   data-field="business_hero_image_url" oninput="autoSave(this, 'save-status-biz')" placeholder="https://...">
+                        </div>
+                    </div>
+
+                    <!-- Plans Section Config -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>🛒</span> Tit Seksyon Plan yo</div>
+                        <div class="field-group">
+                            <label class="dash-label">Ti Tit (Tag)</label>
+                            <input type="text" class="dash-input" id="edit-biz-plans-tag" 
+                                   data-field="business_plans_tag" oninput="autoSave(this, 'save-status-biz')">
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Gwo Tit</label>
+                            <input type="text" class="dash-input" id="edit-biz-plans-title" 
+                                   data-field="business_plans_title" oninput="autoSave(this, 'save-status-biz')">
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Soutit (Subtitle)</label>
+                            <input type="text" class="dash-input" id="edit-biz-plans-subtitle" 
+                                   data-field="business_plans_subtitle" oninput="autoSave(this, 'save-status-biz')">
+                        </div>
+                    </div>
+
+                    <!-- Form Section Config -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>📝</span> Tit Seksyon Fòm nan</div>
+                        <div class="field-group">
+                            <label class="dash-label">Ti Tit (Tag)</label>
+                            <input type="text" class="dash-input" id="edit-biz-form-tag" 
+                                   data-field="business_form_tag" oninput="autoSave(this, 'save-status-biz')">
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Gwo Tit</label>
+                            <input type="text" class="dash-input" id="edit-biz-form-title" 
+                                   data-field="business_form_title" oninput="autoSave(this, 'save-status-biz')">
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Soutit (Subtitle)</label>
+                            <input type="text" class="dash-input" id="edit-biz-form-subtitle" 
+                                   data-field="business_form_subtitle" oninput="autoSave(this, 'save-status-biz')">
+                        </div>
+                    </div>
+
+                    <!-- Business Form Labels -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>📝</span> Fòm Business (Labels & Placeholders)</div>
+                        <div class="grid-2">
+                            <div class="field-group">
+                                <label class="dash-label">Label Prenon (Responsab)</label>
+                                <input type="text" class="dash-input" id="edit-biz-f-label-p" 
+                                       data-field="business_form_label_prenom" oninput="autoSave(this, 'save-status-biz')">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Placeholder Prenon</label>
+                                <input type="text" class="dash-input" id="edit-biz-f-place-p" 
+                                       data-field="business_form_placeholder_prenom" oninput="autoSave(this, 'save-status-biz')">
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="field-group">
+                                <label class="dash-label">Label Non (Entreprise)</label>
+                                <input type="text" class="dash-input" id="edit-biz-f-label-n" 
+                                       data-field="business_form_label_nom" oninput="autoSave(this, 'save-status-biz')">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Placeholder Non</label>
+                                <input type="text" class="dash-input" id="edit-biz-f-place-n" 
+                                       data-field="business_form_placeholder_nom" oninput="autoSave(this, 'save-status-biz')">
+                            </div>
+                        </div>
+                        <div class="grid-3">
+                            <div class="field-group">
+                                <label class="dash-label">Label Imèl</label>
+                                <input type="text" class="dash-input" id="edit-biz-f-label-e" 
+                                       data-field="business_form_label_email" oninput="autoSave(this, 'save-status-biz')">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Label Telefòn</label>
+                                <input type="text" class="dash-input" id="edit-biz-f-label-t" 
+                                       data-field="business_form_label_tel" oninput="autoSave(this, 'save-status-biz')">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Label Mesaj</label>
+                                <input type="text" class="dash-input" id="edit-biz-f-label-m" 
+                                       data-field="business_form_label_msg" oninput="autoSave(this, 'save-status-biz')">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Business Promo Button -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>🔘</span> Bouton Promo Business</div>
+                        <div class="field-group">
+                            <label class="dash-label">Tèks Bouton an (nan seksyon Promo)</label>
+                            <input type="text" class="dash-input" id="edit-biz-promo-btn" 
+                                   data-field="business_promo_btn_text" oninput="autoSave(this, 'save-status-biz')">
+                        </div>
+                    </div>
+
+                    <!-- Plans Management -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>💼</span> Jesyon Plan Business yo</div>
+                        <div style="margin-bottom:20px">
+                            <button class="btn btn-gold" onclick="addNewBusinessPlan()">+ Ajoute yon nouvo Plan Business</button>
+                        </div>
+                        <div id="biz-plan-list">
+                            <div class="empty-state" style="padding:40px; border:2px dashed var(--border-gold); border-radius:15px; background:rgba(186,117,23,0.03);">
+                                <div class="empty-icon">🏢</div>
+                                <p style="margin-bottom:20px;">Poko gen okenn plan business nan baz de done a.</p>
+                                <button class="btn btn-gold" onclick="restoreDefaultBusinessPlans(this)">🔄 Retabli Plan Business yo (Default)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:40px; padding-top:30px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:15px; align-items:center;">
+                        <button class="btn btn-gold btn-wide" style="font-size:1.1rem; padding:15px 40px; box-shadow: 0 10px 25px rgba(186,117,23,0.3);" onclick="saveBusinessConfigManually(this)">
+                            💾 Anrejistre Tout Chanjman Seksyon sa a
+                        </button>
+                        
+                        <a href="../index.html" target="_blank" class="btn btn-ghost">
+                            👁️ Gade Sèvis yo an direk (Live)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tab: Traffic -->
+                <div class="tab-pane" id="tab-traffic">
+                    <div class="pane-header">
+                        <div>
+                            <h2>Trafik & Estatistik</h2>
+                            <p>Wè konbyen moun ki vizite site ou chak jou</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-3" style="margin-bottom:24px">
+                        <div class="stat-card">
+                            <div class="stat-label">Vizit Jodi a</div>
+                            <div class="stat-value" id="traffic-today">—</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Vizitè Inik (24h)</div>
+                            <div class="stat-value" id="traffic-unique">—</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Vizit (7 jou)</div>
+                            <div class="stat-value" id="traffic-week">—</div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <div class="config-section-title"><span>⏳</span> Dènye Vizit yo</div>
+                        <div id="traffic-list">
+                            <!-- Lis vizit yo ap parèt isit -->
+                        </div>
                     </div>
                 </div>
 
@@ -1644,6 +1906,8 @@
         //  ✅ FIX 1: renderAgenda() lit les 2 formats d'horaires
         //  ✅ FIX 2: Chak kat rezèvasyon klikab → modal detay
         // ══════════════════════════════════════════════════════════
+ 
+ 
 
         let sb = null;
         let currentFreelancer = null;
@@ -1772,7 +2036,149 @@
         }
 
         async function loadAllData() {
-            await Promise.all([loadReservations(), loadInvoices(), loadServices(), loadLandingConfig()]);
+            await Promise.all([loadReservations(), loadInvoices(), loadServices(), loadBusinessPlans(), loadLandingConfig(), loadTrafficStats()]);
+        }
+        
+        async function loadTrafficStats() {
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            const lastWeek = new Date();
+            lastWeek.setDate(now.getDate() - 7);
+            const lastWeekStr = lastWeek.toISOString().split('T')[0];
+
+            try {
+                // Jodi a
+                const { data: visitsToday } = await sb.from('site_visits').select('*').gte('created_at', todayStr);
+                const uniqueToday = new Set((visitsToday || []).map(v => v.visitor_id)).size;
+                
+                // Semèn sa a
+                const { data: visitsWeek } = await sb.from('site_visits').select('*').gte('created_at', lastWeekStr);
+                
+                document.getElementById('traffic-today').innerText = (visitsToday || []).length;
+                document.getElementById('traffic-unique').innerText = uniqueToday;
+                document.getElementById('traffic-week').innerText = (visitsWeek || []).length;
+
+                // Lis dènye vizit (20 dènye)
+                const { data: recent } = await sb.from('site_visits').select('*').order('created_at', { ascending: false }).limit(20);
+                const list = document.getElementById('traffic-list');
+                if (recent && recent.length > 0) {
+                    list.innerHTML = recent.map(v => `
+                        <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid var(--border); font-size:0.85rem">
+                            <span style="color:var(--text-1)">👤 ${v.visitor_id.slice(0,8)}...</span>
+                            <span style="color:var(--text-3)">${new Date(v.created_at).toLocaleString()}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<p style="text-align:center; color:var(--text-3); padding:20px">Poko gen trafik anrejistre.</p>';
+                }
+
+            } catch (err) { console.error('Error loading traffic:', err); }
+        }
+        
+        async function loadBusinessPlans() {
+            const { data: plans } = await sb.from('services').select('*').eq('category', 'business').order('prix');
+            const list = document.getElementById('biz-plan-list');
+            if (!list) return;
+
+            if (!plans || plans.length === 0) {
+                list.innerHTML = `<div class="empty-state"><p>Poko gen okenn plan business.</p></div>`;
+                return;
+            }
+
+            list.innerHTML = plans.map(p => `
+                <div class="svc-card" style="margin-bottom:15px; border-left:4px solid var(--primary)">
+                    <div class="grid-3">
+                        <div class="field-group"><label class="dash-label">Non Plan</label><input type="text" class="dash-input" id="biz-name-${p.id}" value="${p.nom}"></div>
+                        <div class="field-group"><label class="dash-label">Pri (USD)</label><input type="number" class="dash-input" id="biz-price-${p.id}" value="${p.prix}"></div>
+                        <div class="field-group"><label class="dash-label">Inite (ex: /mwa)</label><input type="text" class="dash-input" id="biz-unit-${p.id}" value="${p.unite || '/mwa'}" placeholder="/mwa"></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="field-group"><label class="dash-label">Badge (ex: REKÒMANDE)</label><input type="text" class="dash-input" id="biz-badge-${p.id}" value="${p.badge || ''}"></div>
+                        <div class="field-group"><label class="dash-label">Emoji / Icon (ex: 🧡)</label><input type="text" class="dash-input" id="biz-icon-${p.id}" value="${p.icon || '🧡'}"></div>
+                    </div>
+                    <div class="field-group"><label class="dash-label">Deskripsyon</label><textarea class="dash-textarea" id="biz-desc-${p.id}" rows="2">${p.description || ''}</textarea></div>
+                    <div class="field-group">
+                        <label class="dash-label">Pwen nan Plan an (met kòma "," ant chak pwen)</label>
+                        <textarea class="dash-textarea" id="biz-feat-${p.id}" rows="3" placeholder="Pwen 1, Pwen 2, Pwen 3...">${(p.fonctionnalites || []).join(', ')}</textarea>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:10px">
+                        <button class="btn btn-gold btn-sm" onclick="saveBusinessPlan('${p.id}', this)">Anrejistre Plan Sa a</button>
+                        <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteService('${p.id}')">Efase</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function saveBusinessPlan(id, btn) {
+            const nom = document.getElementById(`biz-name-${id}`).value;
+            const prix = parseFloat(document.getElementById(`biz-price-${id}`).value);
+            const unite = document.getElementById(`biz-unit-${id}`).value;
+            const badge = document.getElementById(`biz-badge-${id}`).value;
+            const icon = document.getElementById(`biz-icon-${id}`).value;
+            const description = document.getElementById(`biz-desc-${id}`).value;
+            const featStr = document.getElementById(`biz-feat-${id}`).value;
+            const fonctionnalites = featStr.split(',').map(f => f.trim()).filter(Boolean);
+
+            btn.disabled = true; btn.innerHTML = '...';
+            const { error } = await sb.from('services').update({ nom, prix, unite, badge, icon, description, fonctionnalites }).eq('id', id);
+            btn.disabled = false; btn.innerHTML = 'Anrejistre';
+            showToast(error ? 'Erè' : 'Plan mizajou!', error ? 'error' : 'success');
+        }
+
+        function addNewBusinessPlan() {
+            if (!currentFreelancer?.id) return;
+            const nom = prompt('Non Plan an (ex: Standard Business):');
+            if (!nom) return;
+            
+            sb.from('services').insert({
+                nom,
+                prix: 199,
+                unite: '/mwa',
+                description: 'Deskripsyon kout pou ' + nom,
+                category: 'business',
+                freelancer_id: currentFreelancer.id,
+                actif: true
+            }).then(({ error }) => {
+                if (error) showToast(error.message, 'error');
+                else { showToast('Nouvo plan ajoute!', 'success'); loadBusinessPlans(); }
+            });
+        }
+
+        async function restoreDefaultBusinessPlans(btn) {
+            if (!currentFreelancer?.id) return showToast('Konekte avan!', 'error');
+            btn.disabled = true; btn.innerHTML = '⏳ Ap restore...';
+            
+            const defaults = [
+                { 
+                    nom: 'Plan Standard', prix: 199, unite: '/mwa', category: 'business', 
+                    description: 'Parfè pou ti ak mwayen biznis ki vle yon prezans dijital solid.',
+                    fonctionnalites: ['Kreyasyon paj pwofesyonèl pou biznis ou', '1 piblikasyon pa jou, 5 jou pa semèn', 'Jesyon konplè paj ou yo (FB, TikTok, Instagram)', 'Rapò mansyèl sou pèfòmans'],
+                    icon: '🧡', freelancer_id: currentFreelancer.id, actif: true
+                },
+                { 
+                    nom: 'Plan Premium', prix: 349, unite: '/mwa', category: 'business', 
+                    description: 'Jesyon konplè pou biznis ki vle maksimize vizibilite ak vant yo.', 
+                    fonctionnalites: ['Kreyasyon paj pwofesyonèl (FB, TikTok, Instagram)', '2 piblikasyon pa jou, 7 jou / 7', 'Kreyasyon & jesyon Ads (koût ads = biznis)', 'Jesyon konplè 100% — strategy, kontni, analiz', 'Rapò chak semèn + reyinyon mansyèl', 'Sipò prioritè 7 / 7'],
+                    icon: '🧡', freelancer_id: currentFreelancer.id, actif: true
+                }
+            ];
+
+            const { error } = await sb.from('services').insert(defaults);
+            if (error) showToast('Erè: ' + error.message, 'error');
+            else { showToast('✅ Plan yo restore!', 'success'); loadBusinessPlans(); }
+        }
+
+        async function saveBusinessConfigManually(btn) {
+            const fields = document.querySelectorAll('#tab-biz [data-field]');
+            const updateObj = {};
+            fields.forEach(f => { updateObj[f.dataset.field] = f.value; });
+
+            btn.disabled = true; btn.innerHTML = '⏳ Ap anrejistre...';
+            const { error } = await sb.from('landing_config').update(updateObj).eq('id', 1);
+            btn.disabled = false; btn.innerHTML = '💾 Anrejistre Tout Chanjman Seksyon sa a';
+            
+            if (error) showToast('Erè: ' + error.message, 'error');
+            else showToast('✅ Tout chanjman seksyon Business la sove!', 'success');
         }
         
         async function loadInvoices() {
@@ -2489,7 +2895,29 @@
                 'edit-hero-badge': config.hero_badge, 'edit-hero-title': config.hero_title,
                 'edit-hero-desc': config.hero_description, 'edit-hero-img': config.hero_image_url,
                 'edit-ap-title': config.ap_title, 'edit-ap-desc': config.ap_description,
-                'edit-ap-photo': config.ap_photo_url, 'edit-footer-slogan': config.footer_slogan
+                'edit-ap-photo': config.ap_photo_url, 'edit-footer-slogan': config.footer_slogan,
+                // Global Sections
+                'edit-eyebrow-ap': config.section_eyebrow_ap, 'edit-eyebrow-step1': config.section_eyebrow_step1,
+                'edit-label-cat-coaching': config.label_coaching_tab, 'edit-label-cat-business': config.label_business_tab,
+                // Coaching Form
+                'edit-coach-f-label-p': config.coaching_form_label_prenom, 'edit-coach-f-place-p': config.coaching_form_placeholder_prenom,
+                'edit-coach-f-label-n': config.coaching_form_label_nom, 'edit-coach-f-place-n': config.coaching_form_placeholder_nom,
+                // Business Hero
+                'edit-biz-hero-badge': config.business_hero_badge, 'edit-biz-hero-title': config.business_hero_title,
+                'edit-biz-hero-desc': config.business_hero_description, 'edit-biz-hero-img': config.business_hero_image_url,
+                // Business Plans Section
+                'edit-biz-plans-tag': config.business_plans_tag, 'edit-biz-plans-title': config.business_plans_title,
+                'edit-biz-plans-subtitle': config.business_plans_subtitle,
+                // Business Form Section
+                'edit-biz-form-tag': config.business_form_tag, 'edit-biz-form-title': config.business_form_title,
+                'edit-biz-form-subtitle': config.business_form_subtitle,
+                // Business Form Labels
+                'edit-biz-f-label-p': config.business_form_label_prenom, 'edit-biz-f-place-p': config.business_form_placeholder_prenom,
+                'edit-biz-f-label-n': config.business_form_label_nom, 'edit-biz-f-place-n': config.business_form_placeholder_nom,
+                'edit-biz-f-label-e': config.business_form_label_email, 'edit-biz-f-label-t': config.business_form_label_tel,
+                'edit-biz-f-label-m': config.business_form_label_msg,
+                // Business Promo
+                'edit-biz-promo-btn': config.business_promo_btn_text
             };
             Object.entries(fields).forEach(([id, val]) => {
                 const el = document.getElementById(id);
@@ -2612,8 +3040,8 @@
             }
         }
 
-        function autoSave(el) {
-            const status = document.getElementById('save-status');
+        function autoSave(el, statusId = 'save-status') {
+            const status = document.getElementById(statusId);
             status.className = 'save-indicator saving';
             status.innerHTML = '<span>●</span> L ap anrejistre...';
             clearTimeout(saveTimer);

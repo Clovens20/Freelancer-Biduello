@@ -12,7 +12,8 @@ const state = {
     customerInfo: { prenom: '', non: '', email: '', telephone: '', message: '' },
     finalAmount: 0,
     gateway: 'stripe',
-    urlDiscount: 0, // ✅ NOUVO: Rabè ki soti nan URL la
+    urlDiscount: 0,
+    currentCategory: 'coaching', // 'coaching' ou 'business'
     isVacation: false,
     vacationMsg: '',
     vacationStart: null,
@@ -62,7 +63,37 @@ async function initApp() {
     await loadLandingConfig();
     await fetchServicesFromSupabase();
     await fetchBookedSlots();
+    trackVisit(); // ✅ Track site traffic
     setupEventListeners();
+    setupCategoryHandlers(); // ✅ Add listeners for category buttons
+}
+
+function setupCategoryHandlers() {
+    const btnCoaching = document.getElementById('btn-cat-coaching');
+    const btnBusiness = document.getElementById('btn-cat-business');
+    if (btnCoaching) btnCoaching.onclick = () => setCategory('coaching');
+    if (btnBusiness) btnBusiness.onclick = () => setCategory('business');
+}
+
+async function trackVisit() {
+    try {
+        const lastVisit = localStorage.getItem('last_visit_track');
+        const now = new Date().getTime();
+        // Sèlman track si sa fè plis pase 30 minit (evite over-counting sou refresh)
+        if (lastVisit && (now - parseInt(lastVisit)) < 1800000) return;
+
+        let visitorId = localStorage.getItem('visitor_id');
+        if (!visitorId) {
+            visitorId = 'v_' + Math.random().toString(36).substring(2, 11);
+            localStorage.setItem('visitor_id', visitorId);
+        }
+
+        await window.supabaseClient.from('site_visits').insert({
+            page: 'home',
+            visitor_id: visitorId
+        });
+        localStorage.setItem('last_visit_track', now.toString());
+    } catch (e) { console.error('Traffic track error:', e); }
 }
 
 // ── LANDING CONFIG ────────────────────────────────────────────
@@ -113,6 +144,58 @@ async function loadLandingConfig() {
         set('ap-description', data.ap_description);
         set('ap-photo', data.ap_photo_url, 'src');
         set('footer-slogan', data.footer_slogan);
+
+        // ✅ Business Dynamic Fields
+        set('biz-hero-badge', data.business_hero_badge);
+        set('biz-hero-title', data.business_hero_title);
+        set('biz-hero-desc', data.business_hero_description);
+        set('biz-promo-btn', data.business_promo_btn_text);
+        
+        // Catégories Tabs Labels
+        set('btn-cat-coaching', data.label_coaching_tab);
+        set('btn-cat-business', data.label_business_tab);
+
+        // On garde les titres actuels du state car ils vont switcher avec setCategory
+        window.biz_titles = {
+            plans: data.business_plans_title || 'Plan nou yo',
+            subtitle: data.business_plans_subtitle || 'Chwazi plan ki pi byen koresponn ak bezwen biznis ou.'
+        };
+        window.coaching_titles = {
+            plans: data.hero_title || 'Chwazi Sèvis ou bezwen yo',
+            subtitle: 'Klike sou yon sèvis pou w wè tout detay konplet yo.'
+        };
+
+        // On garde aussi les labels du formulaire
+        window.form_config = {
+            business: {
+                label_prenom: data.business_form_label_prenom || 'Nom konplè Responsab *',
+                label_nom: data.business_form_label_nom || 'Non Entreprise la *',
+                placeholder_prenom: data.business_form_placeholder_prenom || 'Antre non konplè w',
+                placeholder_nom: data.business_form_placeholder_nom || 'Antre non biznis ou'
+            },
+            coaching: {
+                label_prenom: data.coaching_form_label_prenom || 'Prenon *',
+                label_nom: data.coaching_form_label_nom || 'Non Fanmi *',
+                placeholder_prenom: data.coaching_form_placeholder_prenom || 'Antre prenon ou',
+                placeholder_nom: data.coaching_form_placeholder_nom || 'Antre non ou'
+            },
+            common: {
+                label_email: data.business_form_label_email || 'Imèl *',
+                label_tel: data.business_form_label_tel || 'Telefòn *',
+                label_msg: data.business_form_label_msg || 'Mesaj'
+            }
+        };
+
+        // Appliquer les labels communs immédiatement
+        set('label-email', window.form_config.common.label_email);
+        set('label-telephone', window.form_config.common.label_tel);
+        set('label-message', window.form_config.common.label_msg);
+
+        // ✅ Business specific Hero Image (si nou nan mode business)
+        const bizPromoImg = document.querySelector('.biz-promo-img img');
+        if (bizPromoImg && data.business_hero_image_url) {
+            bizPromoImg.src = data.business_hero_image_url;
+        }
 
         state.isVacation = !!data.is_vacation;
         state.vacationMsg = data.vacation_msg || 'Mwen an vakans pou kounye a, m ap tounen talè!';
@@ -172,31 +255,153 @@ async function fetchServicesFromSupabase() {
 
 function renderServicesGrid() {
     if (!servicesGrid) return;
-    servicesGrid.innerHTML = state.services.map(s => {
+    
+    const filtered = state.services.filter(s => {
+        const cat = (s.category || 'coaching').toLowerCase();
+        return cat === state.currentCategory.toLowerCase();
+    });
+
+    if (filtered.length === 0) {
+        // Fallback pèsonalize si se kategori Business
+        if (state.currentCategory === 'business') {
+            const fallbackPlans = [
+                { 
+                    id: 'std-fall', 
+                    nom: 'Plan Standard', 
+                    prix: 199, 
+                    badge: '',
+                    icon: '🧡',
+                    description: 'Parfè pou ti ak mwayen biznis ki vle yon prezans dijital solid.', 
+                    fonctionnalites: [
+                        'Kreyasyon paj pwofesyonèl pou biznis ou',
+                        '1 piblikasyon pa jou, 5 jou pa semèn',
+                        'Jesyon konplè paj ou yo (FB, TikTok, Instagram)',
+                        'Rapò mansyèl sou pèfòmans'
+                    ], 
+                    category: 'business' 
+                },
+                { 
+                    id: 'prem-fall', 
+                    nom: 'Plan Premium', 
+                    prix: 349, 
+                    badge: 'REKÒMANDE',
+                    icon: '🧡',
+                    description: 'Jesyon konplè pou biznis ki vle maksimize vizibilite ak vant yo.', 
+                    fonctionnalites: [
+                        'Kreyasyon paj pwofesyonèl (FB, TikTok, Instagram)',
+                        '2 piblikasyon pa jou, 7 jou / 7',
+                        'Kreyasyon & jesyon Ads (koût ads = biznis)',
+                        'Jesyon konplè 100% — strategy, kontni, analiz',
+                        'Rapò chak semèn + reyinyon mansyèl',
+                        'Sipò prioritè 7 / 7'
+                    ], 
+                    category: 'business' 
+                }
+            ];
+            servicesGrid.innerHTML = fallbackPlans.map(s => {
+                return `
+                    <div class="service-card biz-card" onclick="openServiceModal('${s.id}', true)">
+                        ${s.badge ? `<div class="biz-badge-card">${s.badge}</div>` : '<div class="biz-badge-card">SOLISYON BUSINESS</div>'}
+                        <h3>${s.nom}</h3>
+                        <div class="price">$${s.prix} <span>${s.unite || '/mwa'}</span></div>
+                        <p style="margin-bottom:15px; font-size:0.9rem;">${s.description}</p>
+                        <ul style="list-style:none; padding:0; margin-bottom:20px; font-size:0.85rem; text-align:left;">
+                            ${s.fonctionnalites.map(f => `
+                                <li style="margin-bottom:8px; display:flex; align-items:start; gap:8px;">
+                                    <span style="color:var(--primary); font-size:1rem;">${s.icon || '🧡'}</span>
+                                    <span>${f}</span>
+                                </li>`).join('')}
+                        </ul>
+                        <button class="btn-details">Chwazi Plan sa a</button>
+                    </div>`;
+            }).join('');
+            // Nou dwe mete plan fallback sa yo nan state la tanporèman pou modal la fonksyone
+            window.activeFallbackPlans = fallbackPlans;
+            return;
+        }
+
+        servicesGrid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                <p style="color: var(--text-muted);">Poko gen sèvis disponib nan kategori sa a.</p>
+                <button class="btn btn-ghost" onclick="setCategory('coaching')" style="margin-top:15px">Gade Sèvis Coaching yo</button>
+            </div>`;
+        return;
+    }
+
+    servicesGrid.innerHTML = filtered.map(s => {
         const isSelected = state.selectedServices.some(item => item.id === s.id);
+        const isBusiness = (s.category || '').toLowerCase() === 'business';
+        const icon = s.icon || '🧡';
+        
+        // Si se yon sèvis business, montre detay yo dirèkteman
+        if (isBusiness) {
+            return `
+                <div class="service-card biz-card ${isSelected ? 'selected' : ''}" onclick="openServiceModal('${s.id}')">
+                    ${isSelected ? '<div class="check-badge">✓</div>' : ''}
+                    <div class="biz-badge-card">${s.badge || 'SOLISYON BUSINESS'}</div>
+                    <h3>${s.nom}</h3>
+                    <div class="price">$${s.prix} <span>${s.unite || '/mwa'}</span></div>
+                    <p style="margin-bottom:15px; font-size:0.9rem;">${s.description || ''}</p>
+                    <ul style="list-style:none; padding:0; margin-bottom:20px; font-size:0.85rem; text-align:left;">
+                        ${(s.fonctionnalites || []).slice(0, 4).map(f => `
+                            <li style="margin-bottom:6px; display:flex; align-items:start; gap:8px;">
+                                <span style="color:var(--primary); font-size:0.9rem;">${icon}</span>
+                                <span>${f}</span>
+                            </li>`).join('')}
+                    </ul>
+                    <button class="btn-details">Chwazi Plan sa a</button>
+                </div>`;
+        }
+
         return `
             <div class="service-card ${isSelected ? 'selected' : ''}" onclick="openServiceModal('${s.id}')">
                 ${isSelected ? '<div class="check-badge">✓</div>' : ''}
                 <h3>${s.nom}</h3>
-                <div class="price">$${s.prix} <span>/mwa</span></div>
+                <div class="price">$${s.prix} <span>${s.unite || '/mwa'}</span></div>
                 <p>${s.description ? s.description.substring(0, 100) + '...' : ''}</p>
                 <button class="btn-details">Fè rezèvasyon w</button>
             </div>`;
     }).join('');
 }
 
+window.setCategory = function(cat) {
+    state.currentCategory = cat;
+    
+    // Mettre à jour les titres de section dynamiquement
+    const titleEl = document.getElementById('biz-plans-title');
+    const subtitleEl = document.getElementById('biz-plans-subtitle');
+    
+    const titles = (cat === 'business') ? (window.biz_titles || {}) : (window.coaching_titles || {});
+    if (titleEl) titleEl.innerText = titles.plans || (cat === 'business' ? 'Plan nou yo' : 'Chwazi Sèvis ou bezwen yo');
+    if (subtitleEl) subtitleEl.innerText = titles.subtitle || (cat === 'business' ? 'Chwazi plan ki pi byen koresponn ak bezwen biznis ou.' : 'Klike sou yon sèvis pou w wè tout detay konplet yo.');
+
+    // Mettre à jour les onglets ou le style si nécessaire
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+    renderServicesGrid();
+};
+
 // ── MODAL ─────────────────────────────────────────────────────
 
-window.openServiceModal = function (id) {
-    const s = state.services.find(x => x.id === id);
+let currentViewedServiceIsFallback = false;
+
+window.openServiceModal = function (id, isFallback = false) {
+    let s;
+    if (isFallback) {
+        s = (window.activeFallbackPlans || []).find(x => x.id === id);
+    } else {
+        s = state.services.find(x => x.id === id);
+    }
+    
     if (!s) return;
     currentViewedServiceId = id;
+    currentViewedServiceIsFallback = isFallback;
+    
     const isSelected = state.selectedServices.some(item => item.id === id);
 
     modalContainer.innerHTML = `
         <div class="modal-header-box">
             <h2 class="modal-title-lux" style="font-family:'DM Serif Display', serif; font-size:2.8rem; color:var(--primary); margin-bottom:10px;">${s.nom}</h2>
-            <div class="modal-price-tag" style="font-size:1.4rem; font-weight:700; color:var(--accent); margin-bottom:20px;">${s.prix || 105}$<span style="font-size:0.9rem; color:var(--text-muted); font-weight:400;">/ mwa</span></div>
+            <div class="modal-price-tag" style="font-size:1.4rem; font-weight:700; color:var(--accent); margin-bottom:20px;">${s.prix || 105}$<span style="font-size:0.9rem; color:var(--text-muted); font-weight:400;">${s.unite || '/mwa'}</span></div>
         </div>
         <div class="modal-body">
             <p class="modal-desc">${s.description || 'Sèvis sa a ap ede w grandi rapidman.'}</p>
@@ -219,7 +424,7 @@ window.openServiceModal = function (id) {
 };
 
 modalSelectBtn.onclick = () => {
-    toggleServiceSelection(currentViewedServiceId);
+    toggleServiceSelection(currentViewedServiceId, currentViewedServiceIsFallback);
     modal.style.display = 'none';
     document.body.style.overflow = 'auto';
 };
@@ -229,8 +434,16 @@ document.querySelector('.close-btn').onclick = () => {
     document.body.style.overflow = 'auto';
 };
 
-function toggleServiceSelection(id) {
-    const s = state.services.find(x => x.id === id);
+function toggleServiceSelection(id, isFallback = false) {
+    let s;
+    if (isFallback) {
+        s = (window.activeFallbackPlans || []).find(x => x.id === id);
+    } else {
+        s = state.services.find(x => x.id === id);
+    }
+    
+    if (!s) return;
+    
     const index = state.selectedServices.findIndex(item => item.id === id);
     if (index > -1) state.selectedServices.splice(index, 1);
     else state.selectedServices.push(s);
@@ -372,14 +585,15 @@ window.toggleSlot = function (svcId, dayIndex, slot) {
 function setupEventListeners() {
     if (toStep2Btn) {
         toStep2Btn.onclick = () => {
-            window.currentSvc = state.selectedServices[0];
-            if (!window.currentSvc) {
-                alert('Tanpri chwazi yon sèvis anvan.');
-                return;
+            const isBusiness = state.selectedServices.every(s => (s.category || '').toLowerCase() === 'business');
+            if (isBusiness) {
+                calculatePrice();
+                goToStep(3);
+            } else {
+                goToStep(2);
+                state.currentDay = null;
+                renderDaySelector();
             }
-            goToStep(2);
-            state.currentDay = null;
-            renderDaySelector();
         };
     }
 
@@ -410,6 +624,20 @@ function setupEventListeners() {
                 e.preventDefault();
                 document.getElementById('services-section').scrollIntoView({ behavior: 'smooth' });
             }
+        };
+    });
+
+    // ✅ FIX: Bouton Tounen (Back)
+    document.querySelectorAll('.back-link').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            let to = parseInt(btn.dataset.to);
+            const isBusiness = state.selectedServices.every(s => (s.category || '').toLowerCase() === 'business');
+            
+            // Si se business, nou sote step 2. Donk si nou tounen soti nan 3, ale nan 1.
+            if (isBusiness && to === 2) to = 1;
+            
+            goToStep(to);
         };
     });
 
@@ -485,6 +713,20 @@ function calculatePrice() {
 }
 
 function goToStep(s) {
+    if (s === 3) {
+        const isBusiness = state.selectedServices.every(s => (s.category || '').toLowerCase() === 'business');
+        const l1 = document.getElementById('label-prenom');
+        const l2 = document.getElementById('label-non'); // ✅ FIXED ID (was label-nom)
+        const i1 = document.getElementById('prenom');
+        const i2 = document.getElementById('non');
+
+        const cfg = isBusiness ? (window.form_config?.business || {}) : (window.form_config?.coaching || {});
+        
+        if (l1) l1.innerText = cfg.label_prenom || (isBusiness ? 'Nom konplè Responsab *' : 'Prenon *');
+        if (l2) l2.innerText = cfg.label_nom || (isBusiness ? 'Non Entreprise la *' : 'Non Fanmi *');
+        if (i1) i1.placeholder = cfg.placeholder_prenom || (isBusiness ? 'Antre non konplè w' : 'Antre prenon ou');
+        if (i2) i2.placeholder = cfg.placeholder_nom || (isBusiness ? 'Antre non biznis ou' : 'Antre non ou');
+    }
     document.querySelectorAll('.step-section').forEach(sec => sec.classList.remove('active'));
     const target = document.getElementById(`step-${s}`);
     if (target) target.classList.add('active');

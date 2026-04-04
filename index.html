@@ -42,8 +42,9 @@
                 <div class="nav-links">
                     <a href="#hero-section" class="nav-link">Akey</a>
                     <a href="#avant-propos" class="nav-link">À Propos</a>
-                    <a href="#services-section" class="nav-link">Sèvis</a>
-                    <a href="#services-section" class="btn gold btn-sm">Kòmanse →</a>
+                    <a href="#services-section" class="nav-link" onclick="setCategory('coaching')">Sèvis</a>
+                    <a href="#services-section" class="nav-link" style="color:var(--accent); font-weight:700;" onclick="setCategory('business')">🏢 Business</a>
+                    <a href="freelancer/index.html" class="btn btn-sm primary gold">Konekte</a>
                 </div>
             </nav>
         </div>
@@ -137,9 +138,31 @@
         <section id="step-1" class="step-section active">
             <div class="section-header" id="services-section">
                 <span class="section-eyebrow">✦ Étap 1</span>
-                <h2>Chwazi Sèvis ou bezwen yo</h2>
-                <p>Klike sou yon sèvis pou w wè tout detay konplet yo.</p>
+                <h2 id="biz-plans-title">Plan nou yo</h2>
+                <p id="biz-plans-subtitle">Chwazi plan ki pi byen koresponn ak bezwen biznis ou.</p>
             </div>
+
+            <!-- NOUVO: Tabs Kategori -->
+            <div class="category-tabs" style="display:flex; justify-content:center; gap:10px; margin-bottom:30px;">
+                <button class="cat-btn active" data-cat="coaching" id="btn-cat-coaching">🎓 Coaching Pèsonèl</button>
+                <button class="cat-btn" data-cat="business" id="btn-cat-business">🏢 Sèvis Business</button>
+            </div>
+
+            <!-- NOUVO: Promo Business Service -->
+            <div class="biz-promo-special" data-animate="fade-up">
+                <div class="biz-promo-inner">
+                    <div class="biz-promo-text">
+                        <span class="badge-biz" id="biz-hero-badge">Pwofesyonèl</span>
+                        <h3 id="biz-hero-title">Sèvis pou Biznis & Antrepriz</h3>
+                        <p id="biz-hero-desc">Nou ofri solisyon konplè pou jere rezo sosyal biznis ou, kreye kontni pwofesyonèl, epi ogmante lavant ou.</p>
+                        <button onclick="setCategory('business'); document.getElementById('services-section').scrollIntoView({behavior:'smooth'})" class="biz-link" id="biz-promo-btn" style="background:none; border:none; color:var(--accent); font-weight:700; cursor:pointer;">Dekouvri Plan Business yo →</button>
+                    </div>
+                    <div class="biz-promo-img">
+                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2026&auto=format&fit=crop" alt="Business Services">
+                    </div>
+                </div>
+            </div>
+
             <div id="services-grid" class="grid-funnel">
                 <div class="loader">L ap chaje sèvis yo...</div>
             </div>
@@ -168,14 +191,14 @@
              <button class="back-link" data-to="2">← Tounen</button>
              <div class="order-summary-box" id="selection-summary"></div>
              <form id="contact-form" class="premium-form">
-                <div class="form-grid">
-                    <div class="form-group"><label>Premon *</label><input type="text" id="prenom" required placeholder="Antre premon ou"></div>
-                    <div class="form-group"><label>Non *</label><input type="text" id="non" required placeholder="Antre non ou"></div>
-                    <div class="form-group"><label>Imèl *</label><input type="email" id="email" required placeholder="eg: non@gmail.com"></div>
-                    <div class="form-group"><label>Telefòn *</label><input type="tel" id="telephone" required placeholder="+509 ..."></div>
+                <div class="contact-grid" id="contact-fields-standard">
+                    <div class="form-group"><label id="label-prenom">Prenon *</label><input type="text" id="prenom" required placeholder="Antre prenon ou"></div>
+                    <div class="form-group"><label id="label-non">Non Fanmi *</label><input type="text" id="non" required placeholder="Antre non ou"></div>
                 </div>
-                <div class="form-group full-width"><label>Mesaj</label><textarea id="message" rows="3"></textarea></div>
-                <div class="actions-centered"><button type="submit" class="btn primary gold btn-lg">Finalize Peman</button></div>
+                <div class="form-group"><label id="label-email">Imèl *</label><input type="email" id="email" required placeholder="eg: non@gmail.com"></div>
+                <div class="form-group"><label id="label-telephone">Telefòn *</label><input type="tel" id="telephone" required placeholder="+509 ..."></div>
+                <div class="form-group full-width"><label id="label-message">Mesaj</label><textarea id="message" rows="3"></textarea></div>
+                <div class="actions-centered"><button type="submit" class="btn primary gold btn-lg" id="btn-finalize">Finalize Peman</button></div>
              </form>
         </section>
 
