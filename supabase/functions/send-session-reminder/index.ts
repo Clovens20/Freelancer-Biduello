@@ -66,6 +66,16 @@ serve(async (req) => {
 
       console.log(`[Reminder] Processing rez: ${res.email} (Status: ${res.statut})`);
 
+      // 1.8 Skip if already sent recently (within 6 hours)
+      if (res.last_coaching_reminder_at) {
+        const lastSent = new Date(res.last_coaching_reminder_at).getTime();
+        const diffHours = (now.getTime() - lastSent) / (3600 * 1000);
+        if (diffHours < 6) {
+          console.log(`[Reminder] Skipping ${res.email}, already sent ${diffHours.toFixed(1)}h ago.`);
+          continue;
+        }
+      }
+
       // 2. Find a matching slot
       for (const [key, slots] of Object.entries(res.horaires)) {
         if (!Array.isArray(slots)) continue;
@@ -106,10 +116,12 @@ serve(async (req) => {
               if (slotDayIdx === appDayIdx) break; 
             }
           } else {
-             // AUTO TRIGGER (CRON): Must be today and within 20 mins.
+             // AUTO TRIGGER (CRON): Must be today and within 25 mins.
+             // We use a wider window (25) to ensure CRON catches it even if it runs every 10 min,
+             // then we rely on last_coaching_reminder_at to avoid duplicates.
              if (slotDayIdx === appDayIdx) {
                const timeToSlot = (slotHour * 60) - (currentHour * 60 + currentMinutes);
-               if (timeToSlot > 0 && timeToSlot <= 20) {
+               if (timeToSlot > 0 && timeToSlot <= 25) {
                  targetSlot = { hour: slotHour, day: slotDayIdx };
                  break;
                }
@@ -187,6 +199,15 @@ serve(async (req) => {
         if (emailRes.ok) {
           console.log("[Reminder] Email sent successfully!");
           remindersSent.push(res.email);
+
+          // 4. Update Database to prevent duplicates
+          try {
+            await supabase.from("reservations")
+              .update({ last_coaching_reminder_at: now.toISOString() })
+              .eq("id", res.id);
+          } catch (dbErr) {
+            console.error("[Reminder] Error updating database:", dbErr);
+          }
         } else {
           const errBody = await emailRes.text();
           console.error("[Reminder] Resend Error:", emailRes.status, errBody);
