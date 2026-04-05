@@ -345,6 +345,17 @@ function injectPixels(config) {
         pinNoscript.innerHTML = `<img height="1" width="1" style="display:none" alt="" src="https://ct.pinterest.com/v3/?tid=${config.pinterest_pixel_id}&event=pagevisit&noscript=1" />`;
         document.head.appendChild(pinNoscript);
     }
+
+    // 6. Custom Head Scripts (Domain Verification, etc.)
+    if (config.custom_head_scripts) {
+        console.log('🚀 Injecting Custom Head Scripts');
+        const container = document.createElement('div');
+        container.innerHTML = config.custom_head_scripts;
+        // Move all children to head
+        while (container.firstChild) {
+            document.head.appendChild(container.firstChild);
+        }
+    }
 }
 
 // ── SERVICES ──────────────────────────────────────────────────

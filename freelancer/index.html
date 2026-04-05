@@ -1741,6 +1741,18 @@
                         </div>
                     </div>
 
+                    <!-- Domain Verification & Custom Scripts -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>🛡️</span> Vérification du Domaine & Scripts Custom (Head)</div>
+                        <div class="field-group">
+                            <label class="dash-label">Meta Tags oswa Scripts (ap parèt nan &lt;head&gt; la)</label>
+                            <textarea class="dash-textarea" id="edit-custom-head" 
+                                   data-field="custom_head_scripts" rows="6" oninput="autoSave(this, 'save-status-pixels')"
+                                   placeholder='Ex: <meta name="facebook-domain-verification" content="..." />'></textarea>
+                        </div>
+                        <p style="font-size:0.75rem; color:var(--text-3)">Mete isit la nenpòt kòd Meta-tag oswa Script ke lòt sèvis yo mande w pou mete nan "Header" la.</p>
+                    </div>
+
                     <div style="margin-top:30px; text-align:right">
                         <button class="btn btn-gold" onclick="savePixelsManually(this)">
                             💾 Anrejistre Tout Pixels yo
@@ -3067,7 +3079,8 @@
                 // Pixels & Integrations
                 'edit-fb-pixel': config.fb_pixel_id, 'edit-tiktok-pixel': config.tiktok_pixel_id,
                 'edit-ga-id': config.ga_id, 'edit-snap-pixel': config.snapchat_pixel_id,
-                'edit-pin-pixel': config.pinterest_pixel_id
+                'edit-pin-pixel': config.pinterest_pixel_id,
+                'edit-custom-head': config.custom_head_scripts
             };
             Object.entries(fields).forEach(([id, val]) => {
                 const el = document.getElementById(id);
