@@ -1191,6 +1191,9 @@
                     <button class="nav-item" onclick="showTab('traffic', this)" data-tab="traffic">
                         <span class="nav-icon">📊</span> Trafik Site la
                     </button>
+                    <button class="nav-item" onclick="showTab('pixels', this)" data-tab="pixels">
+                        <span class="nav-icon">🔗</span> Intégrations & Pixels
+                    </button>
                     <button class="nav-item" onclick="showTab('sec', this)" data-tab="sec">
                         <span class="nav-icon">🔒</span> Sekirite
                     </button>
@@ -1658,6 +1661,90 @@
                         <div id="traffic-list">
                             <!-- Lis vizit yo ap parèt isit -->
                         </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Pixels & Integrations -->
+                <div class="tab-pane" id="tab-pixels">
+                    <div class="pane-header">
+                        <div>
+                            <h2>Intégrations & Pixels</h2>
+                            <p>Konekte zouti piblisite w yo san w pa manyen kòd la.</p>
+                        </div>
+                        <div class="save-indicator" id="save-status-pixels"><span>●</span> Tout sekirize</div>
+                    </div>
+
+                    <div style="background:rgba(186,117,23,0.04); border:1px solid var(--border-gold); border-radius:var(--r-md); padding:20px; margin-bottom:24px; font-size:0.9rem; color:var(--text-2)">
+                        <strong style="color:var(--accent)">💡 Kouman sa mache ?</strong><br>
+                        Mete ID pixel oswa ID trackin platfòm yo isit la. Sistèm nan pral otomatikman ajoute script yo pou ou nan paj akey la. 
+                        Si ou kite yon chan vid, script la p ap chaje.
+                    </div>
+
+                    <div class="grid-2">
+                        <!-- Facebook Pixel -->
+                        <div class="config-section">
+                            <div class="config-section-title"><span style="color:#1877F2">📘</span> Facebook Pixel</div>
+                            <div class="field-group">
+                                <label class="dash-label">Pixel ID</label>
+                                <input type="text" class="dash-input" id="edit-fb-pixel" 
+                                       data-field="fb_pixel_id" oninput="autoSave(this, 'save-status-pixels')"
+                                       placeholder="Ex: 123456789012345">
+                            </div>
+                            <p style="font-size:0.75rem; color:var(--text-3)">Yo rele l "Meta Pixel" kounye a.</p>
+                        </div>
+
+                        <!-- TikTok Pixel -->
+                        <div class="config-section">
+                            <div class="config-section-title"><span style="color:#000000; background:#fff; border-radius:50%; width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">d</span> TikTok Pixel</div>
+                            <div class="field-group">
+                                <label class="dash-label">Pixel ID</label>
+                                <input type="text" class="dash-input" id="edit-tiktok-pixel" 
+                                       data-field="tiktok_pixel_id" oninput="autoSave(this, 'save-status-pixels')"
+                                       placeholder="Ex: C1234567890ABC">
+                            </div>
+                            <p style="font-size:0.75rem; color:var(--text-3)">ID a kòmanse ak yon "C" an jeneral.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <!-- Google Analytics -->
+                        <div class="config-section">
+                            <div class="config-section-title"><span style="color:#F9AB00">📊</span> Google Analytics (GA4)</div>
+                            <div class="field-group">
+                                <label class="dash-label">Measurement ID</label>
+                                <input type="text" class="dash-input" id="edit-ga-id" 
+                                       data-field="ga_id" oninput="autoSave(this, 'save-status-pixels')"
+                                       placeholder="Ex: G-XXXXXXXXXX">
+                            </div>
+                            <p style="font-size:0.75rem; color:var(--text-3)">Sèvi ak nouvo fòma GA4 (G-...).</p>
+                        </div>
+
+                        <!-- Snapchat Pixel -->
+                        <div class="config-section">
+                            <div class="config-section-title"><span style="color:#FFFC00; background:#000; border-radius:4px; padding:0 2px;">👻</span> Snapchat Pixel</div>
+                            <div class="field-group">
+                                <label class="dash-label">Pixel ID</label>
+                                <input type="text" class="dash-input" id="edit-snap-pixel" 
+                                       data-field="snapchat_pixel_id" oninput="autoSave(this, 'save-status-pixels')"
+                                       placeholder="Ex: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <div class="config-section-title"><span style="color:#E60023">📌</span> Pinterest Pixel</div>
+                        <div class="field-group">
+                            <label class="dash-label">Tag ID</label>
+                            <input type="text" class="dash-input" id="edit-pin-pixel" 
+                                   data-field="pinterest_pixel_id" oninput="autoSave(this, 'save-status-pixels')"
+                                   placeholder="Ex: 261XXXXXXXXXX">
+                        </div>
+                    </div>
+
+                    <div style="margin-top:30px; text-align:right">
+                        <button class="btn btn-gold" onclick="savePixelsManually(this)">
+                            💾 Anrejistre Tout Pixels yo
+                        </button>
                     </div>
                 </div>
 
@@ -2976,7 +3063,11 @@
                 'edit-biz-f-label-e': config.business_form_label_email, 'edit-biz-f-label-t': config.business_form_label_tel,
                 'edit-biz-f-label-m': config.business_form_label_msg,
                 // Business Promo
-                'edit-biz-promo-btn': config.business_promo_btn_text
+                'edit-biz-promo-btn': config.business_promo_btn_text,
+                // Pixels & Integrations
+                'edit-fb-pixel': config.fb_pixel_id, 'edit-tiktok-pixel': config.tiktok_pixel_id,
+                'edit-ga-id': config.ga_id, 'edit-snap-pixel': config.snapchat_pixel_id,
+                'edit-pin-pixel': config.pinterest_pixel_id
             };
             Object.entries(fields).forEach(([id, val]) => {
                 const el = document.getElementById(id);
@@ -3097,6 +3188,19 @@
             } finally {
                 btn.innerHTML = orig; btn.disabled = false;
             }
+        }
+
+        async function savePixelsManually(btn) {
+            const fields = document.querySelectorAll('#tab-pixels [data-field]');
+            const updateObj = {};
+            fields.forEach(f => { updateObj[f.dataset.field] = f.value.trim(); });
+
+            btn.disabled = true; btn.innerHTML = '⏳ Ap anrejistre...';
+            const { error } = await sb.from('landing_config').update(updateObj).eq('id', 1);
+            btn.disabled = false; btn.innerHTML = '💾 Anrejistre Tout Pixels yo';
+            
+            if (error) showToast('Erè: ' + error.message, 'error');
+            else showToast('✅ Pixels yo sove avèk siksè!', 'success');
         }
 
         function autoSave(el, statusId = 'save-status') {

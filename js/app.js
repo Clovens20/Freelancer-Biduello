@@ -209,6 +209,9 @@ async function loadLandingConfig() {
         state.vacationStart = data.vacation_start || null;
         state.vacationEnd = data.vacation_end || null;
 
+        // ✅ Inject Pixels (Facebook, TikTok, GA4, etc.)
+        injectPixels(data);
+
         // ✅ Sosyal Dinamik (TikTok, Facebook, Instagram, etc.)
         const socialsContainer = document.querySelector('.footer-socials');
         if (socialsContainer && data.social_links && Array.isArray(data.social_links)) {
@@ -242,6 +245,105 @@ async function loadLandingConfig() {
         }
     } catch (err) {
         console.error('Erè config landing:', err);
+    }
+}
+
+// ── PIXELS & TRACKING ─────────────────────────────────────────
+
+function injectPixels(config) {
+    if (!config) return;
+
+    // 1. Facebook Pixel
+    if (config.fb_pixel_id) {
+        console.log('🚀 Injecting Facebook Pixel:', config.fb_pixel_id);
+        const fbScript = document.createElement('script');
+        fbScript.innerHTML = `
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '${config.fb_pixel_id}');
+            fbq('track', 'PageView');
+        `;
+        document.head.appendChild(fbScript);
+        
+        const fbNoscript = document.createElement('noscript');
+        fbNoscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${config.fb_pixel_id}&ev=PageView&noscript=1"/>`;
+        document.head.appendChild(fbNoscript);
+    }
+
+    // 2. TikTok Pixel
+    if (config.tiktok_pixel_id) {
+        console.log('🚀 Injecting TikTok Pixel:', config.tiktok_pixel_id);
+        const ttScript = document.createElement('script');
+        ttScript.innerHTML = `
+            !function (w, d, t) {
+                w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=d.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=d.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+                ttq.load('${config.tiktok_pixel_id}');
+                ttq.page();
+            }(window, document, 'ttq');
+        `;
+        document.head.appendChild(ttScript);
+    }
+
+    // 3. Google Analytics (GA4)
+    if (config.ga_id) {
+        console.log('🚀 Injecting Google Analytics:', config.ga_id);
+        const gaScriptTag = document.createElement('script');
+        gaScriptTag.async = true;
+        gaScriptTag.src = `https://www.googletagmanager.com/gtag/js?id=${config.ga_id}`;
+        document.head.appendChild(gaScriptTag);
+
+        const gaScript = document.createElement('script');
+        gaScript.innerHTML = `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${config.ga_id}');
+        `;
+        document.head.appendChild(gaScript);
+    }
+
+    // 4. Snapchat Pixel
+    if (config.snapchat_pixel_id) {
+        console.log('🚀 Injecting Snapchat Pixel:', config.snapchat_pixel_id);
+        const snapScript = document.createElement('script');
+        snapScript.innerHTML = `
+            (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function()
+            {a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};
+            a.queue=[];var r=t.createElement(n);r.async=!0;
+            r.src="https://sc-static.net/scevent.min.js";
+            var s=t.getElementsByTagName(n)[0];s.parentNode.insertBefore(r,s)
+            }(window,document,"script"));
+            snaptr('init', '${config.snapchat_pixel_id}');
+            snaptr('track', 'PAGE_VIEW');
+        `;
+        document.head.appendChild(snapScript);
+    }
+
+    // 5. Pinterest Pixel
+    if (config.pinterest_pixel_id) {
+        console.log('🚀 Injecting Pinterest Pixel:', config.pinterest_pixel_id);
+        const pinScript = document.createElement('script');
+        pinScript.innerHTML = `
+            !function(e){if(!window.pintrk){window.pintrk=function()
+            {window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var
+            n=window.pintrk;n.queue=[],n.version="3.0";var
+            t=document.createElement("script");t.async=!0,t.src=e;var
+            r=document.getElementsByTagName("script")[0];r.parentNode.insertBefore(t,r)}}
+            ("https://s.pinimg.com/ct/lib/main.js");
+            pintrk('load', '${config.pinterest_pixel_id}');
+            pintrk('page');
+        `;
+        document.head.appendChild(pinScript);
+        
+        const pinNoscript = document.createElement('noscript');
+        pinNoscript.innerHTML = `<img height="1" width="1" style="display:none" alt="" src="https://ct.pinterest.com/v3/?tid=${config.pinterest_pixel_id}&event=pagevisit&noscript=1" />`;
+        document.head.appendChild(pinNoscript);
     }
 }
 
