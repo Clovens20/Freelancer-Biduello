@@ -1066,36 +1066,65 @@
                 grid-template-columns: 1fr;
             }
         }
-        /* Mini Switch */
-        .switch-mini {
-            position: relative;
-            display: inline-block;
-            width: 32px;
-            height: 18px;
-        }
-        .switch-mini input { opacity: 0; width: 0; height: 0; }
-        .slider-mini {
-            position: absolute;
-            cursor: pointer;
-            inset: 0;
-            background-color: var(--surface-3);
-            transition: .3s;
-            border-radius: 20px;
+        /* Network Cards */
+        .network-card {
+            background: var(--surface-2);
             border: 1px solid var(--border);
+            border-radius: var(--r-md);
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        .slider-mini:before {
-            position: absolute;
-            content: "";
-            height: 12px;
-            width: 12px;
-            left: 2px;
-            bottom: 2px;
-            background-color: var(--text-3);
-            transition: .3s;
-            border-radius: 50%;
+        .network-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            background: rgba(186,117,23,0.03);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
-        input:checked + .slider-mini { background-color: rgba(34, 197, 94, 0.2); border-color: var(--success); }
-        input:checked + .slider-mini:before { transform: translateX(14px); background-color: var(--success); }
+        .network-card.active {
+            border-color: var(--primary);
+            background: rgba(186,117,23,0.05);
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+        .network-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+        .network-status {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 8px;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-3);
+            letter-spacing: 0.05em;
+        }
+        .network-status.online {
+            color: var(--success);
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        @keyframes slideUp {
+            from { opacity:0; transform: translateY(10px); }
+            to { opacity:1; transform: translateY(0); }
+        }
     </style>
 </head>
 
@@ -1664,99 +1693,80 @@
                     </div>
                 </div>
 
-                <!-- Tab: Pixels & Integrations -->
+                <!-- Tab: Pixels & Integrations (Professional Version) -->
                 <div class="tab-pane" id="tab-pixels">
                     <div class="pane-header">
                         <div>
-                            <h2>Intégrations & Pixels</h2>
-                            <p>Konekte zouti piblisite w yo san w pa manyen kòd la.</p>
+                            <h2>Konekte Rezo nou yo</h2>
+                            <p>Chwazi platfòm ou vle konfigire a epi kole kòd yo.</p>
                         </div>
                         <div class="save-indicator" id="save-status-pixels"><span>●</span> Tout sekirize</div>
                     </div>
 
-                    <div style="background:rgba(186,117,23,0.04); border:1px solid var(--border-gold); border-radius:var(--r-md); padding:20px; margin-bottom:24px; font-size:0.9rem; color:var(--text-2)">
-                        <strong style="color:var(--accent)">💡 Kouman sa mache ?</strong><br>
-                        Mete ID pixel oswa ID trackin platfòm yo isit la. Sistèm nan pral otomatikman ajoute script yo pou ou nan paj akey la. 
-                        Si ou kite yon chan vid, script la p ap chaje.
+                    <div style="background:rgba(186,117,23,0.04); border:1px solid var(--border-gold); border-radius:var(--r-md); padding:20px; margin-bottom:30px; font-size:0.9rem; color:var(--text-1)">
+                        <strong style="color:var(--accent)">🚀 Enstriksyon :</strong><br>
+                        Klike sou yon platfòm anba a. Kole **Meta Tag** la pou vèrifye domèn lan, epi kole **Script konplè** a pou Pixel/Tracking la. 
+                        Sistèm nan pral injecte yo otomatikman nan sit la.
                     </div>
 
-                    <div class="grid-2">
-                        <!-- Facebook Pixel -->
-                        <div class="config-section">
-                            <div class="config-section-title"><span style="color:#1877F2">📘</span> Facebook Pixel</div>
-                            <div class="field-group">
-                                <label class="dash-label">Pixel ID</label>
-                                <input type="text" class="dash-input" id="edit-fb-pixel" 
-                                       data-field="fb_pixel_id" oninput="autoSave(this, 'save-status-pixels')"
-                                       placeholder="Ex: 123456789012345">
-                            </div>
-                            <p style="font-size:0.75rem; color:var(--text-3)">Yo rele l "Meta Pixel" kounye a.</p>
+                    <!-- Network Cards Grid -->
+                    <div class="grid-3" style="margin-bottom:30px">
+                        <div class="network-card" onclick="openNetworkConfig('fb')">
+                            <div class="network-icon" style="background:#1877F2">📘</div>
+                            <h3>Facebook / Meta</h3>
+                            <div class="network-status" id="status-fb">Non aktif</div>
                         </div>
-
-                        <!-- TikTok Pixel -->
-                        <div class="config-section">
-                            <div class="config-section-title"><span style="color:#000000; background:#fff; border-radius:50%; width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">d</span> TikTok Pixel</div>
-                            <div class="field-group">
-                                <label class="dash-label">Pixel ID</label>
-                                <input type="text" class="dash-input" id="edit-tiktok-pixel" 
-                                       data-field="tiktok_pixel_id" oninput="autoSave(this, 'save-status-pixels')"
-                                       placeholder="Ex: C1234567890ABC">
-                            </div>
-                            <p style="font-size:0.75rem; color:var(--text-3)">ID a kòmanse ak yon "C" an jeneral.</p>
+                        <div class="network-card" onclick="openNetworkConfig('tiktok')">
+                            <div class="network-icon" style="background:#000">🎵</div>
+                            <h3>TikTok Business</h3>
+                            <div class="network-status" id="status-tiktok">Non aktif</div>
                         </div>
-                    </div>
-
-                    <div class="grid-2">
-                        <!-- Google Analytics -->
-                        <div class="config-section">
-                            <div class="config-section-title"><span style="color:#F9AB00">📊</span> Google Analytics (GA4)</div>
-                            <div class="field-group">
-                                <label class="dash-label">Measurement ID</label>
-                                <input type="text" class="dash-input" id="edit-ga-id" 
-                                       data-field="ga_id" oninput="autoSave(this, 'save-status-pixels')"
-                                       placeholder="Ex: G-XXXXXXXXXX">
-                            </div>
-                            <p style="font-size:0.75rem; color:var(--text-3)">Sèvi ak nouvo fòma GA4 (G-...).</p>
+                        <div class="network-card" onclick="openNetworkConfig('ga')">
+                            <div class="network-icon" style="background:#F9AB00">📊</div>
+                            <h3>Google Analytics (GA4)</h3>
+                            <div class="network-status" id="status-ga">Non aktif</div>
                         </div>
-
-                        <!-- Snapchat Pixel -->
-                        <div class="config-section">
-                            <div class="config-section-title"><span style="color:#FFFC00; background:#000; border-radius:4px; padding:0 2px;">👻</span> Snapchat Pixel</div>
-                            <div class="field-group">
-                                <label class="dash-label">Pixel ID</label>
-                                <input type="text" class="dash-input" id="edit-snap-pixel" 
-                                       data-field="snapchat_pixel_id" oninput="autoSave(this, 'save-status-pixels')"
-                                       placeholder="Ex: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-                            </div>
+                        <div class="network-card" onclick="openNetworkConfig('snap')">
+                            <div class="network-icon" style="background:#FFFC00; color:#000">👻</div>
+                            <h3>Snapchat Ads</h3>
+                            <div class="network-status" id="status-snap">Non aktif</div>
+                        </div>
+                        <div class="network-card" onclick="openNetworkConfig('pin')">
+                            <div class="network-icon" style="background:#E60023">📌</div>
+                            <h3>Pinterest Ads</h3>
+                            <div class="network-status" id="status-pin">Non aktif</div>
+                        </div>
+                        <div class="network-card" onclick="openNetworkConfig('custom')">
+                            <div class="network-icon" style="background:var(--primary)">⚡</div>
+                            <h3>Lòt / Custom Head</h3>
+                            <div class="network-status" id="status-custom">Non aktif</div>
                         </div>
                     </div>
 
-                    <div class="config-section">
-                        <div class="config-section-title"><span style="color:#E60023">📌</span> Pinterest Pixel</div>
+                    <!-- Detail Config Panels (Initially Hidden) -->
+                    <div id="network-detail-box" style="display:none; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-md); padding:30px; animation: slideUp 0.3s ease;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                            <h3 id="current-network-name" style="margin:0; color:var(--primary)">Konfigire</h3>
+                            <button class="btn btn-ghost" onclick="closeNetworkConfig()" style="padding:6px 12px">Fèmen</button>
+                        </div>
+
                         <div class="field-group">
-                            <label class="dash-label">Tag ID</label>
-                            <input type="text" class="dash-input" id="edit-pin-pixel" 
-                                   data-field="pinterest_pixel_id" oninput="autoSave(this, 'save-status-pixels')"
-                                   placeholder="Ex: 261XXXXXXXXXX">
+                            <label class="dash-label">1. Vèrifye Domèn nan (Meta Tag)</label>
+                            <p style="font-size:0.75rem; color:var(--text-3); margin-top:-8px; margin-bottom:8px">Kole balise &lt;meta name="..." content="..." /&gt; la isit la.</p>
+                            <textarea class="dash-textarea" id="net-verify-tag" rows="3" oninput="updateNetworkData(this, 'verify')" placeholder="Kole kòd vèrifikasyon an isit la..."></textarea>
                         </div>
-                    </div>
 
-                    <!-- Domain Verification & Custom Scripts -->
-                    <div class="config-section">
-                        <div class="config-section-title"><span>🛡️</span> Vérification du Domaine & Scripts Custom (Head)</div>
                         <div class="field-group">
-                            <label class="dash-label">Meta Tags oswa Scripts (ap parèt nan &lt;head&gt; la)</label>
-                            <textarea class="dash-textarea" id="edit-custom-head" 
-                                   data-field="custom_head_scripts" rows="6" oninput="autoSave(this, 'save-status-pixels')"
-                                   placeholder='Ex: <meta name="facebook-domain-verification" content="..." />'></textarea>
+                            <label class="dash-label">2. Script Pixel / Tracking (Script konplè)</label>
+                            <p style="font-size:0.75rem; color:var(--text-3); margin-top:-8px; margin-bottom:8px">Kole tout script &lt;script&gt;...&lt;/script&gt; yo ba ou a isit la.</p>
+                            <textarea class="dash-textarea" id="net-pixel-script" rows="8" oninput="updateNetworkData(this, 'pixel')" placeholder="Kole tout script tracking la isit la..."></textarea>
                         </div>
-                        <p style="font-size:0.75rem; color:var(--text-3)">Mete isit la nenpòt kòd Meta-tag oswa Script ke lòt sèvis yo mande w pou mete nan "Header" la.</p>
-                    </div>
 
-                    <div style="margin-top:30px; text-align:right">
-                        <button class="btn btn-gold" onclick="savePixelsManually(this)">
-                            💾 Anrejistre Tout Pixels yo
-                        </button>
+                        <div style="text-align:right">
+                            <button class="btn btn-gold" id="btn-save-network" onclick="saveNetworkManually()">
+                                💾 Anrejistre Konfigirasyon sa a
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -3103,6 +3113,10 @@
             if (vStart) vStart.value = config.vacation_start || '';
             if (vEnd) vEnd.value = config.vacation_end || '';
 
+            // ✅ Store Global pou Pixels
+            landingConfigStore = config;
+            refreshNetworkStatus();
+
             // ✅ Gérer les Sosyal yo (format dynamic)
             let socialLinks = [];
             if (config.social_links && Array.isArray(config.social_links)) {
@@ -3214,6 +3228,85 @@
             
             if (error) showToast('Erè: ' + error.message, 'error');
             else showToast('✅ Pixels yo sove avèk siksè!', 'success');
+        }
+
+        // ════ Network Config Logic ════
+        let currentNetwork = null;
+        let landingConfigStore = {}; // Pou gardé tout vèsyon yo an mèm tan
+
+        window.openNetworkConfig = function(id) {
+            currentNetwork = id;
+            document.querySelectorAll('.network-card').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.network-card[onclick="openNetworkConfig('${id}')"]`)?.classList.add('active');
+
+            const names = {
+                'fb': 'Facebook / Meta', 'tiktok': 'TikTok Business', 'ga': 'Google Analytics',
+                'snap': 'Snapchat Ads', 'pin': 'Pinterest Ads', 'custom': 'Lòt / Custom Head'
+            };
+            document.getElementById('current-network-name').innerText = 'Konfigire ' + (names[id] || 'Platfòm');
+            
+            const verifyMap = { 'fb': 'fb_verify_tag', 'tiktok': 'tiktok_verify_tag', 'ga': 'ga_verify_tag', 'snap': 'snap_verify_tag', 'pin': 'pin_verify_tag', 'custom': 'custom_head_scripts' };
+            const pixelMap = { 'fb': 'fb_pixel_script', 'tiktok': 'tiktok_pixel_script', 'ga': 'ga_pixel_script', 'snap': 'snap_pixel_script', 'pin': 'pin_pixel_script', 'custom': 'custom_head_scripts' };
+            
+            // Si se custom, sèvi ak menm champ an
+            document.getElementById('net-verify-tag').value = landingConfigStore[verifyMap[id]] || '';
+            document.getElementById('net-pixel-script').value = (id === 'custom') ? '' : (landingConfigStore[pixelMap[id]] || '');
+            
+            // Hide verify field site se custom
+            document.getElementById('net-verify-tag').parentElement.style.display = (id === 'custom') ? 'none' : 'block';
+            
+            document.getElementById('network-detail-box').style.display = 'block';
+        };
+
+        window.closeNetworkConfig = function() {
+            document.getElementById('network-detail-box').style.display = 'none';
+            document.querySelectorAll('.network-card').forEach(c => c.classList.remove('active'));
+        };
+
+        function updateNetworkData(el, type) {
+            const map = {
+                'verify': { 'fb': 'fb_verify_tag', 'tiktok': 'tiktok_verify_tag', 'ga': 'ga_verify_tag', 'snap': 'snap_verify_tag', 'pin': 'pin_verify_tag', 'custom': 'custom_head_scripts' },
+                'pixel': { 'fb': 'fb_pixel_script', 'tiktok': 'tiktok_pixel_script', 'ga': 'ga_pixel_script', 'snap': 'snap_pixel_script', 'pin': 'pin_pixel_script' }
+            };
+            const field = map[type][currentNetwork];
+            if (field) landingConfigStore[field] = el.value.trim();
+        }
+
+        async function saveNetworkManually() {
+            const btn = document.getElementById('btn-save-network');
+            btn.disabled = true; btn.innerHTML = '⏳ Ap anrejistre...';
+            
+            const { error } = await sb.from('landing_config').update(landingConfigStore).eq('id', 1);
+            btn.disabled = false; btn.innerHTML = '💾 Anrejistre Konfigirasyon sa a';
+            
+            if (error) { showToast('Erè: ' + error.message, 'error'); }
+            else { 
+                showToast('✅ Konfigirasyon transmèt avèk siksè!', 'success');
+                refreshNetworkStatus();
+            }
+        }
+
+        function refreshNetworkStatus() {
+            const prefixes = ['fb', 'tiktok', 'ga', 'snap', 'pin', 'custom'];
+            prefixes.forEach(p => {
+                const isCustom = p === 'custom';
+                const vField = isCustom ? 'custom_head_scripts' : `${p}_verify_tag`;
+                const pField = isCustom ? 'custom_head_scripts' : `${p}_pixel_script`;
+                
+                const hasV = !!landingConfigStore[vField];
+                const hasP = !!landingConfigStore[pField];
+                
+                const el = document.getElementById(`status-${p}`);
+                if (el) {
+                    if (hasV || hasP) {
+                        el.innerText = '● AKTIF';
+                        el.className = 'network-status online';
+                    } else {
+                        el.innerText = 'Non aktif';
+                        el.className = 'network-status';
+                    }
+                }
+            });
         }
 
         function autoSave(el, statusId = 'save-status') {
