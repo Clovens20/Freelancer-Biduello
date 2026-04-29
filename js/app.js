@@ -158,6 +158,11 @@ async function loadLandingConfig() {
         set('biz-hero-desc', data.business_hero_description);
         set('biz-promo-btn', data.business_promo_btn_text);
         
+        // Portfolio Headers
+        if(data.portfolio_tag) set('display-port-tag', data.portfolio_tag);
+        if(data.portfolio_title) set('display-port-title', data.portfolio_title);
+        if(data.portfolio_subtitle) set('display-port-sub', data.portfolio_subtitle);
+
         // Catégories Tabs Labels
         set('btn-cat-coaching', data.label_coaching_tab);
         set('btn-cat-business', data.label_business_tab);
@@ -242,6 +247,34 @@ async function loadLandingConfig() {
                 a.innerHTML = iconSvg;
                 socialsContainer.appendChild(a);
             });
+        }
+
+        // ✅ WhatsApp Dinamik
+        const waNumber = data.whatsapp_number || '18096651142';
+        document.querySelectorAll('a[href*="wa.me"]').forEach(link => {
+            const href = link.getAttribute('href');
+            const textMatch = href.match(/\?text=(.*)/);
+            const textParam = textMatch ? `?text=${textMatch[1]}` : '';
+            link.setAttribute('href', `https://wa.me/${waNumber}${textParam}`);
+        });
+
+        // ✅ Footer Dinamik
+        const footerTerms = document.getElementById('dyn-footer-terms');
+        if (footerTerms) {
+            footerTerms.textContent = data.footer_terms_text || 'Tèm & Kondisyon';
+            footerTerms.href = data.footer_terms_url || '#';
+        }
+
+        const footerPrivacy = document.getElementById('dyn-footer-privacy');
+        if (footerPrivacy) {
+            footerPrivacy.textContent = data.footer_privacy_text || 'Politik Konfidansyalite';
+            footerPrivacy.href = data.footer_privacy_url || '#';
+        }
+
+        const footerSupport = document.getElementById('dyn-footer-support');
+        if (footerSupport) {
+            footerSupport.textContent = data.footer_support_text || 'Sipò';
+            footerSupport.href = data.footer_support_url || '#';
         }
     } catch (err) {
         console.error('Erè config landing:', err);
@@ -779,6 +812,11 @@ function setupEventListeners() {
     if (payBtn) {
         payBtn.onclick = async () => {
             try {
+                // ── Loading state ──
+                payBtn.classList.add('loading');
+                const origText = payBtn.textContent;
+                payBtn.textContent = 'N ap trete peman an...';
+
                 const svc = state.selectedServices[0];
                 const totalSlots = DAYS.reduce((acc, _, i) => acc + (state.selectedSlots[`${svc.id}_D${i}`] || []).length, 0);
                 const payload = {
@@ -792,7 +830,7 @@ function setupEventListeners() {
                     horaires: state.selectedSlots,
                     gateway: state.gateway,
                     rabais: state.urlDiscount,
-                    qty_months: state.qtyMonths, 
+                    qty_months: state.qtyMonths,
                     pas_de_creneaux: totalSlots === 0,
                     timezone_offset: state.userOffset,
                     timezone_name: document.getElementById('user-timezone')?.options[document.getElementById('user-timezone')?.selectedIndex]?.text || 'GMT' + state.userOffset
@@ -804,9 +842,17 @@ function setupEventListeners() {
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "Erreur pèman");
+                // Track purchase initiation
+                if (typeof fbq !== 'undefined') fbq('track', 'Purchase', { value: state.finalAmount, currency: 'USD' });
                 if (data.url) location.href = data.url;
             } catch (e) {
-                alert('Erè: ' + e.message);
+                payBtn.classList.remove('loading');
+                payBtn.textContent = state.gateway === 'moncash' ? 'Peye ak MonCash' : 'Konfime epi Peye Sekirize';
+                if (typeof window.showToast === 'function') {
+                    window.showToast('error', 'Erè Peman', e.message);
+                } else {
+                    alert('Erè: ' + e.message);
+                }
             }
         };
     }

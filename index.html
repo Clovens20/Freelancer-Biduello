@@ -4,7 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Portal sèvis ak peman DJ Innovations. Devni yon ekspè digital ak coaching pèsonèl.">
+    <meta name="description" content="Portal sèvis ak peman DJ Innovations. Devni yon ekspè digital ak coaching pèsonèl. Coaching TikTok, Facebook Ads, Growth Hacking ann Ayiti."> 
+    <meta property="og:title" content="DJ Innovations — Transfòme Biznis ou">
+    <meta property="og:description" content="Jwenn aksè ak yon ekspè digital. Coaching pèsonèl, Facebook Ads, TikTok — 6 èdtan pa mwa.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://freelancer.konektegroup.com">
+    <meta property="og:image" content="https://freelancer.konektegroup.com/assets/logo.png">
+    <meta name="twitter:card" content="summary_large_image">
     <title>DJ Innovations — Transfòme Biznis ou</title>
 
     <!-- Fonts -->
@@ -14,6 +20,7 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/v2.css">
 
     <!-- Stripe -->
     <script src="https://js.stripe.com/v3/"></script>
@@ -39,13 +46,18 @@
                 <div class="logo-wrap">
                     <img src="assets/logo.png" alt="DJ Innovations Logo" id="main-logo" onerror="this.src='https://placehold.co/150x50/0a0a0a/BA7517?text=DJ+Innovations'">
                 </div>
-                <div class="nav-links">
+                <div class="nav-links" id="nav-links">
                     <a href="#hero-section" class="nav-link">Akey</a>
-                    <a href="#avant-propos" class="nav-link">Pòtre Ekspè a</a>
-                    <a href="#services-section" class="nav-link" onclick="setCategory('coaching')">Sèvis Coaching</a>
-                    <a href="#services-section" class="nav-link" style="color:var(--accent); font-weight:700;" onclick="setCategory('business')">🏢 Sèvis Business</a>
+                    <a href="#avant-propos" class="nav-link">Ekspè a</a>
+                    <a href="#temoignages-section" class="nav-link">Temwayaj</a>
+                    <a href="#portfolio-section" class="nav-link">Rezilta</a>
+                    <a href="#faq-section" class="nav-link">FAQ</a>
+                    <a href="#entreprises-section" class="nav-link">Antrepriz</a>
                     <a href="#services-section" class="btn btn-sm primary gold">Kòmanse Kounye a</a>
                 </div>
+                <button class="hamburger" id="hamburger-btn" aria-label="Menu" onclick="toggleMobileNav()">
+                    <span></span><span></span><span></span>
+                </button>
             </nav>
         </div>
     </header>
@@ -86,7 +98,7 @@
             </div>
             <div class="hero-visual" data-animate="fade-left">
                 <div class="video-preview-box">
-                    <img id="hero-image" src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Work together">
+                    <img id="hero-image" src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Work together" loading="lazy">
                     <div class="play-indicator">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
                             <polygon points="5,3 19,12 5,21" />
@@ -106,13 +118,13 @@
             <div class="avant-propos-grid">
                 <div class="ap-photo-col" data-animate="fade-right">
                     <div class="ap-photo-frame">
-                        <img id="ap-photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="DJ Innovations - Ekspè Digital" class="ap-photo">
+                        <img id="ap-photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="DJ Innovations - Ekspè Digital" class="ap-photo" loading="lazy">
                         <div class="ap-photo-badge"><span>✦</span> Ekspè Sètifye</div>
                     </div>
                 </div>
                 <div class="ap-content-col" data-animate="fade-up">
                     <span class="badge-accent" id="ap-title">✦ Avant-Propos</span>
-                <h2 style="font-family:'DM Serif Display',serif; font-size:3.5rem; color:var(--primary); line-height:1.1; margin-bottom:25px;">Kiyès ki pral <br><span style="color:var(--accent)">Akousante</span> rèv ou?</h2>
+                <h2 style="font-family:'DM Serif Display',serif; font-size:3.5rem; color:var(--primary); line-height:1.1; margin-bottom:25px;">Kiyès ki pral <br><span style="color:var(--accent)">Reyalize</span> rèv ou?</h2>
                 <div class="ap-text" id="ap-description">
                     <p>Mwen se yon ekspè nan maketing dijital ki gen plis pase 5 lane eksperyans nan akonpaye antreprenè. Misyon mwen se ede w domine rezo sosyal yo epi konvèti kontak ou yo an kliyan fidel.</p>
                 </div>
@@ -122,6 +134,196 @@
                         <span class="ap-tag">🎯 Growth Hacking</span>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION : KIJAN SA TRAVAY (HOW IT WORKS)
+    ═══════════════════════════════════════════════════════════ -->
+    <section class="how-it-works" id="kijan-travay">
+        <div class="container">
+            <div class="section-header" data-animate="fade-up">
+                <span class="section-eyebrow">✦ Pwosesis la</span>
+                <h2>Kijan sa <span class="gradient-text">Travay</span>?</h2>
+                <p>4 étap senp pou transfòme biznis ou ak ekspè nou yo.</p>
+            </div>
+            <div class="hiw-steps">
+                <div class="hiw-step" data-animate="fade-up" style="--delay:0.1s">
+                    <div class="hiw-number">01</div>
+                    <div class="hiw-icon">🎯</div>
+                    <h3>Chwazi Plan ou</h3>
+                    <p>Navige nan sèvis coaching ak business nou yo, chwazi sa ki koresponn ak bezwen ou.</p>
+                </div>
+                <div class="hiw-connector"></div>
+                <div class="hiw-step" data-animate="fade-up" style="--delay:0.2s">
+                    <div class="hiw-number">02</div>
+                    <div class="hiw-icon">📅</div>
+                    <h3>Rezève Orè ou</h3>
+                    <p>Chwazi dat ak lè ki disponib yo selon zòn orè pa w la.</p>
+                </div>
+                <div class="hiw-connector"></div>
+                <div class="hiw-step" data-animate="fade-up" style="--delay:0.3s">
+                    <div class="hiw-number">03</div>
+                    <div class="hiw-icon">💳</div>
+                    <h3>Peye an Sekirite</h3>
+                    <p>Peye via Stripe (kat kredi) oswa MonCash. 100% sekirize.</p>
+                </div>
+                <div class="hiw-connector"></div>
+                <div class="hiw-step" data-animate="fade-up" style="--delay:0.4s">
+                    <div class="hiw-number">04</div>
+                    <div class="hiw-icon">🚀</div>
+                    <h3>Kòmanse Siksè ou</h3>
+                    <p>Resevwa konfirmasyon ou epi kòmanse travay ak ekspè a imedyatman.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION : TEMOIGNAGES
+    ═══════════════════════════════════════════════════════════ -->
+    <section class="temoignages-section" id="temoignages-section">
+        <div class="container">
+            <div class="section-header" data-animate="fade-up">
+                <span class="section-eyebrow">✦ Kliyan nou yo pale</span>
+                <h2>Rezilta <span class="gradient-text">Vrèman Reyèl</span></h2>
+                <p>Plis pase 50 kliyan ki deja transfòme biznis yo avèk nou.</p>
+            </div>
+
+            <!-- Stats Counters -->
+            <div class="stats-grid" data-animate="fade-up">
+                <div class="stat-item">
+                    <div class="stat-number" data-count="50" data-suffix="+">0</div>
+                    <div class="stat-label">Kliyan</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-count="4.9" data-suffix="★">0</div>
+                    <div class="stat-label">Rating</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-count="95" data-suffix="%">0</div>
+                    <div class="stat-label">Satisfaksyon</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-count="5" data-suffix="">0</div>
+                    <div class="stat-label">Peyi</div>
+                </div>
+            </div>
+
+            <div class="temoignages-grid" id="temoignages-grid">
+                <div class="temo-loader">⏳ L ap chaje temwayaj yo...</div>
+            </div>
+            
+            <!-- Bouton pour ouvrir le modal de témoignage -->
+            <div style="text-align: center; margin-top: 40px;" data-animate="fade-up">
+                <button class="btn btn-gold" onclick="openTemoignageModal()">+ Kite yon Temwayaj</button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION : PORTFOLIO CAMPAGNES
+    ═══════════════════════════════════════════════════════════ -->
+    <section class="portfolio-section" id="portfolio-section">
+        <div class="container">
+            <div class="section-header" data-animate="fade-up">
+                <span class="section-eyebrow" id="display-port-tag">✦ Pòtfolyo nou yo</span>
+                <h2 id="display-port-title">Kanpay ki <span class="gradient-text">Fè Rezilta</span></h2>
+                <p id="display-port-sub">Gade kèk egzanp kanpay piblisite reyèl nou te jere pou kliyan nou yo.</p>
+            </div>
+            <div class="portfolio-grid" id="portfolio-grid">
+                <div class="temo-loader">⏳ L ap chaje pòtfòy la...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION : ENTREPRISES (DEVIS)
+    ═══════════════════════════════════════════════════════════ -->
+    <section class="entreprises-section" id="entreprises-section">
+        <div class="container">
+            <div class="entreprises-inner" data-animate="fade-up">
+                <div class="ent-content">
+                    <span class="section-eyebrow">✦ Pou Biznis ak Antrepriz</span>
+                    <h2>Ou gen <span class="gradient-text">yon gwo biznis</span>?</h2>
+                    <p>Si ou gen yon antrepriz ak plis pase 5 anplwaye oswa yon bidjè piblisite plis pase $500/mwa, nou gen yon plan pèsonalize espesyalman pou ou.</p>
+                    <ul class="ent-list">
+                        <li>✦ Jestion konplè rezo sosyal ou yo</li>
+                        <li>✦ Kanpay piblisite strategik ak ROAS garanti</li>
+                        <li>✦ Rapò chak semèn ak reyinyon mansyèl</li>
+                        <li>✦ Devis pèsonalize selon bidjè w la</li>
+                    </ul>
+                </div>
+                <div class="ent-form-wrap">
+                    <h3>Mande yon Devis Gratis</h3>
+                    <form id="devis-form" class="devis-form" onsubmit="submitDevis(event)">
+                        <div class="form-group">
+                            <label>Non Antrepriz la *</label>
+                            <input type="text" id="devis-nom" required placeholder="Ex: Restaurant Lakay">
+                        </div>
+                        <div class="form-group">
+                            <label>Sektè Aktivite</label>
+                            <select id="devis-secteur" class="dash-select">
+                                <option>Restoran / Manje</option>
+                                <option>Mode / Boutik</option>
+                                <option>Sante / Byèn-èt</option>
+                                <option>Imobilye</option>
+                                <option>Touris / Otèl</option>
+                                <option>Edikasyon</option>
+                                <option>Lòt</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Bidjè Mansyèl Piblisite</label>
+                            <select id="devis-budget" class="dash-select">
+                                <option>$300 - $500/mwa</option>
+                                <option>$500 - $1,000/mwa</option>
+                                <option>$1,000 - $3,000/mwa</option>
+                                <option>$3,000+/mwa</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Objektif Prensipal</label>
+                            <select id="devis-objectif" class="dash-select">
+                                <option>Plis Vant (Sales)</option>
+                                <option>Plis Followers (Growth)</option>
+                                <option>Plis Leads (Kontak)</option>
+                                <option>Brand Awareness (Vizibilite)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Imèl *</label>
+                            <input type="email" id="devis-email" required placeholder="biznis@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefòn / WhatsApp</label>
+                            <input type="tel" id="devis-tel" placeholder="+509 3xxx-xxxx">
+                        </div>
+                        <button type="submit" class="btn primary gold btn-lg" style="width:100%;" id="devis-btn">
+                            <span>Voye Demann nan</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION : FAQ ACCORDEON
+    ═══════════════════════════════════════════════════════════ -->
+    <section class="faq-section" id="faq-section">
+        <div class="container">
+            <div class="section-header" data-animate="fade-up">
+                <span class="section-eyebrow">✦ Kesyon Souvan</span>
+                <h2>Ou gen <span class="gradient-text">Kesyon</span>?</h2>
+                <p>Jwenn repons a tout kesyon ou yo isit.</p>
+            </div>
+            <div class="faq-list" id="faq-list" data-animate="fade-up">
+                <div class="faq-loader">⏳ L ap chaje FAQ yo...</div>
             </div>
         </div>
     </section>
@@ -269,29 +471,124 @@
     </div>
 
     <footer class="site-footer">
-        <div class="footer-grid">
-            <div class="footer-brand">
-                <img src="assets/logo.png" alt="Logo" class="footer-logo">
-                <p id="footer-slogan">Nou la pou n fè piblisite ak coaching ou devni yon siksè.</p>
-            </div>
-            
-            <div class="footer-socials">
-                <a href="#" id="facebook-link" target="_blank" class="social-icon">
-                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
-                </a>
-                <a href="#" id="instagram-link" target="_blank" class="social-icon">
-                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.981 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                </a>
-                <a href="#" id="tiktok-link" target="_blank" class="social-icon">
-                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.06-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.98-.23-2.81.33-.85.51-1.44 1.43-1.58 2.41-.14 1.01.23 2.08.94 2.81.65.68 1.57 1.08 2.51 1.03 1.6-.09 3.06-1.31 3.39-2.87.1-.61.06-1.22.06-1.84V.02z"/></svg>
-                </a>
+        <div class="container">
+            <div class="footer-grid-v2">
+                <div class="footer-col footer-brand-col">
+                    <img src="assets/logo.png" alt="Logo" class="footer-logo" onerror="this.src='https://placehold.co/140x45/0a0a0a/BA7517?text=DJ+Innovations'">
+                    <p id="footer-slogan" class="footer-tagline">Nou la pou n fè piblisite ak coaching ou devni yon siksè.</p>
+                    <div class="footer-socials">
+                        <a href="#" class="social-icon" aria-label="Facebook"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg></a>
+                        <a href="#" class="social-icon" aria-label="Instagram"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.981 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+                        <a href="#" class="social-icon" aria-label="TikTok"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/></svg></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-col-title">Navigasyon</h4>
+                    <ul class="footer-links">
+                        <li><a href="#hero-section">Akey</a></li>
+                        <li><a href="#avant-propos">Ekspè a</a></li>
+                        <li><a href="#temoignages-section">Temwayaj</a></li>
+                        <li><a href="#portfolio-section">Pòtfolyo Kanpay</a></li>
+                        <li><a href="#faq-section">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-col-title">Sèvis</h4>
+                    <ul class="footer-links">
+                        <li><a href="#services-section" onclick="setCategory('coaching')">🎓 Coaching Pèsonèl</a></li>
+                        <li><a href="#services-section" onclick="setCategory('business')">🏢 Sèvis Business</a></li>
+                        <li><a href="#entreprises-section">Devi Antrepriz</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-col-title">Kontakte Nou</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://wa.me/18096651142" target="_blank">💬 WhatsApp Dirèk</a></li>
+                        <li><a href="mailto:contact@djinnovations.ht">✉️ Imèl</a></li>
+                    </ul>
+                    <a href="#services-section" class="btn primary gold" style="margin-top:20px; display:inline-flex; gap:8px; font-size:0.88rem; padding:12px 22px;">Kòmanse Kounye a →</a>
+                </div>
             </div>
         </div>
-        <div class="bottom-footer"><p>&copy; 2026 DJ Innovations. 🔥</p></div>
+        <div class="bottom-footer">
+            <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
+                <p>© 2026 DJ Innovations. Tout dwa rezève. 🔥</p>
+                <div class="footer-legal-links" style="display:flex; gap:15px;">
+                    <a href="#" id="dyn-footer-terms" style="color:var(--text-2); font-size:0.85rem; text-decoration:none; transition: color 0.3s;">Tèm & Kondisyon</a>
+                    <a href="#" id="dyn-footer-privacy" style="color:var(--text-2); font-size:0.85rem; text-decoration:none; transition: color 0.3s;">Politik Konfidansyalite</a>
+                    <a href="#" id="dyn-footer-support" style="color:var(--text-2); font-size:0.85rem; text-decoration:none; transition: color 0.3s;">Sipò</a>
+                </div>
+                <div class="payment-badges" style="display:flex; gap:15px; align-items:center;">
+                    <img src="https://img.icons8.com/color/36/visa.png" alt="Visa" loading="lazy">
+                    <img src="https://img.icons8.com/color/36/mastercard.png" alt="Mastercard" loading="lazy">
+                    <img src="https://img.icons8.com/color/36/moncash.png" alt="MonCash" loading="lazy" onerror="this.src='https://placehold.co/36x24/d81e05/ffffff?text=MC'">
+                </div>
+            </div>
+        </div>
     </footer>
 
+    <!-- ─── BOUTON WHATSAPP FLOTTANT ─── -->
+    <a href="https://wa.me/18096651142?text=Bonjou%2C%20mwen%20enterese%20nan%20s%C3%A8vis%20DJ%20Innovations%20yo." 
+       target="_blank" 
+       class="whatsapp-float" 
+       id="whatsapp-float"
+       aria-label="Kontakte nou sou WhatsApp">
+        <svg viewBox="0 0 24 24" fill="white" width="28" height="28">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.983.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
+        <span class="whatsapp-tooltip">Kontakte nou!</span>
+    </a>
+
+    <!-- ─── BOUTON BACK TO TOP ─── -->
+    <button class="back-to-top" id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Tounen anwo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+    </button>
+
+    <!-- ─── TOAST NOTIFICATIONS ─── -->
+    <div id="toast-container" class="toast-container"></div>
+
     <script src="js/supabase.js"></script>
-    <script src="js/stripe.js"></script>
+    <!-- Modal Témoignage (Moved to body end to fix z-index and fixed positioning issues) -->
+    <div id="temoignage-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100000; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px;">
+        <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 30px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative;">
+            <button onclick="closeTemoignageModal()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            <h3 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 20px;">Kite Temwayaj Ou</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Pataje eksperyans ou avèk DJ Innovations. Temwayaj ou a ap parèt sou sit la aprè nou fin valide l.</p>
+            
+            <form id="form-temoignage" onsubmit="submitTemoignage(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Non ou complet *</label>
+                    <input type="text" id="temo-nom" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white;" placeholder="Ex: Jean B.">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Sèvis ou te pran an *</label>
+                    <select id="temo-service" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 8px; color: white; appearance: none; -webkit-appearance: none;">
+                        <option value="" disabled selected style="background: #111; color: white;">Chwazi yon sèvis</option>
+                        <option value="Coaching Pèsonèl" style="background: #111; color: white;">Coaching Pèsonèl</option>
+                        <option value="Sèvis Business" style="background: #111; color: white;">Sèvis Business</option>
+                        <option value="Facebook Ads" style="background: #111; color: white;">Facebook Ads</option>
+                        <option value="TikTok Ads" style="background: #111; color: white;">TikTok Ads</option>
+                        <option value="Lòt" style="background: #111; color: white;">Lòt</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Foto w (Opsyonèl)</label>
+                    <input type="file" id="temo-photo" accept="image/png, image/jpeg, image/webp" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white; font-size: 0.8rem;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Rezilta Principal (Eks: +40% Vant, 10k followers)</label>
+                    <input type="text" id="temo-badge" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white;" placeholder="Sa w jwenn kòm gwo rezilta">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Mesaj ou a *</label>
+                    <textarea id="temo-citation" required rows="4" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white; resize: vertical;" placeholder="Kijan eksperyans ou te ye?"></textarea>
+                </div>
+                <button type="submit" id="btn-submit-temo" class="btn primary gold" style="margin-top: 10px; width: 100%;">Soumèt Temwayaj la</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/v2.js"></script>
     <script src="js/app.js"></script>
     <script>
         const observer = new IntersectionObserver((entries) => {

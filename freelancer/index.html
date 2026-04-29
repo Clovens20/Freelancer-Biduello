@@ -1210,6 +1210,12 @@
                     <button class="nav-item" onclick="showTab('landing', this)" data-tab="landing">
                         <span class="nav-icon">✏️</span> Kontni Paj Akey
                     </button>
+                    <button class="nav-item" onclick="showTab('portfolio', this)" data-tab="portfolio">
+                        <span class="nav-icon">🌟</span> Jesyon Pòtfolyo
+                    </button>
+                    <button class="nav-item" onclick="showTab('temo', this)" data-tab="temo">
+                        <span class="nav-icon">💬</span> Jesyon Temwayaj
+                    </button>
                     <button class="nav-item" onclick="showTab('biz', this)" data-tab="biz">
                         <span class="nav-icon">🏢</span> Kontni Business
                     </button>
@@ -1396,6 +1402,28 @@
                         </div>
                     </div>
 
+                    <!-- Pòtfolyo Headers -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>🌟</span> Tèks Pòtfolyo</div>
+                        <div class="grid-2">
+                            <div class="field-group">
+                                <label class="dash-label">Tag (Eyebrow)</label>
+                                <input type="text" class="dash-input" id="edit-port-tag" 
+                                       data-field="portfolio_tag" oninput="autoSave(this)" placeholder="✦ Pòtfolyo nou yo">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Tit</label>
+                                <input type="text" class="dash-input" id="edit-port-title" 
+                                       data-field="portfolio_title" oninput="autoSave(this)" placeholder="Kanpay ki Fè Rezilta">
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Soutit (Deskripsyon)</label>
+                            <input type="text" class="dash-input" id="edit-port-sub" 
+                                   data-field="portfolio_subtitle" oninput="autoSave(this)" placeholder="Gade kèk egzanp kanpay piblisite...">
+                        </div>
+                    </div>
+
                     <!-- Coaching Form Labels -->
                     <div class="config-section">
                         <div class="config-section-title"><span>📝</span> Fòm Coaching (Labels & Placeholders)</div>
@@ -1498,12 +1526,127 @@
 
                         <div style="margin-top:24px;text-align:right">
                             <button class="btn btn-gold" id="btn-save-socials" onclick="saveSocialLinksManually(this)">
-                                💾 Anrejitre Tout Sosyal yo
+                                💾 Anrejistre Tout Sosyal yo
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- WhatsApp Config -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>💬</span> WhatsApp Flottant</div>
+                        <div style="background:rgba(34,197,94,0.04); border:1px solid rgba(34,197,94,0.2); border-radius:var(--r-md); padding:16px; margin-bottom:15px; font-size:0.85rem; color:var(--text-2)">
+                            <strong style="color:var(--success)">✅ Bouton WhatsApp:</strong><br>
+                            Mete nimewo telefòn ou nan fòma entènasyonal (san "+"). Nimewo sa a ap sèvi pou bouton k ap flote anba a.
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Nimewo WhatsApp (Ex: 5093xxxxxxx)</label>
+                            <input type="text" class="dash-input" id="edit-whatsapp" 
+                                   data-field="whatsapp_number" oninput="autoSave(this)" 
+                                   placeholder="50931112222">
+                        </div>
+                    </div>
+
+                    <!-- Footer Config -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>🦶</span> Footer & Lyen yo</div>
+                        
+                        <div class="field-group">
+                            <label class="dash-label">Tèks Tèm & Kondisyon</label>
+                            <input type="text" class="dash-input" id="edit-footer-terms-text" 
+                                   data-field="footer_terms_text" oninput="autoSave(this)" 
+                                   placeholder="Tèm & Kondisyon">
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Lyen Tèm & Kondisyon</label>
+                            <input type="text" class="dash-input" id="edit-footer-terms-url" 
+                                   data-field="footer_terms_url" oninput="autoSave(this)" 
+                                   placeholder="https://...">
+                        </div>
+
+                        <div class="field-group" style="margin-top: 15px;">
+                            <label class="dash-label">Tèks Politik Konfidansyalite</label>
+                            <input type="text" class="dash-input" id="edit-footer-privacy-text" 
+                                   data-field="footer_privacy_text" oninput="autoSave(this)" 
+                                   placeholder="Politik Konfidansyalite">
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Lyen Politik Konfidansyalite</label>
+                            <input type="text" class="dash-input" id="edit-footer-privacy-url" 
+                                   data-field="footer_privacy_url" oninput="autoSave(this)" 
+                                   placeholder="https://...">
+                        </div>
+
+                        <div class="field-group" style="margin-top: 15px;">
+                            <label class="dash-label">Tèks Sipò</label>
+                            <input type="text" class="dash-input" id="edit-footer-support-text" 
+                                   data-field="footer_support_text" oninput="autoSave(this)" 
+                                   placeholder="Sipò">
+                        </div>
+                        <div class="field-group">
+                            <label class="dash-label">Lyen Sipò</label>
+                            <input type="text" class="dash-input" id="edit-footer-support-url" 
+                                   data-field="footer_support_url" oninput="autoSave(this)" 
+                                   placeholder="mailto:...">
+                        </div>
+                    </div>
+
+                    <!-- FAQ Config -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>❓</span> Kesyon Souvan (FAQ)</div>
+                        <div style="background:rgba(186,117,23,0.04); border:1px solid var(--border-gold); border-radius:var(--r-md); padding:16px; margin-bottom:15px; font-size:0.85rem; color:var(--text-2)">
+                            Ajoute, modifye oswa efase kesyon ak repons ki parèt nan seksyon FAQ paj akey la.
+                        </div>
+                        
+                        <div id="admin-faq-list" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+                            <div class="text-center">⏳ L ap chaje...</div>
+                        </div>
+
+                        <button class="btn secondary" onclick="addAdminFaq()" style="width: 100%; margin-bottom: 15px;">+ Ajoute yon Kesyon</button>
+                        <button class="btn primary gold" onclick="saveAdminFaqs()" id="btn-save-faqs" style="width: 100%;">💾 Anrejistre tout FAQ yo</button>
+                    </div>
+                </div>
+                <!-- Tab: Jesyon Pòtfolyo -->
+                <div class="tab-pane" id="tab-portfolio">
+                    <div class="pane-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2>Jesyon Pòtfolyo (Kanpay)</h2>
+                            <p>Ajoute oswa modifye kanpay publicite ou yo.</p>
+                        </div>
+                        <button class="btn secondary" onclick="openPortfolioModal()">+ Nouvo Kanpay</button>
+                    </div>
+
+                    <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-md); padding:15px; margin-bottom:20px;">
+                        <h4 style="color:var(--text-1); margin-bottom:15px;">Kanpay ki aktif yo</h4>
+                        <div id="admin-portfolio-list" style="display: flex; flex-direction: column; gap: 10px;">
+                            <div class="text-center">⏳ L ap chaje kanpay yo...</div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Tab: Jesyon Temwayaj -->
+                <div class="tab-pane" id="tab-temo">
+                    <div class="pane-header">
+                        <div>
+                            <h2>Jesyon Temwayaj</h2>
+                            <p>Apwouve, efase oswa kache temwayaj kliyan yo</p>
+                        </div>
+                        <button class="btn primary" onclick="loadAdminTemoignages()">↻ Rafrechi</button>
+                    </div>
+
+                    <div class="config-section">
+                        <div class="config-section-title"><span>⏳</span> Temwayaj An Atant (Nouvo)</div>
+                        <div id="admin-temo-pending" style="display: flex; flex-direction: column; gap: 15px;">
+                            <p style="color: var(--text-secondary);">L ap chaje...</p>
+                        </div>
+                    </div>
+
+                    <div class="config-section" style="margin-top: 30px;">
+                        <div class="config-section-title"><span>✅</span> Temwayaj Apwouve (Sèvi kounye a)</div>
+                        <div id="admin-temo-approved" style="display: flex; flex-direction: column; gap: 15px;">
+                            <p style="color: var(--text-secondary);">L ap chaje...</p>
+                        </div>
+                    </div>
+                </div>
                 <!-- Tab: Business Service -->
                 <div class="tab-pane" id="tab-biz">
                     <div class="pane-header">
@@ -2026,6 +2169,59 @@
             </div>
         </div>
     </div>
+    <!-- Modal: Jesyon Pòtfolyo (Kanpay) -->
+    <div id="modal-portfolio" class="modal-overlay" style="display:none; z-index:99999;">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="close-btn" onclick="closePortfolioModal()">&times;</button>
+            <h2 id="port-modal-title">Nouvo Kanpay</h2>
+            <form id="form-portfolio" onsubmit="savePortfolioCampaign(event)" style="display:flex; flex-direction:column; gap:15px; margin-top:20px;">
+                <input type="hidden" id="port-id" value="">
+                
+                <div class="field-group">
+                    <label class="dash-label">Sektè Aktivite (Eg: Restaurant Lakay)</label>
+                    <input type="text" class="dash-input" id="port-secteur" required>
+                </div>
+                
+                <div class="grid-2">
+                    <div class="field-group">
+                        <label class="dash-label">Plateforme</label>
+                        <select class="dash-select" id="port-plateforme" required>
+                            <option value="facebook">Facebook Ads</option>
+                            <option value="tiktok">TikTok Ads</option>
+                            <option value="instagram">Instagram Ads</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label class="dash-label">Bidjè (Eg: $300)</label>
+                        <input type="text" class="dash-input" id="port-budget" required>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="dash-label">Rezilta (Eg: Vant: $1,890)</label>
+                    <input type="text" class="dash-input" id="port-resultat" required>
+                </div>
+
+                <div class="grid-2">
+                    <div class="field-group">
+                        <label class="dash-label">Metrique Label (Eg: ROAS)</label>
+                        <input type="text" class="dash-input" id="port-met-label" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="dash-label">Metrique Valè (Eg: 6.3)</label>
+                        <input type="number" step="0.01" class="dash-input" id="port-met-val" required>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="dash-label">Peryòd (Eg: 21 jou)</label>
+                    <input type="text" class="dash-input" id="port-periode" required>
+                </div>
+
+                <button type="submit" class="btn primary gold" style="width:100%">💾 Anrejistre Kanpay</button>
+            </form>
+        </div>
+    </div>
 
     <script>
         // ══════════════════════════════════════════════════════════
@@ -2163,7 +2359,7 @@
         }
 
         async function loadAllData() {
-            await Promise.all([loadReservations(), loadInvoices(), loadServices(), loadBusinessPlans(), loadLandingConfig(), loadTrafficStats()]);
+            await Promise.all([loadReservations(), loadInvoices(), loadServices(), loadBusinessPlans(), loadLandingConfig(), loadTrafficStats(), loadAdminTemoignages(), loadAdminPortfolio()]);
         }
         
         async function loadTrafficStats() {
@@ -2269,6 +2465,181 @@
                 if (error) showToast(error.message, 'error');
                 else { showToast('Nouvo plan ajoute!', 'success'); loadBusinessPlans(); }
             });
+        }
+
+        // ── JESYON TEMWAYAJ ──────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════
+        //  PÒTFOLYO (KANPAY) MANAGER
+        // ══════════════════════════════════════════════════════════
+        async function loadAdminPortfolio() {
+            const list = document.getElementById('admin-portfolio-list');
+            if (!list) return;
+
+            const { data, error } = await sb.from('portfolio_campagnes').select('*').order('ordre', { ascending: true });
+            
+            if (error) {
+                list.innerHTML = `<p style="color:red">Erè: ${error.message}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                list.innerHTML = `<p style="color:var(--text-3); text-align:center;">Ou poko gen kanpay ki anrejistre.</p>`;
+                return;
+            }
+
+            list.innerHTML = data.map(c => `
+                <div style="background:var(--surface-1); border:1px solid var(--border); border-radius:var(--r-md); padding:15px; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; gap:15px; align-items:center;">
+                        <div style="width:10px; height:10px; border-radius:50%; background:${c.couleur_plateforme || '#1877F2'};"></div>
+                        <div>
+                            <strong style="display:block; color:var(--text-1); font-size:1rem;">${c.secteur} <span style="font-size:0.8rem; color:var(--text-3);">(${c.plateforme})</span></strong>
+                            <span style="color:var(--text-2); font-size:0.85rem;">Bidjè: <b>${c.budget}</b> | Rezilta: <b>${c.resultat}</b></span><br>
+                            <span style="color:var(--text-3); font-size:0.8rem;">${c.metrique_label}: <b>${c.metrique_valeur}</b> nan ${c.periode}</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="togglePortfolioCampaign('${c.id}', ${c.actif})" class="btn ${c.actif ? 'secondary' : 'primary'}" style="padding:5px 10px; font-size:0.8rem;">
+                            ${c.actif ? 'Kache' : 'Afiche'}
+                        </button>
+                        <button onclick="openPortfolioModal('${c.id}')" class="btn secondary" style="padding:5px 10px; font-size:0.8rem;">✏️ Edit</button>
+                        <button onclick="deletePortfolioCampaign('${c.id}')" class="btn" style="padding:5px 10px; font-size:0.8rem; background:rgba(255,0,0,0.1); color:red;">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.openPortfolioModal = async function(id = null) {
+            document.getElementById('form-portfolio').reset();
+            document.getElementById('port-id').value = '';
+            document.getElementById('port-modal-title').innerText = id ? 'Modifye Kanpay' : 'Nouvo Kanpay';
+
+            if (id) {
+                const { data } = await sb.from('portfolio_campagnes').select('*').eq('id', id).single();
+                if (data) {
+                    document.getElementById('port-id').value = data.id;
+                    document.getElementById('port-secteur').value = data.secteur;
+                    document.getElementById('port-plateforme').value = data.plateforme;
+                    document.getElementById('port-budget').value = data.budget;
+                    document.getElementById('port-resultat').value = data.resultat;
+                    document.getElementById('port-met-label').value = data.metrique_label;
+                    document.getElementById('port-met-val').value = data.metrique_valeur;
+                    document.getElementById('port-periode').value = data.periode;
+                }
+            }
+            document.getElementById('modal-portfolio').style.display = 'flex';
+        };
+
+        window.closePortfolioModal = function() {
+            document.getElementById('modal-portfolio').style.display = 'none';
+        };
+
+        window.savePortfolioCampaign = async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('port-id').value;
+            const plateforme = document.getElementById('port-plateforme').value;
+            let couleur = '#1877F2';
+            if(plateforme === 'tiktok') couleur = '#ff0050';
+            if(plateforme === 'instagram') couleur = '#E1306C';
+
+            const payload = {
+                secteur: document.getElementById('port-secteur').value,
+                plateforme: plateforme,
+                couleur_plateforme: couleur,
+                budget: document.getElementById('port-budget').value,
+                resultat: document.getElementById('port-resultat').value,
+                metrique_label: document.getElementById('port-met-label').value,
+                metrique_valeur: document.getElementById('port-met-val').value,
+                periode: document.getElementById('port-periode').value
+            };
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerHTML = '⏳...';
+
+            if (id) {
+                await sb.from('portfolio_campagnes').update(payload).eq('id', id);
+                showToast('Kanpay modifye!', 'success');
+            } else {
+                await sb.from('portfolio_campagnes').insert(payload);
+                showToast('Kanpay ajoute!', 'success');
+            }
+
+            btn.innerHTML = '💾 Anrejistre Kanpay';
+            closePortfolioModal();
+            loadAdminPortfolio();
+        };
+
+        window.deletePortfolioCampaign = async function(id) {
+            if(!confirm('Siprime kanpay sa?')) return;
+            await sb.from('portfolio_campagnes').delete().eq('id', id);
+            showToast('Kanpay efase', 'success');
+            loadAdminPortfolio();
+        };
+
+        window.togglePortfolioCampaign = async function(id, currentStatus) {
+            await sb.from('portfolio_campagnes').update({ actif: !currentStatus }).eq('id', id);
+            loadAdminPortfolio();
+        };
+
+        async function loadAdminTemoignages() {
+            if (!sb) return;
+            document.getElementById('admin-temo-pending').innerHTML = '<p>L ap chaje...</p>';
+            document.getElementById('admin-temo-approved').innerHTML = '<p>L ap chaje...</p>';
+
+            const { data, error } = await sb.from('temoignages').select('*').order('created_at', { ascending: false });
+            if (error) {
+                console.error("Erè chajman temwayaj:", error);
+                return;
+            }
+
+            const pending = data.filter(t => !t.actif);
+            const approved = data.filter(t => t.actif);
+
+            document.getElementById('admin-temo-pending').innerHTML = pending.length ? pending.map(t => renderAdminTemoCard(t)).join('') : '<p style="color:var(--text-secondary)">Pa gen okenn temwayaj an atant.</p>';
+            document.getElementById('admin-temo-approved').innerHTML = approved.length ? approved.map(t => renderAdminTemoCard(t)).join('') : '<p style="color:var(--text-secondary)">Pa gen okenn temwayaj ki apwouve.</p>';
+        }
+
+        function renderAdminTemoCard(t) {
+            return `
+                <div class="svc-card" style="border-left: 4px solid ${t.actif ? 'var(--success)' : 'var(--warning)'}; margin-bottom: 10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <strong style="color:var(--primary); font-size:1.1rem;">${t.nom}</strong> 
+                            <span style="font-size:0.8rem; background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:10px; margin-left:8px;">${t.service}</span>
+                            <br>
+                            <em style="color:var(--text-secondary); display:block; margin:8px 0; font-size:0.95rem;">"${t.citation}"</em>
+                            ${t.badge_resultat ? `<span style="color:var(--accent); font-size:0.85rem; font-weight:bold;">Rezilta: ${t.badge_resultat}</span>` : ''}
+                        </div>
+                        <div style="display:flex; gap:10px; flex-direction:column;">
+                            ${t.actif 
+                                ? `<button class="btn btn-sm" style="background:var(--surface-3); border:1px solid var(--border-color); color:var(--text);" onclick="toggleTemoignage('${t.id}', false)">👁️ Kache</button>`
+                                : `<button class="btn btn-sm primary gold" onclick="toggleTemoignage('${t.id}', true)">✅ Apwouve</button>`
+                            }
+                            <button class="btn btn-sm btn-ghost" style="color:var(--danger);" onclick="deleteTemoignage('${t.id}')">🗑️ Efase</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function toggleTemoignage(id, actif) {
+            const { error } = await sb.from('temoignages').update({ actif }).eq('id', id);
+            if (error) {
+                showToast("Erè pandan chanjman an", "error");
+            } else {
+                showToast("Modifikasyon anrejistre", "success");
+                loadAdminTemoignages();
+            }
+        }
+
+        async function deleteTemoignage(id) {
+            if (!confirm("Èske ou vrèman vle efase temwayaj sa a nèt ?")) return;
+            const { error } = await sb.from('temoignages').delete().eq('id', id);
+            if (error) {
+                showToast("Erè pandan sipresyon", "error");
+            } else {
+                showToast("Temwayaj la efase", "success");
+                loadAdminTemoignages();
+            }
         }
 
         async function restoreDefaultBusinessPlans(btn) {
@@ -3086,10 +3457,13 @@
                 'edit-biz-f-label-m': config.business_form_label_msg,
                 // Business Promo
                 'edit-biz-promo-btn': config.business_promo_btn_text,
+                // Portfolio Section
+                'edit-port-tag': config.portfolio_tag, 'edit-port-title': config.portfolio_title, 'edit-port-sub': config.portfolio_subtitle,
                 // Pixels & Integrations
                 'edit-fb-pixel': config.fb_pixel_id, 'edit-tiktok-pixel': config.tiktok_pixel_id,
                 'edit-ga-id': config.ga_id, 'edit-snap-pixel': config.snapchat_pixel_id,
                 'edit-pin-pixel': config.pinterest_pixel_id,
+                'edit-whatsapp': config.whatsapp_number,
                 'edit-custom-head': config.custom_head_scripts
             };
             Object.entries(fields).forEach(([id, val]) => {
@@ -3137,7 +3511,87 @@
             }
             window.currentSocialLinks = socialLinks;
             renderSocialManager();
+
+            // ✅ Gérer les FAQs
+            let faqItems = [];
+            if (config.faq_items && Array.isArray(config.faq_items)) {
+                faqItems = config.faq_items;
+            } else {
+                faqItems = [
+                    { q: 'Kijan mwen ka kòmanse?', r: 'Trè senp! Chwazi yon plan ki bon pou ou...' },
+                    { q: 'Èske peman yo sekirize?', r: 'Wi, nou itilize Stripe pou tout peman nou yo...' }
+                ];
+            }
+            window.currentFaqs = faqItems;
+            renderAdminFaqs();
         }
+
+        // ════ FAQ Manager Logic ════
+        function renderAdminFaqs() {
+            const list = document.getElementById('admin-faq-list');
+            if (!list) return;
+
+            if (!window.currentFaqs || window.currentFaqs.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-3); font-size:0.85rem; text-align:center;">Pa gen okenn kesyon (FAQ) ki anrejistre.</p>';
+                return;
+            }
+
+            list.innerHTML = window.currentFaqs.map((item, idx) => `
+                <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-md); padding:15px; position:relative;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span style="color:var(--text-2); font-size:0.8rem; font-weight:bold;">Kesyon #${idx + 1}</span>
+                        <button onclick="removeAdminFaq(${idx})" style="background:none; border:none; color:#ff4444; cursor:pointer;" title="Efase">🗑️</button>
+                    </div>
+                    <div class="field-group" style="margin-bottom:10px;">
+                        <input type="text" class="dash-input" placeholder="Kesyon (Ex: Kijan sa mache?)" value="${item.q || ''}" 
+                               oninput="updateAdminFaq(${idx}, 'q', this.value)" style="font-weight:bold; color:var(--primary);">
+                    </div>
+                    <div class="field-group" style="margin-bottom:0;">
+                        <textarea class="dash-input" placeholder="Repons lan..." rows="3" 
+                                  oninput="updateAdminFaq(${idx}, 'r', this.value)" style="resize:vertical;">${item.r || ''}</textarea>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.updateAdminFaq = function(index, field, value) {
+            if (window.currentFaqs[index]) {
+                window.currentFaqs[index][field] = value;
+            }
+        };
+
+        window.addAdminFaq = function() {
+            if (!window.currentFaqs) window.currentFaqs = [];
+            window.currentFaqs.push({ q: '', r: '' });
+            renderAdminFaqs();
+        };
+
+        window.removeAdminFaq = function(index) {
+            if (confirm("Ou sèten ou vle efase kesyon sa a?")) {
+                window.currentFaqs.splice(index, 1);
+                renderAdminFaqs();
+            }
+        };
+
+        window.saveAdminFaqs = async function() {
+            const btn = document.getElementById('btn-save-faqs');
+            if (btn) btn.innerHTML = '⏳ L ap anrejistre...';
+
+            try {
+                const { error } = await sb
+                    .from('landing_config')
+                    .update({ faq_items: window.currentFaqs })
+                    .eq('id', 1);
+
+                if (error) throw error;
+                showToast('FAQ yo anrejistre avèk siksè!', 'success');
+            } catch (err) {
+                console.error("Erreur save FAQ:", err);
+                showToast('Gen yon erè ki fèt pandan anrejistreman an', 'error');
+            } finally {
+                if (btn) btn.innerHTML = '💾 Anrejistre tout FAQ yo';
+            }
+        };
 
         // ════ Sosyal Manager Logic ════
         const SOCIAL_PLATFORMS = ['Facebook', 'Instagram', 'TikTok', 'YouTube', 'LinkedIn', 'WhatsApp', 'Twitter/X', 'Website'];

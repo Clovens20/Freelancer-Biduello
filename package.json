@@ -8,7 +8,7 @@
     "supabase:serve": "supabase functions serve create-checkout-session --no-verify-jwt --env-file .env"
   },
   "devDependencies": {
-    "browser-sync": "^2.29.3",
+    "browser-sync": "^3.0.4",
     "supabase": "^2.84.4"
   }
 }
