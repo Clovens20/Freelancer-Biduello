@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://uvgntflbylfbdfszthsa.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2Z250ZmxieWxmYmRmc3p0aHNhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDgzNzU5NCwiZXhwIjoyMDkwNDEzNTk0fQ.K-kXEdNGAPAz8a9dIpMxZu8NwXFrIsLsROGjGWxPnTw';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://uvgntflbylfbdfszthsa.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function updateDB() {
