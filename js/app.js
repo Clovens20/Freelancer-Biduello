@@ -841,10 +841,16 @@ function setupEventListeners() {
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.error || "Erreur pèman");
+                if (!res.ok || data.error) throw new Error(data.error || "Erreur pèman");
+                
                 // Track purchase initiation
                 if (typeof fbq !== 'undefined') fbq('track', 'Purchase', { value: state.finalAmount, currency: 'USD' });
-                if (data.url) location.href = data.url;
+                
+                if (data.url) {
+                    location.href = data.url;
+                } else {
+                    throw new Error("Nou pa resevwa lyen peman an. Tcheke konfigirasyon Stripe ou.");
+                }
             } catch (e) {
                 payBtn.classList.remove('loading');
                 payBtn.textContent = state.gateway === 'moncash' ? 'Peye ak MonCash' : 'Konfime epi Peye Sekirize';
