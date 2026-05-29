@@ -1197,6 +1197,9 @@
                     <button class="nav-item active" onclick="showTab('rez', this)" data-tab="rez">
                         <span class="nav-icon">📋</span> Rezèvasyon
                     </button>
+                    <button class="nav-item" onclick="showTab('support', this)" data-tab="support">
+                        <span class="nav-icon">🎧</span> Sipò Kliyan
+                    </button>
                     <button class="nav-item" onclick="showTab('fakti', this)" data-tab="fakti">
                         <span class="nav-icon">🧾</span> Lis Fakti
                     </button>
@@ -1282,6 +1285,23 @@
                         <div class="empty-state">
                             <div class="empty-icon">📋</div>
                             <p>L ap chaje done yo...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Support Messages -->
+                <div class="tab-pane" id="tab-support">
+                    <div class="pane-header">
+                        <div>
+                            <h2>Mesaj Sipò Kliyan</h2>
+                            <p>Kliyan ki bezwen èd oswa poze kesyon</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="loadSupportMessages()">↻ Rafrechi</button>
+                    </div>
+                    <div class="rez-grid" id="support-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">🎧</div>
+                            <p>L ap chaje mesaj yo...</p>
                         </div>
                     </div>
                 </div>
@@ -1587,6 +1607,88 @@
                             <input type="text" class="dash-input" id="edit-footer-support-url" 
                                    data-field="footer_support_url" oninput="autoSave(this)" 
                                    placeholder="mailto:...">
+                        </div>
+                    </div>
+                    <!-- Footer Config -->
+                    <div class="config-section">
+                        <div class="config-section-title"><span>🦶</span> Pye Paj (Footer)</div>
+                        <div class="grid-2">
+                            <div class="field-group">
+                                <label class="dash-label">Imèl Kontak</label>
+                                <input type="email" class="dash-input" id="edit-footer-email" 
+                                       data-field="footer_email" oninput="autoSave(this)" 
+                                       placeholder="freelancer@konektegroup.com">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Slogan (anba logo)</label>
+                                <input type="text" class="dash-input" id="edit-footer-slogan" 
+                                       data-field="footer_slogan" oninput="autoSave(this)" 
+                                       placeholder="Nou la pou n fè...">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Tit Navigasyon</label>
+                                <input type="text" class="dash-input" id="edit-footer-nav-title" 
+                                       data-field="footer_nav_title" oninput="autoSave(this)" 
+                                       placeholder="Navigasyon">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Tit Sèvis</label>
+                                <input type="text" class="dash-input" id="edit-footer-services-title" 
+                                       data-field="footer_services_title" oninput="autoSave(this)" 
+                                       placeholder="Sèvis">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Tit Kontak</label>
+                                <input type="text" class="dash-input" id="edit-footer-contact-title" 
+                                       data-field="footer_contact_title" oninput="autoSave(this)" 
+                                       placeholder="Kontakte Nou">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Tèks Bouton</label>
+                                <input type="text" class="dash-input" id="edit-footer-cta-text" 
+                                       data-field="footer_cta_text" oninput="autoSave(this)" 
+                                       placeholder="Kòmanse Kounye a →">
+                            </div>
+                            <div class="field-group" style="grid-column: 1 / -1;">
+                                <label class="dash-label">Tèks Dwa Otè (Copyright)</label>
+                                <input type="text" class="dash-input" id="edit-footer-copyright" 
+                                       data-field="footer_copyright" oninput="autoSave(this)" 
+                                       placeholder="© 2026 DJ Innovations...">
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top:20px; color:var(--text-1); font-size:1rem;">Lyen Navigasyon yo</h4>
+                        <div class="grid-2">
+                            <div class="field-group">
+                                <label class="dash-label">Lyen 1</label>
+                                <input type="text" class="dash-input" id="edit-footer-nav-link1" 
+                                       data-field="footer_nav_link1" oninput="autoSave(this)" 
+                                       placeholder="Akey">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Lyen 2</label>
+                                <input type="text" class="dash-input" id="edit-footer-nav-link2" 
+                                       data-field="footer_nav_link2" oninput="autoSave(this)" 
+                                       placeholder="Ekspè a">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Lyen 3</label>
+                                <input type="text" class="dash-input" id="edit-footer-nav-link3" 
+                                       data-field="footer_nav_link3" oninput="autoSave(this)" 
+                                       placeholder="Temwayaj">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Lyen 4</label>
+                                <input type="text" class="dash-input" id="edit-footer-nav-link4" 
+                                       data-field="footer_nav_link4" oninput="autoSave(this)" 
+                                       placeholder="Pòtfolyo Kanpay">
+                            </div>
+                            <div class="field-group">
+                                <label class="dash-label">Lyen 5</label>
+                                <input type="text" class="dash-input" id="edit-footer-nav-link5" 
+                                       data-field="footer_nav_link5" oninput="autoSave(this)" 
+                                       placeholder="FAQ">
+                            </div>
                         </div>
                     </div>
 
@@ -2356,10 +2458,12 @@
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             document.getElementById(`tab-${tab}`).classList.add('active');
             if (btn) btn.classList.add('active');
+            
+            if (tab === 'support') loadSupportMessages();
         }
 
         async function loadAllData() {
-            await Promise.all([loadReservations(), loadInvoices(), loadServices(), loadBusinessPlans(), loadLandingConfig(), loadTrafficStats(), loadAdminTemoignages(), loadAdminPortfolio()]);
+            await Promise.all([loadReservations(), loadInvoices(), loadServices(), loadBusinessPlans(), loadLandingConfig(), loadTrafficStats(), loadAdminTemoignages(), loadAdminPortfolio(), loadSupportMessages()]);
         }
         
         async function loadTrafficStats() {
@@ -3464,7 +3568,14 @@
                 'edit-ga-id': config.ga_id, 'edit-snap-pixel': config.snapchat_pixel_id,
                 'edit-pin-pixel': config.pinterest_pixel_id,
                 'edit-whatsapp': config.whatsapp_number,
-                'edit-custom-head': config.custom_head_scripts
+                'edit-custom-head': config.custom_head_scripts,
+                // Footer Settings
+                'edit-footer-email': config.footer_email, 'edit-footer-nav-title': config.footer_nav_title,
+                'edit-footer-services-title': config.footer_services_title, 'edit-footer-contact-title': config.footer_contact_title,
+                'edit-footer-cta-text': config.footer_cta_text, 'edit-footer-copyright': config.footer_copyright,
+                'edit-footer-nav-link1': config.footer_nav_link1, 'edit-footer-nav-link2': config.footer_nav_link2,
+                'edit-footer-nav-link3': config.footer_nav_link3, 'edit-footer-nav-link4': config.footer_nav_link4,
+                'edit-footer-nav-link5': config.footer_nav_link5
             };
             Object.entries(fields).forEach(([id, val]) => {
                 const el = document.getElementById(id);
@@ -4159,6 +4270,66 @@
                 showToast('❌ Erè réseau: ' + e.message, 'error');
                 btn.innerHTML = orig;
                 btn.disabled = false;
+            }
+        }
+        async function loadSupportMessages() {
+            const list = document.getElementById('support-list');
+            if (!list) return;
+            
+            list.innerHTML = '<div class="empty-state"><div class="empty-icon">🎧</div><p>L ap chaje mesaj yo...</p></div>';
+            
+            const { data, error } = await sb
+                .from('support_messages')
+                .select('*')
+                .order('created_at', { ascending: false });
+                
+            if (error) {
+                console.error(error);
+                list.innerHTML = `<div class="empty-state"><p style="color:var(--danger)">Erè: ${error.message}</p></div>`;
+                return;
+            }
+            
+            if (!data || data.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-icon">🎧</div><p>Pa gen okenn mesaj sipò ankò.</p></div>';
+                return;
+            }
+            
+            list.innerHTML = data.map(m => `
+                <div class="rez-card" style="border: 1px solid ${m.status === 'resolved' ? 'rgba(34,197,94,0.3)' : 'var(--border-gold)'};">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <strong style="color:var(--primary); font-size:1.1rem;">${m.name}</strong>
+                        <span class="status-badge status-${m.status === 'resolved' ? 'paye' : 'en_attente'}">${m.status === 'resolved' ? 'Rezoud' : 'En Attente'}</span>
+                    </div>
+                    <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:10px;">
+                        <div>📧 ${m.email}</div>
+                        ${m.phone ? `<div>📞 ${m.phone}</div>` : ''}
+                        <div>📅 ${new Date(m.created_at).toLocaleString('fr-HT')}</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; font-size:0.9rem; line-height:1.4; margin-bottom:15px; border-left:3px solid var(--primary);">
+                        ${m.message.replace(/\n/g, '<br>')}
+                    </div>
+                    ${m.status === 'pending' ? `
+                        <button class="btn btn-gold btn-sm" style="width:100%;" onclick="resolveSupportMessage('${m.id}')">
+                            ✅ Make kòm Rezoud
+                        </button>
+                    ` : `
+                        <button class="btn secondary btn-sm" style="width:100%; opacity:0.5; cursor:not-allowed;" disabled>
+                            Deja Rezoud
+                        </button>
+                    `}
+                </div>
+            `).join('');
+        }
+
+        async function resolveSupportMessage(id) {
+            if (!confirm("Èske ou fin reponn kliyan sa a ?")) return;
+            const { error } = await sb.from('support_messages').update({ status: 'resolved' }).eq('id', id);
+            
+            if (error) {
+                showToast("Erè pandan mizajou a", "error");
+            } else {
+                showToast("Mesaj la make kòm rezoud!", "success");
+                loadSupportMessages();
             }
         }
     </script>

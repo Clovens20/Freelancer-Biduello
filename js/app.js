@@ -162,6 +162,25 @@ async function loadLandingConfig() {
         if(data.portfolio_tag) set('display-port-tag', data.portfolio_tag);
         if(data.portfolio_title) set('display-port-title', data.portfolio_title);
         if(data.portfolio_subtitle) set('display-port-sub', data.portfolio_subtitle);
+        
+        // ✅ Footer Dynamic Fields
+        set('footer-email-text', data.footer_email_text || '✉️ Imèl');
+        set('footer-whatsapp-text', data.footer_whatsapp_text || '💬 WhatsApp Dirèk');
+        set('footer-nav-title', data.footer_nav_title || 'Navigasyon');
+        set('footer-nav-link1', data.footer_nav_link1 || 'Akey');
+        set('footer-nav-link2', data.footer_nav_link2 || 'Ekspè a');
+        set('footer-nav-link3', data.footer_nav_link3 || 'Temwayaj');
+        set('footer-nav-link4', data.footer_nav_link4 || 'Pòtfolyo Kanpay');
+        set('footer-nav-link5', data.footer_nav_link5 || 'FAQ');
+        set('footer-services-title', data.footer_services_title || 'Sèvis');
+        set('footer-contact-title', data.footer_contact_title || 'Kontakte Nou');
+        set('footer-cta-text', data.footer_cta_text || 'Kòmanse Kounye a →');
+        set('footer-copyright', data.footer_copyright || '© 2026 DJ Innovations. Tout dwa rezève. 🔥');
+        
+        if(data.footer_email) {
+            const el = document.getElementById('footer-email-text');
+            if(el) el.setAttribute('href', 'mailto:' + data.footer_email);
+        }
 
         // Catégories Tabs Labels
         set('btn-cat-coaching', data.label_coaching_tab);
@@ -262,19 +281,29 @@ async function loadLandingConfig() {
         const footerTerms = document.getElementById('dyn-footer-terms');
         if (footerTerms) {
             footerTerms.textContent = data.footer_terms_text || 'Tèm & Kondisyon';
-            footerTerms.href = data.footer_terms_url || '#';
+            let tUrl = data.footer_terms_url || 'conditions.html';
+            footerTerms.href = tUrl === '#' ? 'conditions.html' : tUrl;
         }
 
         const footerPrivacy = document.getElementById('dyn-footer-privacy');
         if (footerPrivacy) {
             footerPrivacy.textContent = data.footer_privacy_text || 'Politik Konfidansyalite';
-            footerPrivacy.href = data.footer_privacy_url || '#';
+            let pUrl = data.footer_privacy_url || 'politique.html';
+            footerPrivacy.href = pUrl === '#' ? 'politique.html' : pUrl;
         }
 
         const footerSupport = document.getElementById('dyn-footer-support');
         if (footerSupport) {
             footerSupport.textContent = data.footer_support_text || 'Sipò';
-            footerSupport.href = data.footer_support_url || '#';
+            footerSupport.href = 'javascript:void(0)';
+            footerSupport.onclick = (e) => {
+                e.preventDefault();
+                const supportModal = document.getElementById('support-modal');
+                if (supportModal) {
+                    supportModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+            };
         }
     } catch (err) {
         console.error('Erè config landing:', err);
@@ -354,6 +383,16 @@ async function fetchServicesFromSupabase() {
             .from('services').select('*').eq('actif', true);
         if (error) throw error;
         state.services = data || [];
+        
+        // Mete "Algorithmes FB" an premye
+        state.services.sort((a, b) => {
+            const isAFB = a.nom && a.nom.toLowerCase().includes('algorithmes fb');
+            const isBFB = b.nom && b.nom.toLowerCase().includes('algorithmes fb');
+            if (isAFB && !isBFB) return -1;
+            if (!isAFB && isBFB) return 1;
+            return 0;
+        });
+
         renderServicesGrid();
     } catch (err) {
         console.error('Erè SDK:', err);
@@ -480,8 +519,8 @@ window.setCategory = function(cat) {
     const subtitleEl = document.getElementById('biz-plans-subtitle');
     
     const titles = (cat === 'business') ? (window.biz_titles || {}) : (window.coaching_titles || {});
-    if (titleEl) titleEl.innerText = titles.plans || (cat === 'business' ? 'Plan nou yo' : 'Chwazi Sèvis ou bezwen yo');
-    if (subtitleEl) subtitleEl.innerText = titles.subtitle || (cat === 'business' ? 'Chwazi plan ki pi byen koresponn ak bezwen biznis ou.' : 'Klike sou yon sèvis pou w wè tout detay konplet yo.');
+    if (titleEl) titleEl.innerHTML = titles.plans || (cat === 'business' ? 'Plan nou yo' : 'Chwazi Sèvis ou bezwen yo');
+    if (subtitleEl) subtitleEl.innerHTML = titles.subtitle || (cat === 'business' ? 'Chwazi plan ki pi byen koresponn ak bezwen biznis ou.' : 'Klike sou yon sèvis pou w wè tout detay konplet yo.');
 
     // Mettre à jour les onglets ou le style si nécessaire
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
@@ -531,16 +570,31 @@ window.openServiceModal = function (id, isFallback = false) {
     document.body.style.overflow = 'hidden';
 };
 
-modalSelectBtn.onclick = () => {
-    toggleServiceSelection(currentViewedServiceId, currentViewedServiceIsFallback);
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-};
+if (modalSelectBtn) {
+    modalSelectBtn.onclick = () => {
+        // Si sèvis la potko chwazi, ajoute l
+        const isCurrentlySelected = state.selectedServices.some(item => item.id === currentViewedServiceId);
+        if (!isCurrentlySelected) {
+            toggleServiceSelection(currentViewedServiceId, currentViewedServiceIsFallback);
+        }
+        
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        
+        // Ale dirèkteman nan pwochen etap la
+        if (state.selectedServices.length > 0) {
+            if (toStep2Btn) toStep2Btn.click();
+        }
+    };
+}
 
-document.querySelector('.close-btn').onclick = () => {
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-};
+const closeBtnElement = document.querySelector('.close-btn');
+if (closeBtnElement) {
+    closeBtnElement.onclick = () => {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    };
+}
 
 function toggleServiceSelection(id, isFallback = false) {
     let s;
@@ -789,7 +843,8 @@ function setupEventListeners() {
             const tid = a.getAttribute('href');
             if (tid === '#services-section') {
                 e.preventDefault();
-                document.getElementById('services-section').scrollIntoView({ behavior: 'smooth' });
+                const el = document.getElementById('services-section');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
             }
         };
     });
@@ -915,6 +970,37 @@ window.changeQty = function(val) {
 function goToStep(s) {
     if (s === 3) {
         const isBusiness = state.selectedServices.every(s => (s.category || '').toLowerCase() === 'business');
+        
+        // Populate selection summary
+        const summaryBox = document.getElementById('selection-summary');
+        if (summaryBox) {
+            if (state.selectedServices.length > 0) {
+                const svc = state.selectedServices[0];
+                const totalSlots = DAYS.reduce((acc, _, i) => acc + (state.selectedSlots[`${svc.id}_D${i}`] || []).length, 0);
+                let html = `<h4 style="color:var(--primary); margin-bottom:12px; font-size:1.1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">Rezime Chwa w la</h4>`;
+                html += `<div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                            <span style="color:var(--text-2);">Sèvis:</span> <strong style="text-align:right;">${svc.nom}</strong>
+                         </div>`;
+                html += `<div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                            <span style="color:var(--text-2);">Pri Baz:</span> <strong style="color:var(--accent);">$${svc.prix || 105} ${svc.unite || '/mwa'}</strong>
+                         </div>`;
+                
+                if (!isBusiness && totalSlots > 0) {
+                    html += `<div style="display:flex; justify-content:space-between;">
+                                <span style="color:var(--text-2);">Orè Chwazi:</span> <strong>${totalSlots} kreno</strong>
+                             </div>`;
+                }
+                summaryBox.innerHTML = html;
+                summaryBox.style.padding = '20px';
+                summaryBox.style.background = 'rgba(0,0,0,0.3)';
+                summaryBox.style.border = '1px solid var(--border-gold)';
+                summaryBox.style.borderRadius = '12px';
+                summaryBox.style.marginBottom = '25px';
+            } else {
+                summaryBox.innerHTML = '';
+                summaryBox.style.display = 'none';
+            }
+        }
         const l1 = document.getElementById('label-prenom');
         const l2 = document.getElementById('label-non'); // ✅ FIXED ID (was label-nom)
         const i1 = document.getElementById('prenom');
@@ -935,3 +1021,67 @@ function goToStep(s) {
         if (dot.dataset.step == s) dot.classList.add('active');
     });
 }
+
+window.closeTemoignageModal = function() {
+    const temoignageModal = document.getElementById('temoignage-modal');
+    if (temoignageModal) {
+        temoignageModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+};
+
+window.closeSupportModal = function() {
+    const supportModal = document.getElementById('support-modal');
+    if (supportModal) {
+        supportModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        
+        // Reset view for next time
+        setTimeout(() => {
+            const form = document.getElementById('form-support');
+            const successMsg = document.getElementById('support-success-msg');
+            if(form) {
+                form.reset();
+                form.style.display = 'flex';
+            }
+            if(successMsg) successMsg.style.display = 'none';
+        }, 300);
+    }
+};
+
+window.submitSupportRequest = async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-submit-support');
+    const originalText = btn.innerText;
+    btn.innerText = "L ap voye...";
+    btn.disabled = true;
+    
+    const name = document.getElementById('support-name').value;
+    const email = document.getElementById('support-email').value;
+    const phone = document.getElementById('support-phone').value;
+    const message = document.getElementById('support-message').value;
+
+    try {
+        const { error } = await window.supabaseClient.from('support_messages').insert([{
+            name: name,
+            email: email,
+            phone: phone,
+            message: message
+        }]);
+
+        if (error) throw error;
+        
+        // Show success UI
+        const form = document.getElementById('form-support');
+        const successMsg = document.getElementById('support-success-msg');
+        if (form) form.style.display = 'none';
+        if (successMsg) successMsg.style.display = 'block';
+        
+    } catch (err) {
+        console.error(err);
+        showToast("Erè lè n ap voye mesaj la. Eseye ankò.", "error");
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+};

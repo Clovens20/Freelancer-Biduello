@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ht">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portal sèvis ak peman DJ Innovations. Devni yon ekspè digital ak coaching pèsonèl. Coaching TikTok, Facebook Ads, Growth Hacking ann Ayiti."> 
+    <title>Rezèvasyon - DJ Innovations</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/v2.css">
+
+    <!-- Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/logo.png">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* Ajustements pour la page de réservation pour qu'elle soit bien centrée et isolée */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: 100px; /* Espace pour le header */
+        }
+        .funnel-container {
+            margin-top: 40px;
+            margin-bottom: 80px;
+            flex-grow: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Ambient particles -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <header id="site-header" style="background: rgba(10,10,10,0.9); backdrop-filter: blur(10px);">
+        <div class="container">
+            <nav style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div style="flex: 1;">
+                    <a href="index.html" class="btn secondary" style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 8px 16px;">
+                        ← Tounen
+                    </a>
+                </div>
+                <div class="logo-wrap" style="text-align: center; flex: 1;">
+                    <a href="index.html">
+                        <img src="assets/logo.png" alt="DJ Innovations Logo" id="main-logo" onerror="this.src='https://placehold.co/150x50/0a0a0a/BA7517?text=DJ+Innovations'">
+                    </a>
+                </div>
+                <div style="flex: 1;"></div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- FUNNEL -->
+    <main class="container funnel-container">
+        <div class="progress-bar" id="stepper">
+            <div class="step active" data-step="1">1. Chwazi Sèvis</div>
+            <div class="step" data-step="2">2. Planifye Orè</div>
+            <div class="step" data-step="3">3. Kowòdone w</div>
+            <div class="step" data-step="4">4. Peman</div>
+        </div>
+
+        <section id="step-1" class="step-section active">
+            <div class="section-header" id="services-section">
+                <span class="section-eyebrow">✦ Étap 1</span>
+                <h2 id="biz-plans-title">Plan nou yo</h2>
+                <p id="biz-plans-subtitle">Chwazi plan ki pi byen koresponn ak bezwen biznis ou.</p>
+            </div>
+
+            <!-- NOUVO: Tabs Kategori -->
+            <div class="category-tabs" style="display:flex; justify-content:center; gap:10px; margin-bottom:30px;">
+                <button class="cat-btn active" data-cat="coaching" id="btn-cat-coaching">🎓 Coaching Pèsonèl</button>
+                <button class="cat-btn" data-cat="business" id="btn-cat-business">🏢 Sèvis Business</button>
+            </div>
+
+
+
+            <div id="services-grid" class="grid-funnel">
+                <div class="loader">L ap chaje sèvis yo...</div>
+            </div>
+            <div class="selection-box" id="selection-box">
+                <div class="selection-inner">
+                    <p><span id="count-selected">0</span> Sèvis chwazi</p>
+                    <div class="total-bar">
+                        Total: <strong id="subtotal-display">0$</strong>
+                        <button id="to-step-2" class="btn gold" disabled>Kontinye →</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Scheduling, Information and Payment sections are handled by app.js -->
+        <section id="step-2" class="step-section">
+            <button class="back-link" data-to="1">← Tounen</button>
+            <div id="week-selector" class="week-tabs"></div>
+            
+            <!-- NOUVO: Timezone Selector -->
+            <div id="timezone-selector-box" style="margin-bottom:20px; padding:15px; background:rgba(186,117,23,0.08); border-radius:12px; border:1px solid var(--border-gold); display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <span style="font-size:0.85rem; color:var(--text-2); font-weight:600;">🌍 Orè bò kote pa w la :</span>
+                <select id="user-timezone" class="dash-select" style="width:auto; min-width:240px; padding:6px 12px; font-size:0.88rem; background:var(--surface);" onchange="updateTimezoneOffset()">
+                    <option value="-8">Los Angeles / Vancouver (GMT-8)</option>
+                    <option value="-7">Denver / Phoenix (GMT-7)</option>
+                    <option value="-6">Mexique (Mexico City) / Chicago (GMT-6)</option>
+                    <option value="-5">Ayiti / New York / Montréal (GMT-5)</option>
+                    <option value="-4" selected>Sen Domeng / Chili (Santiago) / Porto Rico (GMT-4)</option>
+                    <option value="-3">Brezil (Brasilia) / Ajantin (GMT-3)</option>
+                    <option value="0">Londres / GMT (GMT+0)</option>
+                    <option value="1">Lafrans (Paris) / Espay / Afrik de Lwès (GMT+1)</option>
+                    <option value="2">Afrique du Sud / Echip / Rwanda (GMT+2)</option>
+                </select>
+                <p id="tz-info-msg" style="font-size:0.75rem; color:var(--accent); margin:0; flex:1; min-width:200px;">✅ N ap montre w lè ki koresponn nan peyi w la.</p>
+            </div>
+
+            <div id="time-slots-grid" class="slots-container"></div>
+            <div class="actions-centered">
+                <button id="to-step-3" class="btn primary gold">Antre enfòmasyon w</button>
+            </div>
+        </section>
+
+        <section id="step-3" class="step-section">
+             <button class="back-link" data-to="2">← Tounen</button>
+             <div class="order-summary-box" id="selection-summary"></div>
+             <form id="contact-form" class="premium-form">
+                <div class="contact-grid" id="contact-fields-standard">
+                    <div class="form-group"><label id="label-prenom">Prenon *</label><input type="text" id="prenom" required placeholder="Antre prenon ou"></div>
+                    <div class="form-group"><label id="label-non">Non Fanmi *</label><input type="text" id="non" required placeholder="Antre non ou"></div>
+                </div>
+                <div class="form-group"><label id="label-email">Imèl *</label><input type="email" id="email" required placeholder="eg: non@gmail.com"></div>
+                <div class="form-group"><label id="label-telephone">Telefòn *</label><input type="tel" id="telephone" required placeholder="+509 ..."></div>
+                <div class="form-group full-width"><label id="label-message">Mesaj</label><textarea id="message" rows="3"></textarea></div>
+                <div class="actions-centered"><button type="submit" class="btn primary gold btn-lg" id="btn-finalize">Finalize Peman</button></div>
+             </form>
+        </section>
+
+        <section id="step-4" class="step-section">
+            <button class="back-link" data-to="3">← Tounen</button>
+
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: var(--primary);">1. Pou konbyen mwa w ap peye?</h3>
+            <div class="qty-selector" style="margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
+                <button class="btn btn-sm secondary" onclick="changeQty(-1)" style="padding: 10px 20px; font-weight: 900;">-</button>
+                <input type="number" id="qty-months" value="1" min="1" max="12" readonly style="background: var(--surface-2); border: 1px solid var(--border); color: var(--accent); font-weight: 700; width: 60px; text-align: center; padding: 10px; border-radius: 8px;">
+                <button class="btn btn-sm secondary" onclick="changeQty(1)" style="padding: 10px 20px; font-weight: 900;">+</button>
+                <span style="color: var(--text-2); font-size: 0.9rem;">(1 mwa = 24 èdtan coaching)</span>
+            </div>
+
+            <h3 style="margin-bottom: 10px; font-size: 1.1rem; color: var(--primary);">2. Kijan ou vle peye?</h3>
+            <div class="payment-selector" style="margin-bottom: 24px;">
+                <div class="pay-card active" data-mode="full"><h3>Peman Total (100%)</h3></div>
+                <div class="pay-card" data-mode="depot"><h3>Avans (50%)</h3></div>
+            </div>
+
+            <h3 style="margin-bottom: 10px; font-size: 1.1rem; color: var(--primary);">2. Ki mwayen peman ou prefere?</h3>
+            <div class="payment-selector" style="margin-bottom: 24px;">
+                <div class="pay-gateway active" data-gateway="stripe" style="cursor:pointer; padding:20px; text-align:center; border:2px solid var(--primary); border-radius:12px; transition:0.3s; background:var(--surface);">
+                    <h3 style="margin:0; font-size:1.1rem; color:var(--text);">💳 Kat Kredi (Stripe)</h3>
+                </div>
+                <div class="pay-gateway" data-gateway="moncash" style="cursor:pointer; padding:20px; text-align:center; border:2px solid rgba(255,255,255,0.1); border-radius:12px; transition:0.3s; background:var(--surface);">
+                    <h3 style="margin:0; font-size:1.1rem; color:#d81e05; filter:brightness(1.5);">📱 MonCash</h3>
+                </div>
+            </div>
+            <div class="invoice-box">
+                <div class="invoice-line total"><span>Total:</span> <strong id="final-amount">$0</strong></div>
+            </div>
+            <div class="actions-centered">
+                <button id="pay-button" class="btn primary gold btn-lg wide">Konfime epi Peye Sekirize</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Premium -->
+    <div id="service-modal" class="modal-premium">
+        <div class="modal-premium-content">
+            <button class="close-btn">&times;</button>
+            <div id="modal-service-details">
+                <div class="loader">L ap chaje enfòmasyon...</div>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-select-btn" class="btn-modal-action">Chwazi Sèvis sa a ($105)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sipò (Support) -->
+    <div id="support-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100000; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px;">
+        <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 30px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative;">
+            <button onclick="closeSupportModal()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            <h3 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 10px;">Kontakte Sipò Kliyan</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Kijan nou ka ede w jodi a? Ranpli fòm sa a epi n ap reponn ou trè byento.</p>
+            
+            <form id="form-support" onsubmit="submitSupportRequest(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Non ou *</label>
+                    <input type="text" id="support-name" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white;" placeholder="Non konplè w">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Imèl *</label>
+                    <input type="email" id="support-email" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white;" placeholder="adrès@imel.com">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Telefòn (Opsyonèl)</label>
+                    <input type="tel" id="support-phone" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white;" placeholder="+509 ...">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Kijan nou ka ede w? *</label>
+                    <textarea id="support-message" required rows="4" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white; resize: vertical;" placeholder="Dekri pwoblèm ou an detay..."></textarea>
+                </div>
+                <button type="submit" id="btn-submit-support" class="btn primary gold" style="margin-top: 10px; width: 100%;">Voye Mesaj la</button>
+            </form>
+            
+            <div id="support-success-msg" style="display: none; text-align: center; padding: 20px 0;">
+                <div style="font-size: 3rem; margin-bottom: 15px;">✅</div>
+                <h4 style="color: var(--primary); font-size: 1.3rem; margin-bottom: 10px;">Mesaj ou a voye avèk siksè!</h4>
+                <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px;">
+                    Mèsi dèske ou kontakte nou. Ekip nou an byen resevwa demann ou an e n ap tounen jwenn ou nan yon ti moman sou adrès imèl ou bay la.
+                </p>
+                <button onclick="closeSupportModal()" class="btn secondary" style="width: 100%;">Fèmen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── TOAST NOTIFICATIONS ─── -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="js/supabase.js"></script>
+    <script src="js/v2.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Check for category in URL (e.g., reservation.html?category=business)
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category');
+            if(category) {
+                setTimeout(() => {
+                    if (typeof setCategory === 'function') {
+                        setCategory(category);
+                    }
+                }, 500); // Give it a bit of time to fetch services
+            }
+        });
+    </script>
+</body>
+</html>

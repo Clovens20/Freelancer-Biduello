@@ -2092,3 +2092,69 @@ nav {
         font-size: 1.8rem;
     }
 }
+
+/* === Pages Légales DJ Innovations === */
+.legal-doc {
+  font-family: inherit;
+  color: #2C2C2A;
+  background: #ffffff;
+  border-radius: 12px;
+  line-height: 1.7;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+.legal-doc h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 2rem 0 0.5rem;
+  color: #1a1a2e;
+  border-left: 3px solid #7F77DD;
+  padding-left: 0.75rem;
+}
+.legal-doc p,
+.legal-doc li {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 0.5rem;
+}
+.legal-doc ul {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+.legal-doc a {
+  color: #7F77DD;
+  text-decoration: none;
+}
+.legal-doc a:hover {
+  text-decoration: underline;
+}
+.legal-date {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 1.5rem;
+}
+.legal-callout {
+  background: #EEEDFE;
+  border-left: 4px solid #7F77DD;
+  border-radius: 0 8px 8px 0;
+  padding: 0.875rem 1.25rem;
+  font-size: 0.9rem;
+  color: #534AB7;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+.legal-note {
+  background: #f8f8ff;
+  border: 1px solid #e0deff;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #534AB7;
+  margin: 0.75rem 0 1rem;
+}
+.legal-note--warning {
+  background: #fff8f0;
+  border-color: #ffd6a5;
+  color: #c05c00;
+}
