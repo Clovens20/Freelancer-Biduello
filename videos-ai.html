@@ -2,7 +2,7 @@
 <html lang="ht">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="description" content="Katalòg Videyo AI - DJ Innovations">
     <title>Vidéo AI - DJ Innovations</title>
 
@@ -22,53 +22,116 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
+        /* Mobile-First Optimized Styles */
         .ai-hero {
-            padding: 120px 0 60px;
+            padding: 100px 16px 40px;
             text-align: center;
-            background: linear-gradient(to bottom, rgba(186, 117, 23, 0.05) 0%, var(--bg) 100%);
+            background: linear-gradient(to bottom, rgba(186, 117, 23, 0.08) 0%, var(--bg) 100%);
         }
+        .ai-hero h1 {
+            font-size: clamp(2rem, 7vw, 3.2rem);
+            line-height: 1.25;
+            margin-top: 10px;
+        }
+        .ai-hero p {
+            font-size: clamp(0.95rem, 3.5vw, 1.1rem);
+            max-width: 600px;
+            margin: 16px auto 0;
+            color: var(--text-2);
+            padding: 0 8px;
+        }
+
+        .cat-filters {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            margin: 24px 0 10px;
+            padding: 8px 4px 14px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .cat-filters::-webkit-scrollbar {
+            display: none;
+        }
+        @media (min-width: 640px) {
+            .cat-filters {
+                justify-content: center;
+                flex-wrap: wrap;
+                overflow-x: visible;
+            }
+        }
+
+        .cat-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            font-weight: 500;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+        }
+        .cat-btn:hover, .cat-btn.active {
+            background: rgba(186, 117, 23, 0.15);
+            color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(186, 117, 23, 0.2);
+        }
+
         .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-            padding: 40px 0 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding: 20px 0 60px;
         }
+        @media (min-width: 640px) {
+            .video-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                gap: 30px;
+                padding: 30px 0 80px;
+            }
+        }
+
         .video-card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--r-xl);
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
-        .video-card:hover {
+        .video-card:hover, .video-card:active {
             border-color: var(--primary);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.6);
         }
-        .video-thumb {
+
+        .video-thumb-wrap {
+            position: relative;
             width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border-bottom: 1px solid var(--border);
+            aspect-ratio: 16 / 9;
+            background: #0d0d12;
+            overflow: hidden;
         }
-        .video-thumb-placeholder {
-            width: 100%;
-            height: 180px;
-            background: #111;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            border-bottom: 1px solid var(--border);
-        }
+
         .video-content {
-            padding: 20px;
+            padding: 20px 18px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
         }
+
         .video-category {
             font-size: 0.75rem;
             color: var(--primary);
@@ -78,53 +141,68 @@
             font-weight: bold;
         }
         .video-title {
-            font-size: 1.2rem;
+            font-size: clamp(1.15rem, 4vw, 1.35rem);
             color: var(--text);
             margin-bottom: 10px;
+            line-height: 1.3;
             font-family: 'DM Serif Display', serif;
         }
         .video-desc {
-            font-size: 0.9rem;
+            font-size: 0.92rem;
+            line-height: 1.5;
             color: var(--text-2);
             margin-bottom: 20px;
             flex-grow: 1;
         }
+
         .video-footer {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 14px;
             margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
+        @media (min-width: 480px) {
+            .video-footer {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+            }
+        }
+
         .video-price {
-            font-size: 1.4rem;
-            font-weight: bold;
+            font-size: 1.45rem;
+            font-weight: 800;
             color: var(--accent);
         }
-        
-        .cat-filters {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-            flex-wrap: wrap;
+        @media (max-width: 479px) {
+            .video-price {
+                text-align: center;
+            }
+            .video-footer .btn {
+                width: 100%;
+                min-height: 48px;
+                font-size: 1rem;
+                justify-content: center;
+            }
         }
-        .cat-btn {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text-2);
-            padding: 8px 16px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .cat-btn:hover, .cat-btn.active {
-            background: rgba(186, 117, 23, 0.1);
-            color: var(--primary);
-            border-color: var(--primary);
+
+        /* Responsive Modal */
+        #video-modal input[type="email"] {
+            font-size: 16px !important; /* Prevents auto-zoom on iOS */
         }
     </style>
 </head>
 <body>
+
+    <!-- Ambient particles -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
 
     <header id="site-header">
         <div class="container">
@@ -140,6 +218,9 @@
                     <a href="videos-ai.html" class="nav-link" style="color: var(--accent); font-weight: bold;">🎬 Vidéo AI</a>
                     <a href="reservation.html" class="btn btn-sm primary gold">Kòmanse Kounye a</a>
                 </div>
+                <button class="hamburger" id="hamburger-btn" aria-label="Menu" onclick="toggleMobileNav()">
+                    <span></span><span></span><span></span>
+                </button>
             </nav>
         </div>
     </header>
@@ -148,7 +229,7 @@
         <div class="container">
             <span class="section-eyebrow" data-animate="fade-up">✦ Kreyatè Kontni</span>
             <h1 data-animate="fade-up">Katalòg <span class="gradient-text">Vidéo AI</span></h1>
-            <p style="max-width: 600px; margin: 20px auto; color: var(--text-2);" data-animate="fade-up">
+            <p data-animate="fade-up">
                 Achte videyo ki pwodui avèk entèlijans atifisyèl pou ranfòse rezo sosyal ou yo. 
                 Peye yon sèl fwa epi telechaje videyo a imedyatman.
             </p>
@@ -169,24 +250,38 @@
     </div>
 
     <!-- Modal Peman Vidéo -->
-    <div id="video-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100000; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px;">
-        <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 30px; width: 100%; max-width: 450px; position: relative;">
-            <button onclick="closeVideoModal()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;">&times;</button>
-            <h3 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 10px;">Achte Videyo Sa</h3>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Antre imèl ou anba a. N ap voye lyen videyo a ba ou dirèkteman nan imèl sa apre ou fin peye.</p>
+    <div id="video-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100000; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 15px;">
+        <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px 18px; width: 100%; max-width: 440px; position: relative;">
+            <button onclick="closeVideoModal()" style="position: absolute; top: 15px; right: 15px; width: 36px; height: 36px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 50%; color: var(--text-2); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+            <h3 style="color: var(--primary); font-size: 1.4rem; margin-bottom: 8px;">Achte Videyo Sa</h3>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 18px; line-height: 1.4;">Antre imèl ou anba a. N ap voye lyen videyo a ba ou dirèkteman nan imèl sa apre ou fin peye.</p>
             
-            <div style="background: rgba(186, 117, 23, 0.05); padding: 15px; border-radius: 8px; border: 1px solid var(--border-gold); margin-bottom: 20px;">
-                <div id="modal-video-title" style="font-weight: bold; margin-bottom: 5px;">Tit Videyo</div>
-                <div id="modal-video-price" style="color: var(--accent); font-weight: bold; font-size: 1.2rem;">$0.00</div>
+            <div style="background: rgba(186, 117, 23, 0.08); padding: 14px; border-radius: 10px; border: 1px solid var(--border-gold); margin-bottom: 18px;">
+                <div id="modal-video-title" style="font-weight: bold; margin-bottom: 4px; font-size: 0.95rem;">Tit Videyo</div>
+                <div id="modal-video-price" style="color: var(--accent); font-weight: 800; font-size: 1.25rem;">$0.00</div>
             </div>
 
-            <form id="form-buy-video" onsubmit="submitBuyVideo(event)" style="display: flex; flex-direction: column; gap: 15px;">
+            <form id="form-buy-video" onsubmit="submitBuyVideo(event)" style="display: flex; flex-direction: column; gap: 14px;">
                 <input type="hidden" id="buy-video-id">
+                <input type="hidden" id="buy-gateway" value="stripe">
                 <div>
-                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Imèl ou *</label>
-                    <input type="email" id="buy-email" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white;" placeholder="adrès@imel.com">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px;">Imèl ou *</label>
+                    <input type="email" id="buy-email" required style="width: 100%; padding: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); border-radius: 10px; color: white;" placeholder="adrès@imel.com">
                 </div>
-                <button type="submit" id="btn-submit-buy" class="btn primary gold" style="margin-top: 10px; width: 100%;">Kontinye nan Peman an →</button>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;">Mwayen Peman *</label>
+                    <div class="payment-selector" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="video-pay-gateway active" data-gateway="stripe" onclick="selectVideoGateway('stripe')" style="cursor:pointer; padding:12px 8px; text-align:center; border:2px solid var(--primary); border-radius:10px; transition:0.3s; background:var(--surface);">
+                            <h4 style="margin:0; font-size:0.9rem; color:var(--text);">💳 Kat Kredi</h4>
+                            <span style="font-size:0.7rem; color:var(--text-2);">Stripe</span>
+                        </div>
+                        <div class="video-pay-gateway" data-gateway="moncash" onclick="selectVideoGateway('moncash')" style="cursor:pointer; padding:12px 8px; text-align:center; border:2px solid rgba(255,255,255,0.1); border-radius:10px; transition:0.3s; background:var(--surface);">
+                            <h4 style="margin:0; font-size:0.9rem; color:#d81e05; filter:brightness(1.5);">📱 MonCash</h4>
+                            <span style="font-size:0.7rem; color:var(--text-2);">MonCash HTG</span>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="btn-submit-buy" class="btn primary gold" style="margin-top: 6px; width: 100%; min-height: 48px; font-size: 1rem; font-weight: bold;">Peye ak Kat Kredi (Stripe) →</button>
             </form>
         </div>
     </div>
@@ -221,7 +316,24 @@
         </div>
     </footer>
 
+    <!-- WhatsApp Flottant -->
+    <a href="https://wa.me/18096651142?text=Bonjou%2C%20mwen%20enterese%20nan%20videyo%20AI%20yo." 
+       target="_blank" 
+       class="whatsapp-float" 
+       id="whatsapp-float"
+       aria-label="Kontakte nou sou WhatsApp">
+        <svg viewBox="0 0 24 24" fill="white" width="28" height="28">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.983.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
+    </a>
+
+    <!-- Back to top button -->
+    <button class="back-to-top" id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Tounen anwo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+    </button>
+
     <div id="toast-container" class="toast-container"></div>
+    <script src="js/v2.js"></script>
     <script src="js/supabase.js"></script>
     <script src="js/video-ai.js"></script>
     <script>

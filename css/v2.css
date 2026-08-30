@@ -921,28 +921,6 @@ header.scrolled {
     to { transform: rotate(360deg); }
 }
 
-/* ─── RESPONSIVE TWEAKS ─── */
-@media (max-width: 768px) {
-    .whatsapp-float {
-        width: 56px;
-        height: 56px;
-        bottom: 20px;
-        right: 20px;
-    }
-
-    .back-to-top {
-        right: 20px;
-        bottom: 90px;
-    }
-
-    .ent-form-wrap {
-        padding: 30px 24px;
-    }
-
-    .faq-q { padding: 18px 20px; }
-    .faq-item.open .faq-a { padding: 0 20px 18px; }
-}
-
 /* ─── NEW BADGE ANIMATION ─── */
 .badge-new-anim {
     background: var(--accent);
@@ -960,4 +938,106 @@ header.scrolled {
     0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(186, 117, 23, 0.7); }
     70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(186, 117, 23, 0); }
     100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(186, 117, 23, 0); }
+}
+
+/* ─── GLOBAL MOBILE-FIRST SYSTEM OVERRIDES ─── */
+@media (max-width: 768px) {
+    /* Container & Body paddings */
+    body {
+        padding-top: 76px !important;
+    }
+
+    main.container {
+        padding: 20px 16px !important;
+        margin-top: 15px !important;
+        margin-bottom: 40px !important;
+    }
+
+    /* Prevent auto-zoom on iOS */
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"],
+    input[type="number"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+
+    /* Floating WhatsApp & Back-To-Top position */
+    .whatsapp-float {
+        width: 52px;
+        height: 52px;
+        bottom: 16px;
+        right: 16px;
+        z-index: 9999;
+    }
+
+    .back-to-top {
+        right: 16px;
+        bottom: 78px;
+    }
+
+    .ent-form-wrap {
+        padding: 24px 16px;
+    }
+
+    .faq-q { padding: 16px; }
+    .faq-item.open .faq-a { padding: 0 16px 16px; }
+
+    /* Touch-friendly Stepper for Reservation Funnel */
+    .progress-bar {
+        display: flex !important;
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        justify-content: flex-start !important;
+        padding: 6px 4px 12px !important;
+        margin: 20px 0 30px !important;
+        -webkit-overflow-scrolling: touch;
+        gap: 8px !important;
+    }
+
+    .step {
+        flex-shrink: 0 !important;
+        padding: 8px 14px !important;
+        font-size: 0.8rem !important;
+        border-radius: 50px !important;
+    }
+
+    /* Responsive Grid Fallbacks */
+    .grid-funnel {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Responsive Modals */
+    .modal-premium-content,
+    .modal-content {
+        width: 95% !important;
+        max-width: 100% !important;
+        padding: 20px 16px !important;
+        margin: 15px auto !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+    }
+
+    /* Buttons touch targets */
+    .btn {
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: clamp(1.8rem, 7vw, 2.5rem) !important;
+    }
+
+    h2 {
+        font-size: clamp(1.5rem, 5.5vw, 2rem) !important;
+    }
+
+    .btn.btn-lg {
+        width: 100% !important;
+        padding: 14px 20px !important;
+    }
 }

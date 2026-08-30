@@ -1023,7 +1023,7 @@
             margin-bottom: 5px;
         }
 
-        /* Responsive */
+        /* Responsive Mobile-First */
         @media (max-width: 1024px) {
             .stats-row {
                 grid-template-columns: repeat(2, 1fr);
@@ -1031,39 +1031,88 @@
         }
 
         @media (max-width: 768px) {
+            .dash-header {
+                padding: 0 16px;
+                height: 58px;
+            }
+
+            .user-pill span:not(.user-avatar) {
+                display: none;
+            }
+
             .dash-body {
                 grid-template-columns: 1fr;
+                display: block;
             }
 
             .sidebar {
-                position: static;
+                position: relative;
+                top: 0;
                 height: auto;
                 border-right: none;
                 border-bottom: 1px solid var(--border);
-                padding: 16px;
+                padding: 12px 16px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
             }
 
             .sidebar-nav {
                 display: flex;
-                flex-wrap: wrap;
+                flex-wrap: nowrap;
                 gap: 8px;
+                overflow-x: auto;
+                padding-bottom: 4px;
             }
 
             .sidebar-label {
                 display: none;
             }
 
+            .nav-item {
+                flex-shrink: 0;
+                white-space: nowrap;
+                margin-bottom: 0;
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                background: var(--surface-2);
+                border-radius: 50px;
+            }
+
             .dash-main {
-                padding: 24px 20px;
+                padding: 20px 14px;
             }
 
             .stats-row {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
             }
 
             .grid-2,
             .grid-3 {
                 grid-template-columns: 1fr;
+            }
+
+            table, .dash-table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
             }
         }
         /* Network Cards */
@@ -2918,13 +2967,17 @@
 
         async function deleteInvoice(id) {
             if (confirm('Ou sèten ou vle siprime fakti sa a nèt nan sistèm lan?')) {
-                const { error } = await sb.from('reservations').delete().eq('id', id);
-                if (!error) {
+                try {
+                    const { error, data } = await sb.from('reservations').delete().eq('id', id).select();
+                    if (error) throw error;
+                    if (!data || data.length === 0) {
+                        throw new Error('Fakti a pa jwenn oswa pa ka siprime.');
+                    }
                     showToast('✅ Fakti siprime!', 'success');
-                    loadInvoices();
-                    loadReservations();
-                } else {
-                    showToast('❌ Erè: ' + error.message, 'error');
+                    await loadInvoices();
+                    await loadReservations();
+                } catch (err) {
+                    showToast('❌ Erè: ' + err.message, 'error');
                 }
             }
         }
@@ -3098,7 +3151,15 @@
         // Konvèti slots parsés an map pou agenda: key → [reservations]
         function buildBookedMap(reservations) {
             const booked = {};
+            const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000);
+
             reservations.forEach(r => {
+                const s = String(r.statut || '').toLowerCase();
+                if (s === 'en_attente' && r.created_at) {
+                    const createdAt = new Date(r.created_at);
+                    if (createdAt < thirtyMinsAgo) return;
+                }
+
                 const slots = parseHoraires(r.horaires);
                 slots.forEach(({ key }) => {
                     if (key) {
@@ -4174,12 +4235,16 @@
         async function deleteReservation(id) {
             if (!confirm('Ou sèten ou vle siprime rezèvasyon sa a definitivman?')) return;
             try {
-                const { error } = await sb.from('reservations').delete().eq('id', id);
+                const { error, data } = await sb.from('reservations').delete().eq('id', id).select();
                 if (error) throw error;
-                showToast('Rezèvasyon siprime!', 'success');
-                loadReservations();
+                if (!data || data.length === 0) {
+                    throw new Error('Rezèvasyon an pa jwenn oswa pa ka siprime.');
+                }
+                showToast('✅ Rezèvasyon siprime!', 'success');
+                await loadReservations();
+                await loadInvoices();
             } catch (e) {
-                showToast('Erè: pa ka siprime.', 'error');
+                showToast('Erè: ' + e.message, 'error');
             }
         }
 
@@ -4482,17 +4547,25 @@
                 return;
             }
 
-            container.innerHTML = data.map(v => `
-                <div class="svc-card">
-                    <div style="font-size: 0.8rem; color: var(--primary); text-transform: uppercase;">${v.category}</div>
-                    <h3 style="font-size: 1.1rem; margin-bottom: 5px;">${v.title}</h3>
-                    <div style="color: var(--accent); font-weight: bold; margin-bottom: 15px;">$${v.price.toFixed(2)} USD</div>
-                    <div style="display:flex; gap:10px;">
+            container.innerHTML = data.map(v => {
+                const thumb = convertImageUrl(v.thumbnail_url);
+                return `
+                <div class="svc-card" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="width: 100%; height: 120px; background: #111; border-radius: 8px; overflow: hidden; position: relative;">
+                        ${thumb ? `<img src="${thumb}" alt="" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ''}
+                        <div style="display: ${thumb ? 'none' : 'flex'}; width:100%; height:100%; align-items:center; justify-content:center; background: rgba(186,117,23,0.1); color: var(--primary); font-size: 2rem;">🎬</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--primary); text-transform: uppercase; font-weight: bold;">${v.category}</div>
+                        <h3 style="font-size: 1rem; margin: 4px 0;">${v.title}</h3>
+                        <div style="color: var(--accent); font-weight: bold;">$${v.price.toFixed(2)} USD</div>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top: auto;">
                         <button class="btn btn-ghost btn-sm" onclick='openAddVideoModal(${JSON.stringify(v).replace(/'/g, "\\'")})'>✏️ Modifye</button>
                         <button class="btn btn-ghost btn-sm" style="color:var(--danger); border-color:rgba(239, 68, 68, 0.2);" onclick="deleteVideoAI('${v.id}')">🗑️ Siprime</button>
                     </div>
                 </div>
-            `).join('');
+            `;}).join('');
         }
 
         // Chaje lis kòmand yo
@@ -4535,12 +4608,13 @@
             btn.disabled = true;
 
             const id = document.getElementById('video-ai-id').value;
+            const rawThumb = document.getElementById('video-ai-thumb').value;
             const payload = {
                 title: document.getElementById('video-ai-title').value,
                 category: document.getElementById('video-ai-cat').value,
                 price: parseFloat(document.getElementById('video-ai-price').value),
                 video_url: document.getElementById('video-ai-url').value,
-                thumbnail_url: document.getElementById('video-ai-thumb').value,
+                thumbnail_url: convertImageUrl(rawThumb) || rawThumb,
                 description: document.getElementById('video-ai-desc').value
             };
 

@@ -108,11 +108,20 @@ async function fetchBookedSlots() {
         const today = new Date().toISOString().split('T')[0];
         const { data, error } = await window.supabaseClient
             .from('reservations')
-            .select('horaires')
+            .select('horaires, statut, created_at')
             .in('statut', ['paye', 'payé', 'paid', 'confirme', 'confirmé', 'atribue', 'atribué', 'en_attente', 'termine', 'terminé', 'complete', 'complète']);
         
         let blocked = [];
+        const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000);
+
         (data || []).forEach(res => {
+            const s = String(res.statut || '').toLowerCase();
+            // Ignorer les réservations en_attente abandonnées depuis plus de 30 minutes
+            if (s === 'en_attente' && res.created_at) {
+                const createdAt = new Date(res.created_at);
+                if (createdAt < thirtyMinsAgo) return;
+            }
+
             if (res.horaires) {
                 Object.keys(res.horaires).forEach(key => {
                     const slots = res.horaires[key]; 

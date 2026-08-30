@@ -52,6 +52,16 @@ DO $$ BEGIN
   END IF;
 END $$;
 
+-- Permettre la suppression des réservations (pour l'admin / cleanup)
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'reservations' AND policyname = 'Allow all delete'
+  ) THEN
+    CREATE POLICY "Allow all delete" ON public.reservations FOR DELETE USING (true);
+  END IF;
+END $$;
+
 -- ✅ IMPORTANT: Permettre aux freelancers authentifiés de GÉRER les services
 -- Sans ces politiques, INSERT/UPDATE/DELETE sur services sont bloqués!
 DO $$ BEGIN
