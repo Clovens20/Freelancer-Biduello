@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Katalòg Videyo AI - DJ Innovations">
+    <title>Vidéo AI - DJ Innovations</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/v2.css">
+    
+    <!-- Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        .ai-hero {
+            padding: 120px 0 60px;
+            text-align: center;
+            background: linear-gradient(to bottom, rgba(186, 117, 23, 0.05) 0%, var(--bg) 100%);
+        }
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 40px 0 80px;
+        }
+        .video-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-xl);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .video-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .video-thumb {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border);
+        }
+        .video-thumb-placeholder {
+            width: 100%;
+            height: 180px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .video-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .video-category {
+            font-size: 0.75rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .video-title {
+            font-size: 1.2rem;
+            color: var(--text);
+            margin-bottom: 10px;
+            font-family: 'DM Serif Display', serif;
+        }
+        .video-desc {
+            font-size: 0.9rem;
+            color: var(--text-2);
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+        .video-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+        .video-price {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .cat-filters {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .cat-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .cat-btn:hover, .cat-btn.active {
+            background: rgba(186, 117, 23, 0.1);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <header id="site-header">
+        <div class="container">
+            <nav>
+                <div class="logo-wrap">
+                    <a href="index.html">
+                        <img src="assets/logo.png" alt="DJ Innovations Logo" id="main-logo" onerror="this.src='https://placehold.co/150x50/0a0a0a/BA7517?text=DJ+Innovations'">
+                    </a>
+                </div>
+                <div class="nav-links" id="nav-links">
+                    <a href="index.html#hero-section" class="nav-link">Akey</a>
+                    <a href="index.html#avant-propos" class="nav-link">Ekspè a</a>
+                    <a href="videos-ai.html" class="nav-link" style="color: var(--accent); font-weight: bold;">🎬 Vidéo AI</a>
+                    <a href="reservation.html" class="btn btn-sm primary gold">Kòmanse Kounye a</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="ai-hero">
+        <div class="container">
+            <span class="section-eyebrow" data-animate="fade-up">✦ Kreyatè Kontni</span>
+            <h1 data-animate="fade-up">Katalòg <span class="gradient-text">Vidéo AI</span></h1>
+            <p style="max-width: 600px; margin: 20px auto; color: var(--text-2);" data-animate="fade-up">
+                Achte videyo ki pwodui avèk entèlijans atifisyèl pou ranfòse rezo sosyal ou yo. 
+                Peye yon sèl fwa epi telechaje videyo a imedyatman.
+            </p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="cat-filters" id="cat-filters" data-animate="fade-up">
+            <button class="cat-btn active" data-cat="all">Tout Kategori</button>
+            <!-- Categories injected by JS -->
+        </div>
+
+        <div class="video-grid" id="video-grid">
+            <div style="text-align:center; width:100%; color:var(--text-2); grid-column: 1 / -1; padding: 40px;">
+                ⏳ L ap chaje videyo yo...
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Peman Vidéo -->
+    <div id="video-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100000; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px;">
+        <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 30px; width: 100%; max-width: 450px; position: relative;">
+            <button onclick="closeVideoModal()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            <h3 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 10px;">Achte Videyo Sa</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Antre imèl ou anba a. N ap voye lyen videyo a ba ou dirèkteman nan imèl sa apre ou fin peye.</p>
+            
+            <div style="background: rgba(186, 117, 23, 0.05); padding: 15px; border-radius: 8px; border: 1px solid var(--border-gold); margin-bottom: 20px;">
+                <div id="modal-video-title" style="font-weight: bold; margin-bottom: 5px;">Tit Videyo</div>
+                <div id="modal-video-price" style="color: var(--accent); font-weight: bold; font-size: 1.2rem;">$0.00</div>
+            </div>
+
+            <form id="form-buy-video" onsubmit="submitBuyVideo(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                <input type="hidden" id="buy-video-id">
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Imèl ou *</label>
+                    <input type="email" id="buy-email" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white;" placeholder="adrès@imel.com">
+                </div>
+                <button type="submit" id="btn-submit-buy" class="btn primary gold" style="margin-top: 10px; width: 100%;">Kontinye nan Peman an →</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer" style="margin-top: 60px;">
+        <div class="container">
+            <div class="footer-grid-v2">
+                <div class="footer-col footer-brand-col">
+                    <img src="assets/logo.png" alt="Logo" class="footer-logo">
+                    <p class="footer-tagline">Siksè ou se priyorite nou.</p>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-col-title">Navigasyon</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Akey</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-col-title">Sèvis</h4>
+                    <ul class="footer-links">
+                        <li><a href="videos-ai.html">Vidéo AI</a></li>
+                        <li><a href="reservation.html">Kòmanse</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-footer">
+            <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
+                <p>© 2026 DJ Innovations.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast-container" class="toast-container"></div>
+    <script src="js/supabase.js"></script>
+    <script src="js/video-ai.js"></script>
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(el => {
+                if (el.isIntersecting) {
+                    el.target.classList.add('visible');
+                    observer.unobserve(el.target);
+                }
+            });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 create schema if not exists nouveauprojet;
 
 -- Create landing_config table
-create table if not exists nouveauprojet.landing_config (
+create table if not exists public.landing_config (
     id int primary key default 1,
     hero_badge text default '🔥 Premium Coaching Digitale',
     hero_title text default 'Transfòme lide w an<br><span class="gradient-text">Siksè Dijital</span>',
@@ -17,11 +17,11 @@ create table if not exists nouveauprojet.landing_config (
 );
 
 -- Ensure only one row exists
-insert into nouveauprojet.landing_config (id) values (1) on conflict (id) do nothing;
+insert into public.landing_config (id) values (1) on conflict (id) do nothing;
 
 -- RLS
-alter table nouveauprojet.landing_config enable row level security;
-drop policy if exists "Piblik ka li landing_config" on nouveauprojet.landing_config;
-create policy "Piblik ka li landing_config" on nouveauprojet.landing_config for select using (true);
-drop policy if exists "Admin ka update landing_config" on nouveauprojet.landing_config;
-create policy "Admin ka update landing_config" on nouveauprojet.landing_config for update using (true);
+alter table public.landing_config enable row level security;
+drop policy if exists "Piblik ka li landing_config" on public.landing_config;
+create policy "Piblik ka li landing_config" on public.landing_config for select using (true);
+drop policy if exists "Admin ka update landing_config" on public.landing_config;
+create policy "Admin ka update landing_config" on public.landing_config for update using (true);

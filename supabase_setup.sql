@@ -3,7 +3,7 @@
 create schema if not exists nouveauprojet;
 
 -- Table for freelancers/coaches
-create table if not exists nouveauprojet.freelancers (
+create table if not exists public.freelancers (
     id uuid primary key default gen_random_uuid(),
     nom text not null,
     email text not null unique,
@@ -14,7 +14,7 @@ create table if not exists nouveauprojet.freelancers (
 );
 
 -- Table for services
-create table if not exists nouveauprojet.services (
+create table if not exists public.services (
     id uuid primary key default gen_random_uuid(),
     nom text not null,
     description text,
@@ -23,17 +23,17 @@ create table if not exists nouveauprojet.services (
     unite text default 'mwa',
     populaire boolean default false,
     actif boolean default true,
-    freelancer_id uuid references nouveauprojet.freelancers(id),
+    freelancer_id uuid references public.freelancers(id),
     video_url text,
     formation_links text[],
     created_at timestamp with time zone default now()
 );
 
 -- Table for reservations
-create table if not exists nouveauprojet.reservations (
+create table if not exists public.reservations (
     id uuid primary key default gen_random_uuid(),
     service_ids uuid[],
-    freelancer_id uuid references nouveauprojet.freelancers(id),
+    freelancer_id uuid references public.freelancers(id),
     prenom text not null,
     nom text not null,
     email text not null,
@@ -48,30 +48,30 @@ create table if not exists nouveauprojet.reservations (
 );
 
 -- RLS (Row Level Security)
-alter table nouveauprojet.freelancers enable row level security;
-alter table nouveauprojet.services enable row level security;
-alter table nouveauprojet.reservations enable row level security;
+alter table public.freelancers enable row level security;
+alter table public.services enable row level security;
+alter table public.reservations enable row level security;
 
 -- Policies
-drop policy if exists "Piblik ka wè sèvis yo" on nouveauprojet.services;
-create policy "Piblik ka wè sèvis yo" on nouveauprojet.services for select using (actif = true);
+drop policy if exists "Piblik ka wè sèvis yo" on public.services;
+create policy "Piblik ka wè sèvis yo" on public.services for select using (actif = true);
 
-drop policy if exists "Piblik ka wè freelancer yo" on nouveauprojet.freelancers;
-create policy "Piblik ka wè freelancer yo" on nouveauprojet.freelancers for select using (actif = true);
+drop policy if exists "Piblik ka wè freelancer yo" on public.freelancers;
+create policy "Piblik ka wè freelancer yo" on public.freelancers for select using (actif = true);
 
-drop policy if exists "Piblik ka mete rezèvasyon" on nouveauprojet.reservations;
-create policy "Piblik ka mete rezèvasyon" on nouveauprojet.reservations for insert with check (true);
+drop policy if exists "Piblik ka mete rezèvasyon" on public.reservations;
+create policy "Piblik ka mete rezèvasyon" on public.reservations for insert with check (true);
 
-drop policy if exists "Kliyan ka wè rezèvasyon yo" on nouveauprojet.reservations;
-create policy "Kliyan ka wè rezèvasyon yo" on nouveauprojet.reservations for select using (true);
+drop policy if exists "Kliyan ka wè rezèvasyon yo" on public.reservations;
+create policy "Kliyan ka wè rezèvasyon yo" on public.reservations for select using (true);
 
 -- Initial Data
-insert into nouveauprojet.freelancers (nom, email, domaine, discount_percent)
+insert into public.freelancers (nom, email, domaine, discount_percent)
 values ('DJ Innovation Team', 'contact@djinnovations.com', 'marketing', 15)
 on conflict (email) do nothing;
 
-insert into nouveauprojet.services (nom, description, fonctionnalites, prix, populaire, freelancer_id, video_url)
+insert into public.services (nom, description, fonctionnalites, prix, populaire, freelancer_id, video_url)
 values 
-('Kreye paj Facebook ak TikTok monetize', 'Coaching 1 mwa. Config TikTok Dev, paj pwofesyonèl e SEO de baz.', ARRAY['6 èdtan pa semèn', 'Config TikTok Dev', 'Paj FB Pwofesyonèl', 'SEO Baz'], 105, true, (select id from nouveauprojet.freelancers limit 1), 'https://www.youtube.com/embed/dQw4w9WgXcQ'),
-('Gere piblisite pou biznis ou', 'Kanpay piblisite Ads Manager, Facebook Ads ak Instagram Ads.', ARRAY['6 èdtan pa semèn', 'Facebook Ads', 'Instagram Ads', 'Analiz rezilta'], 105, false, (select id from nouveauprojet.freelancers limit 1), 'https://www.youtube.com/embed/dQw4w9WgXcQ'),
-('Coaching pèsonèl sou Facebook', 'Aprann domine algoritm lan. Coaching dirèk e estrateji kontni.', ARRAY['6 èdtan pa semèn', 'Estrateji kontni', 'Sipò dirèk'], 105, false, (select id from nouveauprojet.freelancers limit 1), 'https://www.youtube.com/embed/dQw4w9WgXcQ');
+('Kreye paj Facebook ak TikTok monetize', 'Coaching 1 mwa. Config TikTok Dev, paj pwofesyonèl e SEO de baz.', ARRAY['6 èdtan pa semèn', 'Config TikTok Dev', 'Paj FB Pwofesyonèl', 'SEO Baz'], 105, true, (select id from public.freelancers limit 1), 'https://www.youtube.com/embed/dQw4w9WgXcQ'),
+('Gere piblisite pou biznis ou', 'Kanpay piblisite Ads Manager, Facebook Ads ak Instagram Ads.', ARRAY['6 èdtan pa semèn', 'Facebook Ads', 'Instagram Ads', 'Analiz rezilta'], 105, false, (select id from public.freelancers limit 1), 'https://www.youtube.com/embed/dQw4w9WgXcQ'),
+('Coaching pèsonèl sou Facebook', 'Aprann domine algoritm lan. Coaching dirèk e estrateji kontni.', ARRAY['6 èdtan pa semèn', 'Estrateji kontni', 'Sipò dirèk'], 105, false, (select id from public.freelancers limit 1), 'https://www.youtube.com/embed/dQw4w9WgXcQ');

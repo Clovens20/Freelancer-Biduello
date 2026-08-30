@@ -1209,6 +1209,9 @@
                     <button class="nav-item" onclick="showTab('svc', this)" data-tab="svc">
                         <span class="nav-icon">💼</span> Katalòg Sèvis
                     </button>
+                    <button class="nav-item" onclick="showTab('videoai', this)" data-tab="videoai">
+                        <span class="nav-icon">🎬</span> Vidéo AI
+                    </button>
                     <p class="sidebar-label">Paj la</p>
                     <button class="nav-item" onclick="showTab('landing', this)" data-tab="landing">
                         <span class="nav-icon">✏️</span> Kontni Paj Akey
@@ -1369,6 +1372,40 @@
                         <div class="empty-state">
                             <div class="empty-icon">💼</div>
                             <p>L ap chaje sèvis yo...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Video AI -->
+                <div class="tab-pane" id="tab-videoai">
+                    <div class="pane-header">
+                        <div>
+                            <h2>Katalòg ak Kòmand Vidéo AI</h2>
+                            <p>Ajoute nouvo videyo epi jere acha kliyan yo fè nan modil entèlijans atifisyèl la.</p>
+                        </div>
+                        <button class="btn btn-gold btn-sm" onclick="openAddVideoModal()">+ Ajoute Videyo</button>
+                    </div>
+                    
+                    <div style="display:flex; gap:10px; margin-bottom: 20px;">
+                        <button class="btn btn-ghost active" id="btn-toggle-video-list" onclick="toggleVideoAITab('list')">Lis Videyo yo</button>
+                        <button class="btn btn-ghost" id="btn-toggle-video-orders" onclick="toggleVideoAITab('orders')">Acha & Kòmand yo</button>
+                    </div>
+
+                    <div id="video-ai-list-section">
+                        <div class="svc-grid" id="admin-video-list">
+                            <div class="empty-state">
+                                <div class="empty-icon">🎬</div>
+                                <p>L ap chaje videyo yo...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="video-ai-orders-section" style="display:none;">
+                        <div class="rez-grid" id="admin-video-orders">
+                            <div class="empty-state">
+                                <div class="empty-icon">🛒</div>
+                                <p>L ap chaje kòmand yo...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4332,6 +4369,214 @@
                 loadSupportMessages();
             }
         }
+    </script>
+    <!-- ─── MODAL ADD/EDIT VIDEO AI ─── -->
+    <div class="modal-overlay" id="modal-video-ai">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeAddVideoModal()">&times;</button>
+            <h2 style="margin-bottom: 20px;" id="modal-video-ai-title">Ajoute yon Nouvo Videyo</h2>
+            <form id="form-video-ai" onsubmit="submitVideoAI(event)">
+                <input type="hidden" id="video-ai-id">
+                <div class="field-group">
+                    <label class="dash-label">Tit Videyo a *</label>
+                    <input type="text" id="video-ai-title" class="dash-input" required>
+                </div>
+                <div class="grid-2">
+                    <div class="field-group">
+                        <label class="dash-label">Kategori *</label>
+                        <input type="text" id="video-ai-cat" class="dash-input" required placeholder="Eks: Fwi, Machin">
+                    </div>
+                    <div class="field-group">
+                        <label class="dash-label">Pri (USD) *</label>
+                        <input type="number" step="0.01" id="video-ai-price" class="dash-input" required>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label class="dash-label">Lyen Videyo a (Google Drive, elatriye) *</label>
+                    <input type="text" id="video-ai-url" class="dash-input" required>
+                </div>
+                <div class="field-group">
+                    <label class="dash-label">Lyen Imaj Demonstrasyon (Opsyonèl)</label>
+                    <input type="text" id="video-ai-thumb" class="dash-input">
+                </div>
+                <div class="field-group">
+                    <label class="dash-label">Deskripsyon</label>
+                    <textarea id="video-ai-desc" class="dash-textarea" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-gold btn-wide" id="btn-save-video-ai" style="margin-top: 10px;">
+                    Anrejistre Videyo a
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Jesyon Video AI -->
+    <script>
+        // Fonksyon pou navige nan onglet (tabs) admin vidéo AI yo
+        function toggleVideoAITab(tab) {
+            if (tab === 'list') {
+                document.getElementById('video-ai-list-section').style.display = 'block';
+                document.getElementById('video-ai-orders-section').style.display = 'none';
+                document.getElementById('btn-toggle-video-list').classList.add('active');
+                document.getElementById('btn-toggle-video-orders').classList.remove('active');
+                loadVideoAIList();
+            } else {
+                document.getElementById('video-ai-list-section').style.display = 'none';
+                document.getElementById('video-ai-orders-section').style.display = 'block';
+                document.getElementById('btn-toggle-video-list').classList.remove('active');
+                document.getElementById('btn-toggle-video-orders').classList.add('active');
+                loadVideoAIOrders();
+            }
+        }
+
+        // Louvri/Fèmen modal pou ajoute/modifye
+        function openAddVideoModal(editData = null) {
+            document.getElementById('form-video-ai').reset();
+            document.getElementById('video-ai-id').value = '';
+            document.getElementById('modal-video-ai-title').textContent = 'Ajoute yon Nouvo Videyo';
+            document.getElementById('btn-save-video-ai').textContent = 'Anrejistre Videyo a';
+
+            if (editData) {
+                document.getElementById('modal-video-ai-title').textContent = 'Modifye Videyo a';
+                document.getElementById('btn-save-video-ai').textContent = 'Mete a jou';
+                document.getElementById('video-ai-id').value = editData.id;
+                document.getElementById('video-ai-title').value = editData.title || '';
+                document.getElementById('video-ai-cat').value = editData.category || '';
+                document.getElementById('video-ai-price').value = editData.price || 0;
+                document.getElementById('video-ai-url').value = editData.video_url || '';
+                document.getElementById('video-ai-thumb').value = editData.thumbnail_url || '';
+                document.getElementById('video-ai-desc').value = editData.description || '';
+            }
+
+            document.getElementById('modal-video-ai').classList.add('open');
+        }
+
+        function closeAddVideoModal() {
+            document.getElementById('modal-video-ai').classList.remove('open');
+        }
+
+        // Chaje lis videyo yo
+        async function loadVideoAIList() {
+            const container = document.getElementById('admin-video-list');
+            container.innerHTML = '<div class="empty-state"><p>L ap chaje videyo yo...</p></div>';
+
+            const { data, error } = await supabase.from('videos_ai').select('*').order('created_at', { ascending: false });
+            
+            if (error) {
+                container.innerHTML = '<div class="empty-state"><p>Erè lè n ap chaje videyo yo.</p></div>';
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Pa gen videyo ki anrejistre poko.</p></div>';
+                return;
+            }
+
+            container.innerHTML = data.map(v => `
+                <div class="svc-card">
+                    <div style="font-size: 0.8rem; color: var(--primary); text-transform: uppercase;">${v.category}</div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 5px;">${v.title}</h3>
+                    <div style="color: var(--accent); font-weight: bold; margin-bottom: 15px;">$${v.price.toFixed(2)} USD</div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-ghost btn-sm" onclick='openAddVideoModal(${JSON.stringify(v).replace(/'/g, "\\'")})'>✏️ Modifye</button>
+                        <button class="btn btn-ghost btn-sm" style="color:var(--danger); border-color:rgba(239, 68, 68, 0.2);" onclick="deleteVideoAI('${v.id}')">🗑️ Siprime</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Chaje lis kòmand yo
+        async function loadVideoAIOrders() {
+            const container = document.getElementById('admin-video-orders');
+            container.innerHTML = '<div class="empty-state"><p>L ap chaje kòmand yo...</p></div>';
+
+            const { data, error } = await supabase.from('videos_ai_orders').select('*, videos_ai(title)').order('created_at', { ascending: false });
+            
+            if (error) {
+                container.innerHTML = '<div class="empty-state"><p>Erè lè n ap chaje kòmand yo.</p></div>';
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Pa gen okenn acha videyo ankò.</p></div>';
+                return;
+            }
+
+            container.innerHTML = data.map(o => `
+                <div class="rez-card" style="border-left: 3px solid ${o.payment_status === 'paye' ? 'var(--success)' : 'var(--warning)'}">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span class="rez-status ${o.payment_status === 'paye' ? 'paye' : 'en_attente'}">${o.payment_status.toUpperCase()}</span>
+                        <span style="color:var(--text-2); font-size:0.8rem;">${new Date(o.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div class="rez-client" style="margin-top: 10px;">👤 ${o.user_email}</div>
+                    <div class="rez-service" style="margin-top: 5px; color: var(--primary);">🎬 ${o.videos_ai ? o.videos_ai.title : 'Videyo Siprime'}</div>
+                    <div style="margin-top: 10px; font-weight: bold;">Montan Peye: $${o.amount_paid.toFixed(2)}</div>
+                    ${o.download_link_sent ? '<div style="margin-top: 5px; color: var(--success); font-size: 0.8rem;">✅ Imèl ak lyen voye</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // Anrejistre / Modifye videyo
+        async function submitVideoAI(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-save-video-ai');
+            const originalText = btn.textContent;
+            btn.textContent = 'L ap anrejistre...';
+            btn.disabled = true;
+
+            const id = document.getElementById('video-ai-id').value;
+            const payload = {
+                title: document.getElementById('video-ai-title').value,
+                category: document.getElementById('video-ai-cat').value,
+                price: parseFloat(document.getElementById('video-ai-price').value),
+                video_url: document.getElementById('video-ai-url').value,
+                thumbnail_url: document.getElementById('video-ai-thumb').value,
+                description: document.getElementById('video-ai-desc').value
+            };
+
+            let res;
+            if (id) {
+                res = await supabase.from('videos_ai').update(payload).eq('id', id);
+            } else {
+                res = await supabase.from('videos_ai').insert([payload]);
+            }
+
+            btn.textContent = originalText;
+            btn.disabled = false;
+
+            if (res.error) {
+                showToast("Erè lè n ap anrejistre videyo a.", "error");
+            } else {
+                showToast("Videyo a byen anrejistre!", "success");
+                closeAddVideoModal();
+                loadVideoAIList();
+            }
+        }
+
+        // Siprime videyo
+        async function deleteVideoAI(id) {
+            if (confirm("Èske ou sèten ou vle siprime videyo sa a?")) {
+                const { error } = await supabase.from('videos_ai').delete().eq('id', id);
+                if (error) {
+                    showToast("Erè lè n ap siprime videyo a.", "error");
+                } else {
+                    showToast("Videyo a byen siprime.", "success");
+                    loadVideoAIList();
+                }
+            }
+        }
+
+        // Load list when tab opens
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hook up into the existing showTab logic if possible, or trigger explicitly if needed
+            const originalShowTab = window.showTab;
+            window.showTab = function(tabId, btnElement) {
+                if (originalShowTab) originalShowTab(tabId, btnElement);
+                if (tabId === 'videoai') {
+                    loadVideoAIList();
+                }
+            }
+        });
     </script>
 </body>
 

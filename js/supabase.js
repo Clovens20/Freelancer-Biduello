@@ -3,8 +3,8 @@
  * Connexion au nouveau projet : uvgntflbylfbdfszthsa
  */
 
-const supabaseUrl = 'https://uvgntflbylfbdfszthsa.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2Z250ZmxieWxmYmRmc3p0aHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4Mzc1OTQsImV4cCI6MjA5MDQxMzU5NH0.6ROSyoPIrMfF9hL9YOla_v1phAEPQ8Ck-hii_p_7a9A';
+const supabaseUrl = 'https://rwspouckgvdmdxhswfsp.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3c3BvdWNrZ3ZkbWR4aHN3ZnNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMzM5NTcsImV4cCI6MjEwMzYwOTk1N30.MefB-MqkOGBETG8Q6e6CVBlkzFiZG5kqssCoJwj6atU';
 
 // Initialisation globale avec le schéma par défaut 'public'
 const { createClient } = supabase;
