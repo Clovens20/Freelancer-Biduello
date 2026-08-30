@@ -10,6 +10,7 @@ create table if not exists public.freelancers (
     domaine text,
     actif boolean default true,
     discount_percent numeric default 10,
+    photo_url text,
     created_at timestamp with time zone default now()
 );
 

@@ -10,5 +10,8 @@
   "devDependencies": {
     "browser-sync": "^3.0.4",
     "supabase": "^2.84.4"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.4"
   }
 }
