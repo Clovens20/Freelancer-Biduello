@@ -109,8 +109,7 @@ async function fetchBookedSlots() {
         const { data, error } = await window.supabaseClient
             .from('reservations')
             .select('horaires')
-            .in('statut', ['paye', 'payé', 'paid', 'confirme', 'confirmé', 'atribue', 'atribué', 'en_attente', 'termine', 'terminé', 'complete', 'complète'])
-            .gte('valide_juska', today); // ✅ SELMAN KI POKO EKSPIRÉ
+            .in('statut', ['paye', 'payé', 'paid', 'confirme', 'confirmé', 'atribue', 'atribué', 'en_attente', 'termine', 'terminé', 'complete', 'complète']);
         
         let blocked = [];
         (data || []).forEach(res => {
@@ -886,9 +885,7 @@ function setupEventListeners() {
                     gateway: state.gateway,
                     rabais: state.urlDiscount,
                     qty_months: state.qtyMonths,
-                    pas_de_creneaux: totalSlots === 0,
-                    timezone_offset: state.userOffset,
-                    timezone_name: document.getElementById('user-timezone')?.options[document.getElementById('user-timezone')?.selectedIndex]?.text || 'GMT' + state.userOffset
+                    pas_de_creneaux: totalSlots === 0
                 };
                 const res = await fetch(`${window.supabaseClient.supabaseUrl}/functions/v1/create-checkout-session`, {
                     method: 'POST',
