@@ -3190,8 +3190,12 @@
 
             allPaidReservations = displayRez; // ✅ Tout sa kap parèt nan lis/agenda
 
-            const revenue = confirmedRez.reduce((acc, r) => acc + (r.montant_total || 0), 0);
-            document.getElementById('stat-revenue').textContent = `$${revenue.toLocaleString()}`;
+            const serviceRev = confirmedRez.reduce((acc, r) => acc + (r.montant_total || 0), 0);
+            const { data: vPaidOrders } = await sb.from('videos_ai_orders').select('amount_paid').in('payment_status', ['paye', 'completed']);
+            const videoRev = (vPaidOrders || []).reduce((acc, v) => acc + (v.amount_paid || 10), 0);
+            const totalRevenue = serviceRev + videoRev;
+
+            document.getElementById('stat-revenue').textContent = `$${totalRevenue.toLocaleString()}`;
             document.getElementById('stat-total').textContent = (allRez || []).length;
             document.getElementById('stat-paid').textContent = confirmedRez.length;
 
@@ -4530,9 +4534,32 @@
             document.getElementById('modal-video-ai').classList.remove('open');
         }
 
+        // Bascule ant Lis Videyo ak Kòmand yo
+        function toggleVideoAITab(subTab) {
+            const btnList = document.getElementById('btn-toggle-video-list');
+            const btnOrders = document.getElementById('btn-toggle-video-orders');
+            const secList = document.getElementById('video-ai-list-section');
+            const secOrders = document.getElementById('video-ai-orders-section');
+
+            if (subTab === 'orders') {
+                if (btnList) btnList.classList.remove('active');
+                if (btnOrders) btnOrders.classList.add('active');
+                if (secList) secList.style.display = 'none';
+                if (secOrders) secOrders.style.display = 'block';
+                loadVideoAIOrders();
+            } else {
+                if (btnOrders) btnOrders.classList.remove('active');
+                if (btnList) btnList.classList.add('active');
+                if (secOrders) secOrders.style.display = 'none';
+                if (secList) secList.style.display = 'block';
+                loadVideoAIList();
+            }
+        }
+
         // Chaje lis videyo yo
         async function loadVideoAIList() {
             const container = document.getElementById('admin-video-list');
+            if (!container) return;
             container.innerHTML = '<div class="empty-state"><p>L ap chaje videyo yo...</p></div>';
 
             const { data, error } = await window.supabaseClient.from('videos_ai').select('*').order('created_at', { ascending: false });
@@ -4571,11 +4598,13 @@
         // Chaje lis kòmand yo
         async function loadVideoAIOrders() {
             const container = document.getElementById('admin-video-orders');
+            if (!container) return;
             container.innerHTML = '<div class="empty-state"><p>L ap chaje kòmand yo...</p></div>';
 
             const { data, error } = await window.supabaseClient.from('videos_ai_orders').select('*, videos_ai(title)').order('created_at', { ascending: false });
             
             if (error) {
+                console.error("Erè kòmand videyo:", error);
                 container.innerHTML = '<div class="empty-state"><p>Erè lè n ap chaje kòmand yo.</p></div>';
                 return;
             }
@@ -4585,18 +4614,24 @@
                 return;
             }
 
-            container.innerHTML = data.map(o => `
-                <div class="rez-card" style="border-left: 3px solid ${o.payment_status === 'paye' ? 'var(--success)' : 'var(--warning)'}">
-                    <div style="display:flex; justify-content:space-between;">
-                        <span class="rez-status ${o.payment_status === 'paye' ? 'paye' : 'en_attente'}">${o.payment_status.toUpperCase()}</span>
-                        <span style="color:var(--text-2); font-size:0.8rem;">${new Date(o.created_at).toLocaleDateString()}</span>
+            container.innerHTML = data.map(o => {
+                const isPaid = o.payment_status === 'paye' || o.payment_status === 'completed';
+                const statusLabel = isPaid ? 'PAYE ✅' : 'EN ATTENTE ⏳';
+                const statusColor = isPaid ? 'var(--success)' : 'var(--warning)';
+                const dateStr = new Date(o.created_at).toLocaleString();
+
+                return `
+                <div class="rez-card" style="border-left: 4px solid ${statusColor}">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="rez-badge" style="background: ${isPaid ? 'rgba(34,197,94,0.1)' : 'rgba(234,179,8,0.1)'}; color: ${statusColor}; border-color: ${statusColor};">${statusLabel}</span>
+                        <span style="color:var(--text-2); font-size:0.8rem;">🗓️ ${dateStr}</span>
                     </div>
-                    <div class="rez-client" style="margin-top: 10px;">👤 ${o.user_email}</div>
-                    <div class="rez-service" style="margin-top: 5px; color: var(--primary);">🎬 ${o.videos_ai ? o.videos_ai.title : 'Videyo Siprime'}</div>
-                    <div style="margin-top: 10px; font-weight: bold;">Montan Peye: $${o.amount_paid.toFixed(2)}</div>
-                    ${o.download_link_sent ? '<div style="margin-top: 5px; color: var(--success); font-size: 0.8rem;">✅ Imèl ak lyen voye</div>' : ''}
+                    <div class="rez-client" style="margin-top: 10px; font-weight: 600; font-size: 1rem;">👤 Kliyan: ${o.user_email}</div>
+                    <div class="rez-service" style="margin-top: 5px; color: var(--primary); font-weight: bold;">🎬 ${o.videos_ai ? o.videos_ai.title : 'Videyo AI'}</div>
+                    <div style="margin-top: 8px; font-size: 1.1rem; color: var(--text);">💰 Montan: <strong>$${(o.amount_paid || 10).toFixed(2)} USD</strong></div>
+                    ${o.download_link_sent ? '<div style="margin-top: 6px; color: var(--success); font-size: 0.85rem;">✅ Imèl ak lyen telechajman voye bay kliyan an</div>' : '<div style="margin-top: 6px; color: var(--text-3); font-size: 0.85rem;">⏳ Poko konfime pa imèl</div>'}
                 </div>
-            `).join('');
+            `;}).join('');
         }
 
         // Anrejistre / Modifye videyo
@@ -4652,12 +4687,12 @@
 
         // Load list when tab opens
         document.addEventListener('DOMContentLoaded', () => {
-            // Hook up into the existing showTab logic if possible, or trigger explicitly if needed
             const originalShowTab = window.showTab;
             window.showTab = function(tabId, btnElement) {
                 if (originalShowTab) originalShowTab(tabId, btnElement);
                 if (tabId === 'videoai') {
                     loadVideoAIList();
+                    loadVideoAIOrders();
                 }
             }
         });

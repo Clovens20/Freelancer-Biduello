@@ -84,32 +84,20 @@
             try {
                 // --- VIDEO AI ORDER CONFIRMATION ---
                 if (videoSessionId || videoOrderId) {
-                    let vOrder = null;
-                    const orderQuery = videoOrderId 
-                        ? sb.from('videos_ai_orders').update({ payment_status: 'paye' }).eq('id', videoOrderId).select('*, videos_ai(title, video_url)').maybeSingle()
-                        : sb.from('videos_ai_orders').update({ payment_status: 'paye' }).eq('stripe_session_id', videoSessionId).select('*, videos_ai(title, video_url)').maybeSingle();
+                    const { data: vRes, error: vErr } = await sb.functions.invoke('verify-video-payment', {
+                        body: { video_order_id: videoOrderId, video_session_id: videoSessionId }
+                    });
 
-                    const { data, error } = await orderQuery;
-                    vOrder = data;
-
-                    if (!vOrder) {
-                        const fallbackQuery = videoOrderId 
-                            ? sb.from('videos_ai_orders').select('*, videos_ai(title, video_url)').eq('id', videoOrderId).maybeSingle()
-                            : sb.from('videos_ai_orders').select('*, videos_ai(title, video_url)').eq('stripe_session_id', videoSessionId).maybeSingle();
-                        const { data: fbData } = await fallbackQuery;
-                        vOrder = fbData;
-                    }
-                    
-                    if (vOrder) {
-                        const videoTitle = vOrder.videos_ai ? vOrder.videos_ai.title : 'Vidéo AI';
-                        const videoUrl = vOrder.videos_ai ? vOrder.videos_ai.video_url : null;
+                    if (vRes && vRes.paid) {
+                        const videoTitle = vRes.title || 'Vidéo AI';
+                        const videoUrl = vRes.video_url || null;
 
                         document.getElementById('main-success-message').innerText = 
-                            `Mèsi! Peman ou pou videyo AI a byen pase. Lyen pou telechaje a voye nan imèl ou (${vOrder.user_email}).`;
+                            `Mèsi! Peman ou pou videyo AI a byen pase. Lyen pou telechaje a voye nan imèl ou (${vRes.user_email}).`;
                         document.getElementById('service-name').innerText = `🎬 Vidéo AI: ${videoTitle}`;
                         document.getElementById('freelancer-name').innerText = 'DJ Innovations';
 
-                        let noticeHtml = `<p>✅ Lyen videyo a voye nan imèl <strong>${vOrder.user_email}</strong>. Si ou pa wè l nan bwat prensipal la, tanpri verifye dosye Spams / Courrier indésirable ou.</p>`;
+                        let noticeHtml = `<p>✅ Lyen videyo a voye nan imèl <strong>${vRes.user_email}</strong>. Si ou pa wè l nan bwat prensipal la, tanpri verifye dosye Spams / Courrier indésirable ou.</p>`;
 
                         if (videoUrl) {
                             noticeHtml += `
@@ -122,13 +110,12 @@
                         }
 
                         document.getElementById('contact-notice').innerHTML = noticeHtml;
-
-                        // Trigger Edge Function to send video email
-                        const vKey = 'video_email_sent_' + vOrder.id;
-                        if (!localStorage.getItem(vKey)) {
-                            localStorage.setItem(vKey, 'true');
-                            await sb.functions.invoke('send-video-email', { body: { video_order_id: vOrder.id } });
-                        }
+                    } else {
+                        document.getElementById('main-success-message').innerText = '⚠️ Peman an poko konfime.';
+                        document.getElementById('service-name').innerText = 'Vidéo AI';
+                        document.getElementById('freelancer-name').innerText = 'DJ Innovations';
+                        document.getElementById('contact-notice').innerHTML = 
+                            `<p style="color: var(--danger); font-weight: bold;">⚠️ Peman an poko konfime nan sistèm lan. Tanpri finalize peman an sou MonCash oswa Kat Kredi pou w ka resevwa aksè ak videyo yo.</p>`;
                     }
                     return;
                 }
