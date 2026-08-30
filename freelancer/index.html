@@ -4470,7 +4470,7 @@
             const container = document.getElementById('admin-video-list');
             container.innerHTML = '<div class="empty-state"><p>L ap chaje videyo yo...</p></div>';
 
-            const { data, error } = await supabase.from('videos_ai').select('*').order('created_at', { ascending: false });
+            const { data, error } = await window.supabaseClient.from('videos_ai').select('*').order('created_at', { ascending: false });
             
             if (error) {
                 container.innerHTML = '<div class="empty-state"><p>Erè lè n ap chaje videyo yo.</p></div>';
@@ -4500,7 +4500,7 @@
             const container = document.getElementById('admin-video-orders');
             container.innerHTML = '<div class="empty-state"><p>L ap chaje kòmand yo...</p></div>';
 
-            const { data, error } = await supabase.from('videos_ai_orders').select('*, videos_ai(title)').order('created_at', { ascending: false });
+            const { data, error } = await window.supabaseClient.from('videos_ai_orders').select('*, videos_ai(title)').order('created_at', { ascending: false });
             
             if (error) {
                 container.innerHTML = '<div class="empty-state"><p>Erè lè n ap chaje kòmand yo.</p></div>';
@@ -4546,9 +4546,9 @@
 
             let res;
             if (id) {
-                res = await supabase.from('videos_ai').update(payload).eq('id', id);
+                res = await window.supabaseClient.from('videos_ai').update(payload).eq('id', id);
             } else {
-                res = await supabase.from('videos_ai').insert([payload]);
+                res = await window.supabaseClient.from('videos_ai').insert([payload]);
             }
 
             btn.textContent = originalText;
@@ -4566,7 +4566,7 @@
         // Siprime videyo
         async function deleteVideoAI(id) {
             if (confirm("Èske ou sèten ou vle siprime videyo sa a?")) {
-                const { error } = await supabase.from('videos_ai').delete().eq('id', id);
+                const { error } = await window.supabaseClient.from('videos_ai').delete().eq('id', id);
                 if (error) {
                     showToast("Erè lè n ap siprime videyo a.", "error");
                 } else {
